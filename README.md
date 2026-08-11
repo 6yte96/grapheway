@@ -357,4 +357,4 @@ bun run examples/simple-site/demo.ts  # run the agent client against it
 
 ## License
 
-MIT
+GPL-3.0

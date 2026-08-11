@@ -10,7 +10,7 @@
   },
   "files": ["dist", "src"],
   "keywords": ["agent", "cli", "llms.txt", "agents.txt", "robots.txt", "geo", "audit"],
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "grapheway": "workspace:*",
     "@grapheway/web": "workspace:*",

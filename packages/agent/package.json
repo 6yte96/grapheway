@@ -17,7 +17,7 @@
   },
   "files": ["dist", "src", "skill"],
   "keywords": ["agent", "mcp", "llms.txt", "agents.txt", "client", "ai", "llm", "skill"],
-  "license": "MIT",
+  "license": "GPL-3.0",
   "scripts": {
     "test": "bun test"
   },

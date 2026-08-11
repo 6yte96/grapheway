@@ -13,7 +13,7 @@
   },
   "files": ["dist", "src"],
   "keywords": ["agent", "llms.txt", "agents.txt", "robots.txt", "sitemap", "geo"],
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "grapheway": "workspace:*"
   },

@@ -22,7 +22,7 @@
     "web",
     "native-access"
   ],
-  "license": "MIT",
+  "license": "GPL-3.0",
   "scripts": {
     "test": "bun test"
   }
