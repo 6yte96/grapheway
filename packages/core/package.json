@@ -1,0 +1,29 @@
+{
+  "name": "grapheway",
+  "version": "0.1.0",
+  "description": "Grapheway — the freeway for agents through your graph. Runtime core: graph model, discovery, manifest, JSON-LD. Zero deps.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": ["dist", "src"],
+  "keywords": [
+    "agent",
+    "knowledge-graph",
+    "mcp",
+    "graph",
+    "ai",
+    "llm",
+    "web",
+    "native-access"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "test": "bun test"
+  }
+}

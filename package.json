@@ -1,0 +1,24 @@
+{
+  "name": "grapheway-monorepo",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "example": "bun run examples/simple-site/server.ts",
+    "cli": "bun run packages/cli/src/cli.ts"
+  },
+  "engines": {
+    "bun": ">=1.0",
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}

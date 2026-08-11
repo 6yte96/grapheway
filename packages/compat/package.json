@@ -1,0 +1,23 @@
+{
+  "name": "@grapheway/compat",
+  "version": "0.1.0",
+  "description": "Optional legacy agent-discovery files (llms.txt, agents.txt, robots.txt, sitemap.xml) for grapheway. Fully decoupled from the runtime core — mount it only if you want these.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": ["dist", "src"],
+  "keywords": ["agent", "llms.txt", "agents.txt", "robots.txt", "sitemap", "geo"],
+  "license": "MIT",
+  "dependencies": {
+    "grapheway": "workspace:*"
+  },
+  "scripts": {
+    "test": "bun test"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@grapheway/agent",
+  "version": "0.1.0",
+  "description": "The agent-side of grapheway: a typed client for any grapheway-enabled site, a runnable stdio MCP server that turns any site's actions into MCP tools, and a SKILL.md for AI agents.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./skill/*": "./skill/*"
+  },
+  "bin": {
+    "grapheway-mcp": "./src/mcp-stdio.ts"
+  },
+  "files": ["dist", "src", "skill"],
+  "keywords": ["agent", "mcp", "llms.txt", "agents.txt", "client", "ai", "llm", "skill"],
+  "license": "MIT",
+  "scripts": {
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@grapheway/web": "workspace:*",
+    "@grapheway/compat": "workspace:*",
+    "grapheway": "workspace:*"
+  }
+}
