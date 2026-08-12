@@ -115,6 +115,29 @@ describe("graph protocol (/graph/v1)", () => {
     expect(json.edges[1].confidence).toBe("extracted");
     expect(json.edges[1].note).toContain("Getting Started");
   });
+
+  test("full graph dump exposes nodes, edges and version", async () => {
+    const { status, json } = await get("/graph/v1/graph");
+    expect(status).toBe(200);
+    expect(json.version).toBe(0);
+    expect(json.nodes.length).toBe(4);
+    expect(json.edges.length).toBe(3);
+    expect(json.nodes.some((n: any) => n.id === INSTALL)).toBe(true);
+    expect(json.edges.some((e: any) => e.source === INSTALL || e.target === INSTALL)).toBe(true);
+  });
+});
+
+describe("graph viewer (/graph)", () => {
+  test("serves the self-contained viewer HTML", async () => {
+    const { status, text } = await get("/graph");
+    expect(status).toBe(200);
+    expect(text).toContain("Graph Observatory");
+    expect(text).toContain("EventSource");
+    expect(text).toContain("/graph/v1/events");
+    // The embedded client must be a plain string — no leaked template
+    // interpolation markers from the String.raw container.
+    expect(text).not.toContain("${");
+  });
 });
 
 describe("realtime graph (patchGraph + SSE)", () => {

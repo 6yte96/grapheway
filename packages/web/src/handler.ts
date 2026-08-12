@@ -37,6 +37,7 @@ import {
   type KnowledgeGraph,
 } from "grapheway";
 import { createActionRunner } from "./actions.ts";
+import { VIEWER_HTML } from "./viewer.ts";
 import {
   buildSseStream,
   handleMcpMessage,
@@ -202,7 +203,9 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
             edges: "/graph/v1/edges?id=<node-id>&direction=out|in|both",
             search: "/graph/v1/search?q=<query>",
             path: "/graph/v1/path?from=<id>&to=<id>",
+            graph: "/graph/v1/graph",
             events: "/graph/v1/events",
+            viewer: "/graph",
           },
         });
       },
@@ -246,6 +249,16 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         if (!result) return json(404, { error: "No path between nodes", from, to });
         return json(200, { from, to, path: result.path, edges: result.edges });
       },
+    },
+    {
+      // Full graph dump — the viewer (and agents) get everything in one call.
+      match: (p, m) => p === "/graph/v1/graph" && m === "GET",
+      handler: () => json(200, { version: graphVersion, nodes: liveGraph.nodes, edges: liveGraph.edges }),
+    },
+    {
+      // The interactive graph viewer (self-contained HTML, zero deps).
+      match: (p, m) => p === "/graph" && m === "GET",
+      handler: () => respond(200, VIEWER_HTML, "text/html; charset=utf-8", { "cache-control": "no-store" }),
     },
     {
       // Realtime graph subscription (SSE): snapshot + every applied patch.

@@ -205,6 +205,7 @@ export async function probe(flags: ProbeFlags): Promise<void> {
   console.log(`Serving "${result.config.name}" as an agent surface:`);
   console.log(`  discovery    http://localhost:${p}/.well-known/agent`);
   console.log(`  graph        http://localhost:${p}/graph/v1`);
+  console.log(`  viewer       http://localhost:${p}/graph (interactive)`);
   console.log(`  events       http://localhost:${p}/graph/v1/events (realtime SSE)`);
   console.log(`  manifest     http://localhost:${p}/agent`);
   console.log(`  MCP          http://localhost:${p}/mcp`);

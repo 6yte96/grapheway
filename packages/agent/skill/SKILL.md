@@ -30,6 +30,9 @@ far more accurate than parsing markup.
      **plus the auditable edges behind each hop** — your citation for why
      you walked that path
    - `GET /graph/v1/events` — realtime SSE stream of graph changes
+   - `GET /graph/v1/graph` — the full live graph (nodes + edges) in one call
+   - `GET /graph` — a human-interactive viewer of the same graph (handy for
+     the user to see what you're navigating)
 3. **`GET {origin}/agent`** — the manifest: site info, sections, actions,
    endpoints. Use its declared actions instead of scraping.
 4. **MCP** — if `{origin}/mcp` is advertised, connect an MCP client: the

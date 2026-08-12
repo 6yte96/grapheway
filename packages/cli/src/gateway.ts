@@ -90,6 +90,7 @@ function printBanner(name: string, url: string, extras: string[] = []) {
     `Gateway \"${name}\" listening on ${url}`,
     `  discovery    ${url}/.well-known/agent`,
     `  graph        ${url}/graph/v1`,
+    `  viewer       ${url}/graph (interactive)`,
     `  events       ${url}/graph/v1/events (realtime SSE)`,
     `  manifest     ${url}/agent`,
     `  MCP          ${url}/mcp`,

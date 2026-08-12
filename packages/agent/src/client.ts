@@ -242,6 +242,15 @@ export class GraphewayClient {
   }
 
   /**
+   * The full live graph in one call (`GET /graph/v1/graph`) — nodes, edges
+   * and the current version. The interactive viewer at `GET /graph` is the
+   * visual twin of this endpoint.
+   */
+  async getGraph(): Promise<{ version: number; nodes: GraphNode[]; edges: GraphEdge[] }> {
+    return this.request<{ version: number; nodes: GraphNode[]; edges: GraphEdge[] }>("/graph/v1/graph");
+  }
+
+  /**
    * Walk the site graph up to `maxDepth` hops from `startId` — the native
    * replacement for crawling: follow edges instead of scraping HTML.
    */

@@ -157,7 +157,9 @@ GET  /graph/v1/node       a node (page/section) of the site graph
 GET  /graph/v1/edges      edges touching a node (links, relations)
 GET  /graph/v1/search     ranked node search over the graph
 GET  /graph/v1/path       shortest path between two nodes (auditable)
+GET  /graph/v1/graph      the full live graph (nodes + edges + version)
 GET  /graph/v1/events     live graph events (SSE) — realtime subscriptions
+GET  /graph               the interactive graph viewer (self-contained UI)
 GET  /agent               full manifest
 GET  /agent/info          site info          GET  /agent/sections   curated sections
 GET  /agent/actions       declared actions   POST /agent/action     run an action
@@ -515,6 +517,28 @@ const unsub = acme.subscribeGraph((patch) => {
 
 That's Graphify's "always-on" promise, on the web side: **agents stop
 re-crawling your site — your site pushes its truth to them.**
+
+---
+
+## The graph viewer — see what agents see
+
+Every grapheway surface (your site, a `grapheway gateway`, a probed legacy
+site) also serves **`GET /graph`** — a self-contained, zero-dependency
+interactive map of the live graph. No build step, no CDN, no libraries:
+
+- a hand-rolled force-directed layout — nodes colored by type, edges by
+  confidence (`extracted` / `inferred` / `ambiguous`)
+- pan, zoom, drag nodes; hover for edge provenance; click any node for its
+  full detail + neighbors
+- **search** (`/graph/v1/search`) and the **path inspector** — pick any two
+  nodes and see the auditable route with its provenance badges
+- **realtime**: it subscribes to `/graph/v1/events`, so patches animate in
+  live as your app pushes them
+- type/confidence filters, label toggle, one-click JSON export of the graph
+
+Open `http://localhost:4321/graph` on any running gateway, or
+`https://your-site.com/graph` on a grapheway-enabled site. The viewer is
+just a page — its data comes entirely from the same graph API agents use.
 
 ---
 

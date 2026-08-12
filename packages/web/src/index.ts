@@ -17,3 +17,4 @@ export * from "./adapters.ts";
 export * from "./actions.ts";
 export * from "./mcp.ts";
 export * from "./inject.ts";
+export * from "./viewer.ts";

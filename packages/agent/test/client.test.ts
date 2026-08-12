@@ -137,6 +137,15 @@ describe("graph traversal (native access)", () => {
     expect(await client.graphNode("nope")).toBeNull();
   });
 
+  test("getGraph returns the full live graph in one call", async () => {
+    const client = new GraphewayClient(base);
+    const full = await client.getGraph();
+    expect(full.nodes.length).toBe(4);
+    expect(full.edges.length).toBe(3);
+    expect(full.version).toBe(0);
+    expect(full.nodes.some((n) => n.type === "section")).toBe(true);
+  });
+
   test("graphEdges and graphPath (auditable path with edges)", async () => {
     const client = new GraphewayClient(base);
     const gadgets = (await client.graphSearch("gadgets")).results[0]!.node.id;
