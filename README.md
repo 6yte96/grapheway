@@ -354,12 +354,17 @@ broadcasts it:
 const agent = createGrapheway(config, { search, getPageMarkdown, actions });
 
 // Anywhere in your app:
-agent.patchGraph({
-  addEdges: [{ from: "/", to: "/products/neo", type: "link" }],
-  setNodeMeta: { "/products/neo": { title: "NEO Gadget" } },
-  removeNodes: ["/products/legacy"],
-});
+agent.patchGraph([
+  { type: "add_node", node: { id: "/products/neo", type: "page", label: "NEO Gadget" } },
+  { type: "add_edge", edge: { id: "e-neo", source: "/", target: "/products/neo", type: "links_to" } },
+  { type: "set_node_meta", id: "/products/neo", meta: { price: "$199" } },
+  { type: "remove_node", id: "/products/legacy" },
+]);
 ```
+
+Patches are applied in order and validated: `add_edge` endpoints must already
+exist (add the nodes first), `remove_node` also removes every edge touching it,
+and duplicates are no-ops. The returned value is the new graph version.
 
 Agents connect to `GET /graph/v1/events` over **Server-Sent Events**: they
 receive the current snapshot, then a stream of patches as the site evolves —
@@ -370,14 +375,13 @@ curl -N https://acme.example/graph/v1/events
 ```
 
 ```
-event: snapshot
-data: {"nodes":12,"edges":31}
+event: graph
+data: {"type":"snapshot","version":0,"nodes":12,"edges":31}
 
-event: patch
-data: {"addEdges":[{"from":"/","to":"/products/neo","type":"link"}],"setNodeMeta":{"/products/neo":{"title":"NEO Gadget"}}}
+event: graph
+data: {"version":1,"patches":[{"type":"add_node","node":{"id":"/products/neo","type":"page","label":"NEO Gadget"}},{"type":"add_edge","edge":{"id":"e-neo","source":"/","target":"/products/neo","type":"links_to"}}]}
 
-event: heartbeat
-data: {}
+: ping        (heartbeat every 15s)
 ```
 
 The `@grapheway/agent` client wraps it in a typed subscription that streams

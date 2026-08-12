@@ -43,6 +43,8 @@ export function toExpressHandler(agentHandler: (req: AgentRequest) => Promise<Ag
       set: (k: string, v: string) => void;
       write: (chunk: string) => void;
       end: () => void;
+      on?: (event: string, cb: () => void) => void;
+      destroy?: () => void;
     };
     const request: AgentRequest = {
       method: expressReq.method,
@@ -54,9 +56,16 @@ export function toExpressHandler(agentHandler: (req: AgentRequest) => Promise<Ag
       for (const [k, v] of Object.entries(result.headers)) expressRes.set(k, v);
       const s = expressRes.status(result.status);
       if (result.bodyStream) {
+        // Same teardown contract as the node adapter: on client disconnect
+        // close the upstream stream so its heartbeat + listeners are released.
+        expressRes.on?.("close", () => (result.bodyStream as { close?: () => void })?.close?.());
         void (async () => {
-          for await (const chunk of result.bodyStream!) expressRes.write(chunk);
-          expressRes.end();
+          try {
+            for await (const chunk of result.bodyStream!) expressRes.write(chunk);
+            expressRes.end();
+          } catch {
+            expressRes.destroy?.();
+          }
         })();
         return;
       }

@@ -83,34 +83,67 @@ describe("graph provenance (auditable edges)", () => {
 
 describe("graph patches (realtime updates)", () => {
   test("applyPatch adds/removes nodes and edges with no-ops", () => {
-    const node: GraphNode = { id: "urn:x:1", type: "entity", label: "X" };
+    const nodeA: GraphNode = { id: "urn:x:1", type: "entity", label: "X" };
+    const nodeB: GraphNode = { id: "urn:x:2", type: "entity", label: "Y" };
     const edge: GraphEdge = { id: "e1", source: "urn:x:1", target: "urn:x:2", type: "related" };
     const base = { nodes: [], edges: [] };
 
-    const g1 = applyPatch(base, { type: "add_node", node });
+    const g1 = applyPatch(base, { type: "add_node", node: nodeA });
     expect(g1.nodes).toHaveLength(1);
     // Duplicate add is a no-op.
-    expect(applyPatch(g1, { type: "add_node", node }).nodes).toHaveLength(1);
+    expect(applyPatch(g1, { type: "add_node", node: nodeA }).nodes).toHaveLength(1);
 
-    const g2 = applyPatch(g1, { type: "add_edge", edge });
-    expect(g2.edges).toHaveLength(1);
+    const g2 = applyPatch(g1, { type: "add_node", node: nodeB });
+    const g3 = applyPatch(g2, { type: "add_edge", edge });
+    expect(g3.edges).toHaveLength(1);
     // Removing the node cascades to its edges.
-    const g3 = applyPatch(g2, { type: "remove_node", id: "urn:x:1" });
-    expect(g3.nodes).toHaveLength(0);
-    expect(g3.edges).toHaveLength(0);
-
-    const g4 = applyPatch(g2, { type: "remove_edge", id: "e1" });
+    const g4 = applyPatch(g3, { type: "remove_node", id: "urn:x:1" });
+    expect(g4.nodes).toHaveLength(1);
     expect(g4.edges).toHaveLength(0);
+
+    const g5 = applyPatch(g3, { type: "remove_edge", id: "e1" });
+    expect(g5.edges).toHaveLength(0);
   });
 
   test("applyPatches applies a batch in order", () => {
-    const node: GraphNode = { id: "urn:x:1", type: "entity", label: "X" };
+    const nodeA: GraphNode = { id: "urn:x:1", type: "entity", label: "X" };
+    const nodeB: GraphNode = { id: "urn:x:2", type: "entity", label: "Y" };
     const edge: GraphEdge = { id: "e1", source: "urn:x:1", target: "urn:x:2", type: "related" };
     const g = applyPatches({ nodes: [], edges: [] }, [
-      { type: "add_node", node },
+      { type: "add_node", node: nodeA },
+      { type: "add_node", node: nodeB },
       { type: "add_edge", edge },
     ]);
-    expect(g.nodes).toHaveLength(1);
+    expect(g.nodes).toHaveLength(2);
     expect(g.edges).toHaveLength(1);
+  });
+
+  test("add_edge to an unknown node throws (no dangling edges)", () => {
+    const nodeA: GraphNode = { id: "urn:x:1", type: "entity", label: "X" };
+    const nodeB: GraphNode = { id: "urn:x:2", type: "entity", label: "Y" };
+    const edge: GraphEdge = { id: "e1", source: "urn:x:1", target: "urn:x:2", type: "related" };
+    // Both endpoints present → allowed.
+    const ok = applyPatch({ nodes: [nodeA, nodeB], edges: [] }, { type: "add_edge", edge });
+    expect(ok.edges).toHaveLength(1);
+    // Missing endpoint → throws, naming the unknown node.
+    expect(() => applyPatch({ nodes: [nodeA], edges: [] }, { type: "add_edge", edge })).toThrow(/urn:x:2/);
+    expect(() => applyPatch({ nodes: [], edges: [] }, { type: "add_edge", edge })).toThrow(/urn:x:1/);
+  });
+
+  test("set_node_meta merges props; unknown node is a no-op", () => {
+    const node: GraphNode = { id: "urn:x:1", type: "entity", label: "X", props: { a: 1 } };
+    const g1 = applyPatch({ nodes: [node], edges: [] }, {
+      type: "set_node_meta",
+      id: "urn:x:1",
+      meta: { b: 2 },
+    });
+    expect(g1.nodes[0]!.props).toEqual({ a: 1, b: 2 });
+    const g2 = applyPatch({ nodes: [node], edges: [] }, {
+      type: "set_node_meta",
+      id: "urn:missing",
+      meta: { b: 2 },
+    });
+    expect(g2.nodes).toHaveLength(1);
+    expect(g2.nodes[0]!.props).toEqual({ a: 1 });
   });
 });

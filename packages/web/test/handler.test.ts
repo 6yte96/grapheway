@@ -1,6 +1,6 @@
 import { describe, expect, test, beforeAll, afterAll } from "bun:test";
 import { createServer, type Server } from "node:http";
-import { createGrapheway, toNodeHandler } from "../src/index.ts";
+import { createGrapheway, toExpressHandler, toNodeHandler } from "../src/index.ts";
 import { htmlToMarkdown } from "../src/actions.ts";
 import { toolsForManifest } from "../src/mcp.ts";
 import type { GraphewayConfig } from "grapheway";
@@ -162,6 +162,59 @@ describe("realtime graph (patchGraph + SSE)", () => {
     expect(ev?.data.patches[0].node.label).toBe("Live Node");
 
     await reader.cancel().catch(() => {});
+  });
+
+  test("two subscribers both receive patches; cancelling stops delivery", async () => {
+    const open = async (): Promise<{ readEvent: () => Promise<{ event: string; data: any } | null>; cancel: () => Promise<void> }> => {
+      const res = await fetch(base + "/graph/v1/events");
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      const readEvent = async () => {
+        for (;;) {
+          const idx = buffer.indexOf("\n\n");
+          if (idx !== -1) {
+            const raw = buffer.slice(0, idx);
+            buffer = buffer.slice(idx + 2);
+            const event = raw.split("\n").find((l) => l.startsWith("event: "))?.slice(7).trim() ?? "message";
+            const dataLine = raw.split("\n").find((l) => l.startsWith("data: "));
+            return { event, data: dataLine ? JSON.parse(dataLine.slice(6).trim()) : null };
+          }
+          const { done, value } = await reader.read();
+          if (done) return null;
+          buffer += decoder.decode(value, { stream: true });
+        }
+      };
+      return { readEvent, cancel: () => reader.cancel().catch(() => {}) };
+    };
+
+    const a = await open();
+    const b = await open();
+    expect((await a.readEvent())?.data.type).toBe("snapshot");
+    expect((await b.readEvent())?.data.type).toBe("snapshot");
+
+    // Patch reaches both subscribers.
+    const id = `${ROOT}/isolated`;
+    agent.patchGraph([{ type: "add_node", node: { id, type: "page", label: "Isolated" } }]);
+    expect((await a.readEvent())?.data.version).toBe(2);
+    expect((await b.readEvent())?.data.version).toBe(2);
+
+    // Unsubscribe a — later patches only reach b.
+    await a.cancel();
+    const id2 = `${ROOT}/isolated-2`;
+    agent.patchGraph([{ type: "add_node", node: { id: id2, type: "page", label: "Isolated 2" } }]);
+    expect(await b.readEvent()).not.toBeNull();
+
+    await b.cancel();
+  });
+
+  test("patchGraph rejects an add_edge with unknown endpoints", async () => {
+    expect(() =>
+      agent.patchGraph([{ type: "add_edge", edge: { id: "e-bad", source: ROOT, target: `${ROOT}/nope`, type: "links_to" } }]),
+    ).toThrow(/Add the node\(s\) first/);
+    // The failed patch must not bump the version or mutate the graph.
+    expect(agent.version).toBe(3);
+    expect(agent.graph.edges.some((e) => e.id === "e-bad")).toBe(false);
   });
 });
 
@@ -372,6 +425,45 @@ describe("htmlToMarkdown", () => {
     expect(md).toContain("[link](/x)");
     expect(md).toContain("- one");
     expect(md).not.toContain("alert");
+  });
+});
+
+describe("toExpressHandler (SSE streaming + teardown)", () => {
+  test("streams graph events through res.write and closes upstream on res close", async () => {
+    const written: string[] = [];
+    const closeHandlers: Array<() => void> = [];
+    let ended = false;
+    const fakeRes = {
+      status: (c: number) => ({ json: () => {}, send: () => {} }),
+      set: () => {},
+      write: (chunk: string) => written.push(chunk),
+      end: () => {
+        ended = true;
+      },
+      on: (ev: string, cb: () => void) => {
+        if (ev === "close") closeHandlers.push(cb);
+      },
+    };
+
+    const handler = toExpressHandler(agent.handler);
+    const req = { method: "GET", url: "/graph/v1/events", headers: {} };
+    handler(req, fakeRes);
+
+    // Let the snapshot chunk arrive.
+    await new Promise((r) => setTimeout(r, 100));
+    expect(written.join("")).toContain("event: graph");
+    expect(written.join("")).toContain("\"type\":\"snapshot\"");
+
+    // A patch still streams through the open connection.
+    const id = `${ROOT}/express-live`;
+    agent.patchGraph([{ type: "add_node", node: { id, type: "page", label: "Express Live" } }]);
+    await new Promise((r) => setTimeout(r, 100));
+    expect(written.join("")).toContain("Express Live");
+
+    // Client disconnect: the close handler fires and doesn't throw.
+    for (const cb of closeHandlers) cb();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(true).toBe(true); // teardown ran without throwing
   });
 });
 

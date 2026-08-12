@@ -13,9 +13,17 @@ export type GraphPatch =
   | { type: "add_node"; node: GraphNode }
   | { type: "remove_node"; id: string }
   | { type: "add_edge"; edge: GraphEdge }
-  | { type: "remove_edge"; id: string };
+  | { type: "remove_edge"; id: string }
+  | { type: "set_node_meta"; id: string; meta: Record<string, unknown> };
 
-/** Apply a single patch. No-ops when it would duplicate/remove nothing. */
+/**
+ * Apply a single patch.
+ * - Duplicates (`add_*` with an existing id) are no-ops.
+ * - `add_edge` endpoints must already exist — otherwise the patch throws
+ *   (a dangling edge would corrupt the graph). Apply `add_node` first.
+ * - `remove_node` also removes every edge touching the node (no orphans).
+ * - `set_node_meta` on an unknown node is a no-op.
+ */
 export function applyPatch(graph: KnowledgeGraph, patch: GraphPatch): KnowledgeGraph {
   switch (patch.type) {
     case "add_node":
@@ -28,11 +36,29 @@ export function applyPatch(graph: KnowledgeGraph, patch: GraphPatch): KnowledgeG
         edges: graph.edges.filter((e) => e.source !== id && e.target !== id),
       };
     }
-    case "add_edge":
-      if (graph.edges.some((e) => e.id === patch.edge.id)) return graph;
-      return { ...graph, edges: [...graph.edges, patch.edge] };
+    case "add_edge": {
+      const { edge } = patch;
+      if (graph.edges.some((e) => e.id === edge.id)) return graph;
+      const known = new Set(graph.nodes.map((n) => n.id));
+      if (!known.has(edge.source) || !known.has(edge.target)) {
+        throw new Error(
+          `add_edge "${edge.id}" references unknown node(s) ` +
+            `(${[edge.source, edge.target]
+              .filter((id) => !known.has(id))
+              .join(", ")}). Add the node(s) first.`,
+        );
+      }
+      return { ...graph, edges: [...graph.edges, edge] };
+    }
     case "remove_edge":
       return { ...graph, edges: graph.edges.filter((e) => e.id !== patch.id) };
+    case "set_node_meta": {
+      const idx = graph.nodes.findIndex((n) => n.id === patch.id);
+      if (idx === -1) return graph;
+      const nodes = [...graph.nodes];
+      nodes[idx] = { ...nodes[idx]!, props: { ...nodes[idx]!.props, ...patch.meta } };
+      return { ...graph, nodes };
+    }
   }
 }
 
