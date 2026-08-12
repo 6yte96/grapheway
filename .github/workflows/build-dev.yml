@@ -1,0 +1,62 @@
+name: Build packages (dev)
+
+# On every push to `dev`, builds all five packages on the GitHub runner and
+# commits the resulting tarballs back into the repo on the `dev` branch under
+# artifacts/ — grab the latest build straight from the branch, no local build.
+#
+#   npm i https://github.com/6yte96/grapheway/raw/dev/artifacts/grapheway-0.1.0.tgz
+#
+# The commit-back is tagged `[skip ci]`, so the workflow does not loop on
+# itself. Publishing to npm stays on the `main`-only workflow (publish.yml).
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch: # manual: rebuild + commit artifacts now
+
+concurrency:
+  group: build-dev
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build & commit tarballs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed to commit the tarballs back to dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: bun test
+
+      - name: Resolve workspace deps
+        # npm does not rewrite `workspace:*` at pack time — pin to concrete
+        # versions first so the tarballs are actually installable.
+        run: node scripts/resolve-workspace-deps.mjs
+
+      - name: Pack all packages into artifacts/
+        run: |
+          mkdir -p artifacts
+          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli; do
+            npm pack -w "$pkg" --pack-destination artifacts >/dev/null
+          done
+          ls -la artifacts
+
+      - name: Commit artifacts back to dev
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "[skip ci] build(dev): refresh package tarballs"
+          file_pattern: artifacts/

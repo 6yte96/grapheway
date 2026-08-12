@@ -377,6 +377,20 @@ version, push, and it ships. See `.github/workflows/publish.yml`.
 > Packages ship as TypeScript source (no build step) — install with **Bun** or
 > **Node ≥ 22.18** (native type stripping). Binaries: `grapheway`, `grapheway-mcp`.
 
+### Dev builds (artifacts)
+
+Every push to `dev` builds all five packages **on the GitHub runner** and commits
+
+the tarballs back into the repo on `dev` under `artifacts/` — grab the latest
+
+build straight from the branch, no local build needed:
+
+```bash
+npm i https://github.com/6yte96/grapheway/raw/dev/artifacts/grapheway-0.1.0.tgz
+```
+
+(The commit-back is tagged `[skip ci]`, so the workflow doesn't loop on itself.)
+
 ---
 
 ## License
