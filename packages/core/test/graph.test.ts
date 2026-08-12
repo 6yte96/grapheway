@@ -3,6 +3,7 @@ import {
   applyPatch,
   applyPatches,
   buildGraph,
+  diffGraphs,
   findPathWithEdges,
   projectGraph,
   type GraphewayConfig,
@@ -145,5 +146,55 @@ describe("graph patches (realtime updates)", () => {
     });
     expect(g2.nodes).toHaveLength(1);
     expect(g2.nodes[0]!.props).toEqual({ a: 1 });
+  });
+});
+
+describe("diffGraphs (gateway refresh)", () => {
+  const nodeA: GraphNode = { id: "urn:x:1", type: "entity", label: "X" };
+  const nodeB: GraphNode = { id: "urn:x:2", type: "entity", label: "Y" };
+  const nodeC: GraphNode = { id: "urn:x:3", type: "entity", label: "Z" };
+  const eAB: GraphEdge = { id: "e-ab", source: "urn:x:1", target: "urn:x:2", type: "related" };
+  const eBC: GraphEdge = { id: "e-bc", source: "urn:x:2", target: "urn:x:3", type: "related" };
+  const prev = { nodes: [nodeA, nodeB], edges: [eAB] };
+
+  test("identical graphs produce no patches", () => {
+    expect(diffGraphs(prev, prev)).toEqual([]);
+  });
+
+  test("adds new nodes before edges; removing a node skips its orphan edges", () => {
+    const next = { nodes: [nodeA, nodeB, nodeC], edges: [eAB, eBC] };
+    const patches = diffGraphs(prev, next);
+    expect(patches).toEqual([
+      { type: "add_node", node: nodeC },
+      { type: "add_edge", edge: eBC },
+    ]);
+    // Applying them reaches the target graph (validation-safe).
+    expect(applyPatches(prev, patches)).toEqual(next);
+  });
+
+  test("removes a gone edge explicitly when both endpoints survive", () => {
+    const next = { nodes: [nodeA, nodeB], edges: [] };
+    const patches = diffGraphs(prev, next);
+    expect(patches).toEqual([{ type: "remove_edge", id: "e-ab" }]);
+    expect(applyPatches(prev, patches)).toEqual(next);
+  });
+
+  test("removing a node emits remove_node (its edges cascade)", () => {
+    const next = { nodes: [nodeA], edges: [] };
+    const patches = diffGraphs(prev, next);
+    expect(patches).toEqual([{ type: "remove_node", id: "urn:x:2" }]);
+    expect(applyPatches(prev, patches)).toEqual(next);
+  });
+
+  test("add+remove round-trip converges on the new graph", () => {
+    const next = { nodes: [nodeA, nodeC], edges: [] };
+    const patches = diffGraphs(prev, next);
+    expect(patches).toEqual([
+      { type: "add_node", node: nodeC },
+      { type: "remove_node", id: "urn:x:2" },
+    ]);
+    const applied = applyPatches(prev, patches);
+    expect(applied.nodes.map((n) => n.id)).toEqual(["urn:x:1", "urn:x:3"]);
+    expect(applied.edges).toEqual([]);
   });
 });

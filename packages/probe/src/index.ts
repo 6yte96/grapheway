@@ -37,7 +37,13 @@ export {
   type LinkKnowledge,
   type PageKnowledge,
 } from "./html.ts";
-export { serveProbed, type ProbeServeOptions, type ProbeServer } from "./serve.ts";
+export {
+  createProbeAgent,
+  serveProbed,
+  type ProbeAgent,
+  type ProbeServeOptions,
+  type ProbeServer,
+} from "./serve.ts";
 export { exportProbed, type ExportOptions } from "./export.ts";
 
 /**

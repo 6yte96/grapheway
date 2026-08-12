@@ -47,8 +47,8 @@ Deno, and the browser, and works with Express, Hono, Next.js, plain
 | [`@grapheway/web`](./packages/web) | **For webservers** — drop-in agent endpoint: graph, `/agent`, `/mcp` + framework adapters. |
 | [`@grapheway/probe`](./packages/probe) | **For agents** — convert ANY legacy site into a graph (docs, APIs, HTML): crawl → graph → serve locally / export JSON. |
 | [`@grapheway/compat`](./packages/compat) | Optional legacy files (llms.txt, agents.txt, robots.txt, sitemap.xml) — decoupled. |
-| [`@grapheway/agent`](./packages/agent) | The agent side: typed client, runnable stdio MCP server, and a `SKILL.md` for AI agents. |
-| [`@grapheway/cli`](./packages/cli) | `grapheway serve`, `grapheway probe <url>`, `grapheway audit <url>`, `grapheway generate`. |
+| [`@grapheway/agent`](./packages/agent) | The agent side: typed `GraphewayClient` + a `SKILL.md` that teaches agents to use graph endpoints before scraping. |
+| [`@grapheway/cli`](./packages/cli) | `grapheway gateway`, `grapheway probe <url>`, `grapheway mcp-config`, `grapheway audit <url>`, `grapheway serve`, `grapheway generate`. |
 | [`examples/simple-site`](./examples/simple-site) | A complete demo site with a custom action. |
 
 ```
@@ -271,7 +271,7 @@ const result = await probeSite("https://legacy-docs.example", { maxPages: 50 });
 console.log(result.graph.nodes.length, "nodes"); // agents can walk, search, act
 
 const server = await serveProbed("https://legacy-docs.example"); // :4321
-// grapheway-mcp http://localhost:4321  →  the legacy docs as MCP tools
+// point your MCP client at http://localhost:4321/mcp  →  the legacy docs as MCP tools
 
 await exportProbed(result, { outDir: "./graph" }); // graph.json + config.json
 ```
@@ -283,6 +283,48 @@ become typed `api` nodes with method, path, summary and tags.
 
 This is the same promise as the opt-in path, applied to the sites that
 haven't joined yet: **agents stop scraping — they read the graph instead.**
+
+---
+
+## The gateway — one server, many agents
+
+The probe and the site runtime both end in the same place: a graph server
+that speaks the agent protocol. `grapheway gateway` makes that server a
+first-class artifact — a lightweight daemon that **holds** a graph and
+answers agents over MCP (streamable HTTP) first:
+
+```bash
+# Hold any site's graph; re-crawl every 24h → the diff patches the live
+# graph, so SSE subscribers and MCP clients always see it fresh
+bunx grapheway gateway --probe https://legacy-docs.example --refresh 24
+
+# …a config-defined graph…
+bunx grapheway gateway --config grapheway.config.ts
+
+# …or an exported graph.json (no network needed)
+bunx grapheway gateway --graph graph.json
+```
+
+Agents connect by pointing their MCP client at the gateway — **no client
+shims, no per-agent processes, one live graph shared by every agent**:
+
+```bash
+bunx grapheway mcp-config          # prints the exact snippet to paste
+```
+
+```json
+{
+  "mcpServers": {
+    "grapheway": { "url": "http://localhost:4321/mcp" }
+  }
+}
+```
+
+Paste that into Claude Desktop / Cursor / VS Code / Claude Code and the
+gateway's graph tools + actions appear as native MCP tools. The gateway
+talks MCP over plain HTTP — the modern protocol — so nothing needs to run
+on the agent's machine. Localhost-first by default; expose with
+`--host 0.0.0.0` when you want remote agents to reach it.
 
 ---
 
@@ -342,23 +384,28 @@ const status   = await acme.callAction("check_device_status", { serial: "WB-0001
 That's the whole promise: **the agent reads your site by walking its graph —
 no paid crawler APIs, no scraping.**
 
-### 2. Runnable stdio MCP server
+### 2. Connect via MCP — the gateway
 
-Turn any grapheway site into local MCP tools for your agent:
+The primary way agents consume grapheway is over MCP, pointing straight at
+a server that holds the graph (`grapheway gateway`, a site running
+`@grapheway/web`, or a `serveProbed` surface):
 
 ```bash
-bunx grapheway-mcp https://acme.example
+bunx grapheway gateway --probe https://acme.example --refresh 24
+bunx grapheway mcp-config --port 4321
 ```
-
-Claude Desktop config:
 
 ```json
 {
   "mcpServers": {
-    "acme": { "command": "bunx", "args": ["grapheway-mcp", "https://acme.example"] }
+    "grapheway": { "url": "http://localhost:4321/mcp" }
   }
 }
 ```
+
+Paste that into any MCP client — the graph tools and the site's actions
+become native tools, no shims required. This package's `GraphewayClient`
+is the same surface as typed methods, for embedding in your own tooling.
 
 ### 3. Skill for agents
 
@@ -474,15 +521,24 @@ re-crawling your site — your site pushes its truth to them.**
 ## CLI
 
 ```bash
-# Serve the full runtime agent surface (discovery, graph, /agent, /mcp,
-# + compat files) — the primary way to run grapheway
-bunx grapheway serve --config grapheway.config.ts --port 3000
+# THE graph gateway: a lightweight server that holds a graph and answers
+# agents over MCP. With --probe --refresh it re-crawls and patches the
+# live graph on a schedule — one server, many agents, always fresh.
+bunx grapheway gateway --probe https://legacy-docs.example --refresh 24
+bunx grapheway gateway --config grapheway.config.ts
+bunx grapheway gateway --graph graph.json
+
+# Print the mcpServers snippet to paste into any MCP client
+bunx grapheway mcp-config --port 4321
 
 # Convert ANY website into an agent-native graph (for agents, no site
 # involvement): crawl → serve locally as the full agent surface
 bunx grapheway probe https://legacy-docs.example --port 4321
 # …or export the graph instead
 bunx grapheway probe https://legacy-docs.example --no-serve --out ./graph
+
+# Serve the runtime agent surface + compat files from a config file
+bunx grapheway serve --config grapheway.config.ts --port 3000
 
 # Live agent-readiness audit of any deployed site
 bunx grapheway audit https://acme.example
@@ -521,8 +577,8 @@ grapheway/
 │  ├─ web/         @grapheway/web   — universal endpoint + adapters + MCP (for webservers)
 │  ├─ probe/       @grapheway/probe   — convert ANY site into a graph (for agents)
 │  ├─ compat/      @grapheway/compat  — optional legacy files (llms.txt, robots, …)
-│  ├─ agent/       @grapheway/agent   — client + stdio MCP + skill
-│  └─ cli/         @grapheway/cli     — serve / probe / audit / generate
+│  ├─ agent/       @grapheway/agent   — typed client + skill
+│  └─ cli/         @grapheway/cli     — gateway / probe / mcp-config / serve / audit / generate
 ├─ examples/simple-site/              — runnable demo (server + demo client)
 └─ README.md
 ```
@@ -544,9 +600,9 @@ Every push to `main` runs the quality gate (typecheck + full test suite) and
 then publishes **every package whose version is not yet on npm** — bump the
 version, push, and it ships. See `.github/workflows/publish.yml`.
 
-1. **Bump the version** — keep all five packages in lockstep (they depend on
+1. **Bump the version** — keep all six packages in lockstep (they depend on
    each other via `workspace:*`): set the same new `"version"` (e.g. `0.2.0`)
-   in `packages/{core,web,compat,agent,cli}/package.json`, commit, push to `main`.
+   in `packages/{core,web,compat,agent,probe,cli}/package.json`, commit, push to `main`.
 2. **Add the npm token** — create an npm *automation* token
    (npmjs.com → Access Tokens → Generate new → *Automation*), then add it as a
    repository secret named `NPM_TOKEN`:
@@ -561,7 +617,7 @@ version, push, and it ships. See `.github/workflows/publish.yml`.
 > Packages compile to `dist/` (JS bundles + type declarations) — works on **Node**,
 > **Bun**, **Deno**, and bundlers. In this monorepo, Bun resolves package imports
 > to `src` for dev, so `bun run build` is only needed when producing artifacts.
-> Binaries: `grapheway`, `grapheway-mcp`.
+> Binaries: `grapheway`.
 
 ### Dev builds (artifacts)
 

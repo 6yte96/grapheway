@@ -46,14 +46,13 @@ const ENTRIES = {
   core: ["src/index.ts"],
   web: ["src/index.ts"],
   compat: ["src/index.ts"],
-  agent: ["src/index.ts", "src/mcp-stdio.ts"],
+  agent: ["src/index.ts"],
   cli: ["src/cli.ts"],
   probe: ["src/index.ts"],
 };
 
 /** dist files that must be executable with a node shebang. */
 const BIN_FILES = new Map([
-  ["agent", ["mcp-stdio.js"]],
   ["cli", ["cli.js"]],
 ]);
 

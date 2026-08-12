@@ -1,13 +1,17 @@
 /**
  * @grapheway/agent — the agent side of grapheway.
  *
- *   const client = new GraphewayClient("https://example.com");
+ * A typed client for any grapheway endpoint — a site running
+ * `@grapheway/web`, a `grapheway gateway`, or a `grapheway probe` surface:
+ *
+ *   const client = new GraphewayClient("http://localhost:4321");
  *   await client.getManifest();   // site info + sections + actions
  *   await client.search("pricing");
+ *   await client.graphPath("/", "/api-reference");
  *
- * Or run `grapheway-mcp https://example.com` to expose the site's actions
- * to any MCP client as tools.
+ * Agents don't need this package to *use* a gateway — MCP clients just
+ * point at `http://host:port/mcp` (see `grapheway mcp-config`). This client
+ * is for embedding grapheway access in your own agent/tooling.
  */
 
 export * from "./client.ts";
-export { runStdioServer } from "./mcp-stdio.ts";

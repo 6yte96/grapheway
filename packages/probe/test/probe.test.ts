@@ -2,6 +2,7 @@ import { describe, expect, test, beforeAll, afterAll } from "bun:test";
 import { createServer, type Server } from "node:http";
 import {
   buildFromCrawl,
+  createProbeAgent,
   crawlSite,
   extractPage,
   htmlToMarkdown,
@@ -233,5 +234,42 @@ describe("probeSite + export", () => {
     const result = await probeSite(base, { maxDepth: 2, maxPages: 20 });
     expect(result.graph.nodes.length).toBeGreaterThan(0);
     expect(result.config.url).toBe(base);
+  });
+});
+
+describe("createProbeAgent (graph-holding agent + refresh)", () => {
+  test("refresh re-crawls and patches the live graph (SSE subscribers see it)", async () => {
+    const initial = await probeSite(base, { maxDepth: 2, maxPages: 20 });
+    const holder = createProbeAgent(base, initial);
+    const v0 = holder.agent.version;
+    const before = holder.agent.graph.nodes.length;
+    expect(holder.result).toBe(initial);
+
+    // The site gains a page reachable from the root nav.
+    const OLD_SITE = PAGES["/"] ?? SITE;
+    const NEW_PAGE = `<html><head><title>Fresh Page | WidgetCo</title></head>
+<body><nav><a href="/">Home</a></nav><main>
+<h1>Fresh Page</h1><p>Just published.</p>
+</main></body></html>`;
+    (PAGES as Record<string, string>)["/"] = SITE.replace("</nav>", `<a href="/fresh-page">Fresh Page</a></nav>`);
+    (PAGES as Record<string, string>)["/fresh-page"] = NEW_PAGE;
+    try {
+      const next = await probeSite(base, { maxDepth: 2, maxPages: 20 });
+      const version = holder.refresh(next);
+      expect(version).toBe(v0 + 1);
+      expect(holder.agent.graph.nodes.some((n) => n.id === base + "/fresh-page")).toBe(true);
+      expect(holder.agent.graph.nodes.length).toBeGreaterThan(before);
+      // getPageMarkdown now serves the newly discovered page from the crawl.
+      const md = await holder.agent.handler({
+        url: "/agent/action",
+        method: "POST",
+        headers: {},
+        body: { name: "get_page", arguments: { url: "/fresh-page" } },
+      });
+      expect(String((JSON.parse(md.body ?? "{}") as any).result)).toContain("# Fresh Page");
+    } finally {
+      (PAGES as Record<string, string>)["/"] = OLD_SITE;
+      delete (PAGES as Record<string, string>)["/fresh-page"];
+    }
   });
 });

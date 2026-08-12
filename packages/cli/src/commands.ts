@@ -208,7 +208,7 @@ export async function probe(flags: ProbeFlags): Promise<void> {
   console.log(`  events       http://localhost:${p}/graph/v1/events (realtime SSE)`);
   console.log(`  manifest     http://localhost:${p}/agent`);
   console.log(`  MCP          http://localhost:${p}/mcp`);
-  console.log(`  point agents at http://localhost:${p} (grapheway-mcp, GraphewayClient, SKILL.md)\n`);
+  console.log(`  point agents at http://localhost:${p} (grapheway mcp-config, GraphewayClient, SKILL.md)\n`);
   await new Promise<void>(() => {}); // keep serving
 }
 
@@ -258,7 +258,7 @@ export function parseFlags(args: string[]): { configPath: string; outDir?: strin
 }
 
 /** Parse a positive integer flag value; returns undefined when absent or junk. */
-function positiveInt(raw: string | undefined, fallback: number): number | undefined {
+export function positiveInt(raw: string | undefined, fallback: number): number | undefined {
   if (raw === undefined) return fallback;
   const n = Number(raw);
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined;

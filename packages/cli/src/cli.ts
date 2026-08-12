@@ -8,15 +8,25 @@
  */
 
 import { auditUrl, generate, parseFlags, parseProbeFlags, probe, serve } from "./commands.ts";
+import { mcpConfigJson, parseGatewayFlags, runGateway } from "./gateway.ts";
 import { DEFAULT_CONFIG_PATH, loadConfig } from "./load-config.ts";
 
 const HELP = `grapheway — native agent access for your web app
 
 Usage:
-  grapheway serve [--config <file>] [--port <port>]
-      Serve the runtime agent surface: discovery (/.well-known/agent),
-      knowledge graph (/graph/v1), JSON API (/agent), MCP (/mcp) — plus
-      the optional compat files (llms.txt, robots.txt, sitemap.xml).
+  grapheway gateway --probe <url> [--refresh <hours>] [--port <port>] [--host <host>] [--depth <n>] [--max-pages <n>]
+  grapheway gateway --config <file> [--port <port>] [--host <host>]
+  grapheway gateway --graph <graph.json> [--port <port>] [--host <host>]
+      The standalone graph gateway: a lightweight server that HOLDS a graph
+      (probed from any legacy site, from a config file, or from an exported
+      graph.json) and speaks the agent protocol to anyone — MCP over HTTP
+      first. Agents connect by pointing their MCP client at /mcp; with
+      --probe --refresh <hours> it re-crawls on a schedule and patches the
+      live graph, so subscribers always see the site fresh.
+
+  grapheway mcp-config [--url <url>] [--port <port>]
+      Print the exact mcpServers JSON to paste into Claude Desktop, Cursor,
+      VS Code or Claude Code — the "connect your agent" snippet.
 
   grapheway probe <url> [--port <port>] [--out <dir>] [--depth <n>] [--max-pages <n>] [--no-serve]
       Convert ANY website into an agent-native knowledge graph — no site
@@ -24,6 +34,10 @@ Usage:
       (nav, headings, links, OpenAPI endpoints) into a tagged graph, then
       serves it locally as the full agent surface (discovery, /graph/v1,
       /agent, MCP) and/or exports graph.json + config.json with --out.
+
+  grapheway serve [--config <file>] [--port <port>]
+      Serve the runtime agent surface plus the optional compat files
+      (llms.txt, robots.txt, sitemap.xml) from a config file.
 
   grapheway generate [--config <file>] [--out <dir>]
       Generate the legacy static files (llms.txt, agents.txt, agents.json,
@@ -73,6 +87,24 @@ async function main() {
     case "probe": {
       const flags = parseProbeFlags(args.slice(1));
       await probe(flags);
+      break;
+    }
+    case "gateway": {
+      const flags = parseGatewayFlags(args.slice(1));
+      await runGateway(flags);
+      break;
+    }
+    case "mcp-config": {
+      const rest = args.slice(1);
+      let url = "http://localhost:4321/mcp";
+      for (let i = 0; i < rest.length; i++) {
+        const a = rest[i] ?? "";
+        if (a === "--url") url = rest[++i] ?? url;
+        else if (a === "--port") url = `http://localhost:${rest[++i] ?? 4321}/mcp`;
+      }
+      if (!url.endsWith("/mcp")) url = url.replace(/\/+$/, "") + "/mcp";
+      console.log(`Paste this into Claude Desktop / Cursor / VS Code / Claude Code:\n`);
+      console.log(mcpConfigJson(url));
       break;
     }
     case "serve": {

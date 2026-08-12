@@ -2,10 +2,11 @@
 name: grapheway
 description: >
   Discover and use agent-ready endpoints on any website that runs grapheway
-  (or serves the standard agent files), and probe any OTHER website into a
-  graph with `grapheway probe`. Use this whenever a user asks you to get
-  information from a website, summarize its content, or perform basic
-  actions on it — before falling back to scraping HTML.
+  (or serves the standard agent files), probe any OTHER website into a
+  graph with `grapheway probe`, or connect to a `grapheway gateway` over
+  MCP. Use this whenever a user asks you to get information from a website,
+  summarize its content, or perform basic actions on it — before falling
+  back to scraping HTML.
 ---
 
 # grapheway — how to read any agent-ready site
@@ -74,13 +75,21 @@ Content-Type: application/json
 
 Sites that serve **`{origin}/mcp`** speak the Model Context Protocol
 (streamable HTTP). Connect your MCP client to it and the site's actions
-appear as native tools. Locally you can also run:
+appear as native tools.
+
+If you're an MCP-native agent (Claude Desktop, Cursor, VS Code, Claude
+Code), the cleanest path is a **gateway**: a server that holds the graph
+and speaks MCP over HTTP. Point your client at it and nothing else needs
+to run on your machine:
 
 ```bash
-bunx grapheway-mcp https://example.com
+# Host holds any site's graph, re-crawled on a schedule (patches stream live)
+grapheway gateway --probe https://example.com --refresh 24
+# Then connect an MCP client to http://localhost:4321/mcp
 ```
 
-…to expose the same tools over stdio.
+Every endpoint you discovered above (graph, manifest, actions, SSE) is
+served by the gateway too — `{gateway}/graph/v1`, `{gateway}/agent`, …
 
 ## 5. Probing sites that are NOT agent-ready
 

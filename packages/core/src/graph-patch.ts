@@ -68,3 +68,35 @@ export function applyPatches(graph: KnowledgeGraph, patches: GraphPatch[]): Know
   for (const patch of patches) g = applyPatch(g, patch);
   return g;
 }
+
+/**
+ * Structural diff between two graphs, as patches that take `prev` to `next`.
+ *
+ * Ordering respects `applyPatch`'s validation: `add_node` precedes
+ * `add_edge` (endpoints must exist first); `remove_edge` only fires for
+ * edges whose endpoints both survive (a removed node cleans its own edges);
+ * `remove_node` comes last. Metadata-only changes are not tracked.
+ */
+export function diffGraphs(prev: KnowledgeGraph, next: KnowledgeGraph): GraphPatch[] {
+  const prevNodes = new Set(prev.nodes.map((n) => n.id));
+  const nextNodes = new Set(next.nodes.map((n) => n.id));
+  const prevEdges = new Set(prev.edges.map((e) => e.id));
+  const nextEdges = new Set(next.edges.map((e) => e.id));
+
+  const patches: GraphPatch[] = [];
+  for (const node of next.nodes) {
+    if (!prevNodes.has(node.id)) patches.push({ type: "add_node", node });
+  }
+  for (const edge of next.edges) {
+    if (!prevEdges.has(edge.id)) patches.push({ type: "add_edge", edge });
+  }
+  for (const edge of prev.edges) {
+    if (!nextEdges.has(edge.id) && nextNodes.has(edge.source) && nextNodes.has(edge.target)) {
+      patches.push({ type: "remove_edge", id: edge.id });
+    }
+  }
+  for (const node of prev.nodes) {
+    if (!nextNodes.has(node.id)) patches.push({ type: "remove_node", id: node.id });
+  }
+  return patches;
+}
