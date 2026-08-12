@@ -24,7 +24,7 @@ export const GRAPH_TOOLS: GraphToolDef[] = [
   },
   {
     name: "graph_neighbors",
-    description: "Returns the edges and connected nodes of a node — how it links to the rest of the site.",
+    description: "Returns the edges and connected nodes of a node — how it links to the rest of the site. Every edge carries provenance (config/section/link/builder/extra/derived) and confidence (extracted/inferred/ambiguous).",
     inputSchema: {
       type: "object",
       properties: {
@@ -49,7 +49,7 @@ export const GRAPH_TOOLS: GraphToolDef[] = [
   },
   {
     name: "graph_path",
-    description: "Finds the shortest path between two nodes of the site's knowledge graph.",
+    description: "Finds the shortest path between two nodes of the site's knowledge graph and returns the auditable path: the ordered node ids plus the edge behind each hop (type, label, provenance, confidence).",
     inputSchema: {
       type: "object",
       properties: {

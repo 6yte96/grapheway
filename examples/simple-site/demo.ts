@@ -58,8 +58,36 @@ console.log(
   "\n",
 );
 
-console.log("9. graph_path root → Weather Beacon:");
-const path = await client.graphPath("http://localhost:4321", "http://localhost:4321/products/weather-beacon");
-console.log("   ", path?.join(" → "), "\n");
+console.log("9. graph_path root → Weather Beacon (auditable path):");
+const pathRes = await client.graphPath(
+  "http://localhost:4321",
+  "http://localhost:4321/products/weather-beacon",
+);
+console.log("   path:", pathRes?.path.join(" → "));
+if (pathRes?.edges.length) {
+  console.log("   evidence (edge behind each hop):");
+  for (const e of pathRes.edges) {
+    console.log(`     ${e.source} ──${e.type}[${e.confidence ?? "?"}]──▶ ${e.target}  · ${e.note ?? e.provenance ?? ""}`);
+  }
+}
+console.log();
+
+console.log("10. subscribe to live graph updates (SSE /graph/v1/events):");
+const unsub = await client.subscribeGraph((ev) => {
+  const d = ev.data as { type?: string; version?: number; patches?: Array<Record<string, unknown>> };
+  console.log(`   [${ev.event}] graph v${d.version ?? "?"}${d.type ? ` · ${d.type}` : ""}${d.patches ? ` · ${d.patches.length} patch(es)` : ""}`);
+  for (const p of d.patches ?? []) {
+    const kind = String(p.type ?? "");
+    if (kind === "add_node") console.log(`     + node: ${String((p.node as { label?: string })?.label ?? "")}`);
+    if (kind === "add_edge") {
+      const e = p.edge as { source?: string; target?: string; confidence?: string; note?: string };
+      console.log(`     + edge: ${e.source} ──▶ ${e.target} [${e.confidence ?? "?"}] · ${e.note ?? ""}`);
+    }
+  }
+});
+// Listen for ~5s to catch the server's runtime patch, then unsubscribe.
+await new Promise((r) => setTimeout(r, 5_000));
+unsub();
+console.log();
 
 console.log("Done. The agent read this site by traversing its graph — no paid crawler needed.");

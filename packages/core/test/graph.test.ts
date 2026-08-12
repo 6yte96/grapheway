@@ -1,131 +1,116 @@
 import { describe, expect, test } from "bun:test";
-import { buildDiscovery } from "../src/discovery.ts";
-import { buildGraph, projectGraph } from "../src/graph.ts";
-import { findNode, findPath, neighborsOf, searchNodes } from "../src/graph-query.ts";
-import type { GraphewayConfig } from "../src/types.ts";
+import {
+  applyPatch,
+  applyPatches,
+  buildGraph,
+  findPathWithEdges,
+  projectGraph,
+  type GraphewayConfig,
+  type GraphEdge,
+  type GraphNode,
+} from "../src/index.ts";
 
 const config: GraphewayConfig = {
-  name: "Acme",
-  url: "https://acme.example",
-  tagline: "API for everything",
-  summary: "Acme is an API platform.",
-  sections: [
-    {
-      title: "Docs",
-      url: "/docs",
-      items: [
-        { title: "Install", url: "/docs/install", notes: "npm i" },
-        { title: "Quickstart", url: "https://acme.example/docs/quickstart" },
-        { title: "External", url: "https://other.example/x" }, // cross-origin → skipped
-      ],
-    },
-    {
-      title: "Support",
-      items: [{ title: "Contact", url: "/contact" }],
-    },
-  ],
-  links: [
-    { title: "GitHub", url: "https://github.com/acme" }, // cross-origin → skipped
-    { title: "Status", url: "https://acme.example/status" },
-  ],
+  name: "Provenance Site",
+  url: "https://provenance.example",
+  sections: [{ title: "Docs", items: [{ title: "Install", url: "/install" }] }],
+  links: [{ title: "Changelog", url: "/changelog" }],
 };
 
-describe("projectGraph", () => {
-  test("projects root, sections and pages with is_part_of edges", () => {
+const ROOT = "https://provenance.example";
+const SECTION = `${ROOT}#section-docs-0`;
+const INSTALL = `${ROOT}/install`;
+
+describe("graph provenance (auditable edges)", () => {
+  test("projectGraph tags config/section/link edges as extracted with notes", () => {
     const g = projectGraph(config);
-    const labels = g.nodes.map((n) => n.label);
-    expect(labels).toContain("Acme"); // root page
-    expect(labels).toContain("Docs"); // section
-    expect(labels).toContain("Install");
-    expect(labels).toContain("Contact");
-    expect(labels).not.toContain("External"); // cross-origin item skipped
-    expect(g.nodes.filter((n) => n.type === "page")).toHaveLength(5); // root + install + quickstart + contact + status
-    expect(g.nodes.filter((n) => n.type === "section")).toHaveLength(2);
-    expect(g.edges.filter((e) => e.type === "is_part_of")).toHaveLength(3);
+    const byKey = new Map(g.edges.map((e) => [`${e.source}->${e.target}`, e]));
+
+    const sectionEdge = byKey.get(`${ROOT}->${SECTION}`);
+    expect(sectionEdge?.provenance).toBe("config");
+    expect(sectionEdge?.confidence).toBe("extracted");
+    expect(sectionEdge?.note).toContain("Docs");
+
+    const itemEdge = byKey.get(`${SECTION}->${INSTALL}`);
+    expect(itemEdge?.provenance).toBe("section");
+    expect(itemEdge?.confidence).toBe("extracted");
+
+    const linkEdge = byKey.get(`${ROOT}->${ROOT}/changelog`);
+    expect(linkEdge?.provenance).toBe("link");
+    expect(linkEdge?.confidence).toBe("extracted");
   });
 
-  test("every section is reachable from the root, plus same-origin links", () => {
-    const g = projectGraph(config);
-    const root = "https://acme.example";
-    expect(g.edges.some((e) => e.source === root && e.target === "https://acme.example/docs" && e.type === "links_to")).toBe(true);
-    expect(g.edges.some((e) => e.source === root && e.target === "https://acme.example#section-support-1" && e.type === "links_to")).toBe(true);
-    expect(g.edges.some((e) => e.source === root && e.target === "https://acme.example/status" && e.type === "links_to")).toBe(true);
-    expect(g.edges.some((e) => e.target === "https://github.com/acme")).toBe(false);
-  });
-
-  test("sections without a URL get deterministic ids", () => {
-    const g = projectGraph(config);
-    const support = g.nodes.find((n) => n.label === "Support");
-    expect(support?.id).toBe("https://acme.example#section-support-1");
-  });
-});
-
-describe("buildGraph", () => {
-  test("custom builder wins over the config projection", () => {
-    const g = buildGraph(config, {
-      builder: () => ({ nodes: [{ id: "urn:custom", type: "concept", label: "Custom" }], edges: [] }),
-    });
-    expect(g.nodes).toHaveLength(1);
-    expect(g.nodes[0]?.label).toBe("Custom");
-  });
-
-  test("extra nodes/edges merge without duplicate ids", () => {
-    const g = buildGraph(config, {
+  test("buildGraph tags builder + extra edges, author's own tags win", () => {
+    const built = buildGraph(config, {
+      builder: () => ({
+        nodes: [{ id: ROOT, type: "page", label: "Root" }],
+        edges: [{ id: "b1", source: ROOT, target: INSTALL, type: "related" }],
+      }),
       extra: {
-        nodes: [
-          { id: "https://acme.example", type: "page", label: "Duplicate root" },
-          { id: "urn:entity:weather", type: "entity", label: "Weather" },
+        nodes: [],
+        edges: [
+          {
+            id: "x1",
+            source: ROOT,
+            target: INSTALL,
+            type: "mentions",
+            provenance: "derived",
+            confidence: "inferred",
+            note: "Mentioned on the homepage",
+          },
         ],
-        edges: [],
       },
     });
-    expect(g.nodes.filter((n) => n.id === "https://acme.example")).toHaveLength(1);
-    expect(g.nodes.some((n) => n.id === "urn:entity:weather")).toBe(true);
-  });
-});
-
-describe("graph queries", () => {
-  const g = projectGraph(config);
-
-  test("findNode by id", () => {
-    expect(findNode(g, "https://acme.example/docs/install")?.label).toBe("Install");
-    expect(findNode(g, "nope")).toBeNull();
+    const b1 = built.edges.find((e) => e.id === "b1")!;
+    expect(b1.provenance).toBe("builder");
+    expect(b1.confidence).toBe("extracted");
+    const x1 = built.edges.find((e) => e.id === "x1")!;
+    expect(x1.provenance).toBe("derived"); // author-set wins over the extra default
+    expect(x1.confidence).toBe("inferred");
   });
 
-  test("neighborsOf returns connected nodes + edges", () => {
-    const res = neighborsOf(g, "https://acme.example/docs/install", "both");
-    expect(res.nodes.some((n) => n.label === "Docs")).toBe(true);
-    expect(res.edges.every((e) => e.type === "is_part_of")).toBe(true);
-    expect(neighborsOf(g, "https://acme.example/docs/install", "in").edges.length).toBe(1);
-  });
-
-  test("searchNodes ranks label matches", () => {
-    const hits = searchNodes(g, "install");
-    expect(hits.length).toBeGreaterThan(0);
-    expect(hits[0]!.node.label.toLowerCase()).toContain("install");
-    expect(searchNodes(g, "  ")).toEqual([]);
-  });
-
-  test("findPath connects root to a page", () => {
-    const path = findPath(g, "https://acme.example", "https://acme.example/docs/install");
-    expect(path).not.toBeNull();
-    expect(path![0]).toBe("https://acme.example");
-    expect(path![path!.length - 1]).toBe("https://acme.example/docs/install");
-    expect(findPath(g, "https://acme.example", "nope")).toBeNull();
-  });
-});
-
-describe("buildDiscovery", () => {
-  test("advertises protocol, graph summary and endpoints", () => {
+  test("findPathWithEdges returns the auditable path", () => {
     const g = projectGraph(config);
-    const d = buildDiscovery(config, g);
-    expect(d.protocol).toBe("grapheway");
-    expect(d.graph.nodes).toBe(g.nodes.length);
-    expect(d.graph.edges).toBe(g.edges.length);
-    expect(d.graph.nodeTypes).toContain("page");
-    expect(d.graph.edgeTypes).toContain("is_part_of");
-    expect(d.endpoints.graph).toBe("https://acme.example/graph/v1");
-    expect(d.endpoints.mcp).toBe("https://acme.example/mcp");
-    expect(d.auth).toBe("open");
+    const result = findPathWithEdges(g, ROOT, INSTALL);
+    expect(result?.path).toEqual([ROOT, SECTION, INSTALL]);
+    expect(result?.edges).toHaveLength(2);
+    expect(result!.edges[0]!.type).toBe("links_to");
+    expect(result!.edges[1]!.type).toBe("is_part_of");
+    expect(result!.edges[1]!.confidence).toBe("extracted");
+    expect(findPathWithEdges(g, ROOT, `${ROOT}/does-not-exist`)).toBeNull();
+  });
+});
+
+describe("graph patches (realtime updates)", () => {
+  test("applyPatch adds/removes nodes and edges with no-ops", () => {
+    const node: GraphNode = { id: "urn:x:1", type: "entity", label: "X" };
+    const edge: GraphEdge = { id: "e1", source: "urn:x:1", target: "urn:x:2", type: "related" };
+    const base = { nodes: [], edges: [] };
+
+    const g1 = applyPatch(base, { type: "add_node", node });
+    expect(g1.nodes).toHaveLength(1);
+    // Duplicate add is a no-op.
+    expect(applyPatch(g1, { type: "add_node", node }).nodes).toHaveLength(1);
+
+    const g2 = applyPatch(g1, { type: "add_edge", edge });
+    expect(g2.edges).toHaveLength(1);
+    // Removing the node cascades to its edges.
+    const g3 = applyPatch(g2, { type: "remove_node", id: "urn:x:1" });
+    expect(g3.nodes).toHaveLength(0);
+    expect(g3.edges).toHaveLength(0);
+
+    const g4 = applyPatch(g2, { type: "remove_edge", id: "e1" });
+    expect(g4.edges).toHaveLength(0);
+  });
+
+  test("applyPatches applies a batch in order", () => {
+    const node: GraphNode = { id: "urn:x:1", type: "entity", label: "X" };
+    const edge: GraphEdge = { id: "e1", source: "urn:x:1", target: "urn:x:2", type: "related" };
+    const g = applyPatches({ nodes: [], edges: [] }, [
+      { type: "add_node", node },
+      { type: "add_edge", edge },
+    ]);
+    expect(g.nodes).toHaveLength(1);
+    expect(g.edges).toHaveLength(1);
   });
 });

@@ -73,11 +73,16 @@ describe("discovery", () => {
 });
 
 describe("graph protocol (/graph/v1)", () => {
-  test("graph summary lists nodes/edges", async () => {
+  test("graph summary lists nodes/edges + provenance breakdown", async () => {
     const { status, json } = await get("/graph/v1");
     expect(status).toBe(200);
     expect(json.nodes).toBe(4);
     expect(json.edges).toBe(3); // root→section + section→page + section→page
+    expect(json.version).toBe(0);
+    expect(json.provenance.config).toBe(1); // root→section
+    expect(json.provenance.section).toBe(2); // section→page × 2
+    expect(json.confidence.extracted).toBe(3);
+    expect(json.endpoints.events).toBe("/graph/v1/events");
   });
 
   test("node lookup by id", async () => {
@@ -101,10 +106,62 @@ describe("graph protocol (/graph/v1)", () => {
     expect(json.results[0].node.label).toBe("Installation");
   });
 
-  test("path between root and a page", async () => {
+  test("path between root and a page returns auditable edges", async () => {
     const { status, json } = await get(`/graph/v1/path?from=${encodeURIComponent(ROOT)}&to=${encodeURIComponent(INSTALL)}`);
     expect(status).toBe(200);
     expect(json.path).toEqual([ROOT, "http://127.0.0.1:0#section-getting-started-0", INSTALL]);
+    expect(json.edges).toHaveLength(2);
+    expect(json.edges[1].type).toBe("is_part_of");
+    expect(json.edges[1].confidence).toBe("extracted");
+    expect(json.edges[1].note).toContain("Getting Started");
+  });
+});
+
+describe("realtime graph (patchGraph + SSE)", () => {
+  test("patchGraph mutates the live graph and events stream it", async () => {
+    const res = await fetch(base + "/graph/v1/events");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/event-stream");
+    const reader = res.body!.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    const readEvent = async (): Promise<{ event: string; data: any } | null> => {
+      for (;;) {
+        const idx = buffer.indexOf("\n\n");
+        if (idx !== -1) {
+          const raw = buffer.slice(0, idx);
+          buffer = buffer.slice(idx + 2);
+          const event =
+            raw.split("\n").find((l) => l.startsWith("event: "))?.slice(7).trim() ?? "message";
+          const dataLine = raw.split("\n").find((l) => l.startsWith("data: "));
+          return { event, data: dataLine ? JSON.parse(dataLine.slice(6).trim()) : null };
+        }
+        const { done, value } = await reader.read();
+        if (done) return null;
+        buffer += decoder.decode(value, { stream: true });
+      }
+    };
+
+    const snap = await readEvent();
+    expect(snap?.event).toBe("graph");
+    expect(snap?.data.type).toBe("snapshot");
+    expect(snap?.data.nodes).toBe(4);
+
+    const liveId = `${ROOT}/live`;
+    const version = agent.patchGraph([
+      { type: "add_node", node: { id: liveId, type: "page", label: "Live Node" } },
+    ]);
+    expect(version).toBe(1);
+    expect(agent.graph.nodes.some((n) => n.id === liveId)).toBe(true);
+    expect(agent.version).toBe(1);
+
+    const ev = await readEvent();
+    expect(ev?.event).toBe("graph");
+    expect(ev?.data.version).toBe(1);
+    expect(ev?.data.patches[0].type).toBe("add_node");
+    expect(ev?.data.patches[0].node.label).toBe("Live Node");
+
+    await reader.cancel().catch(() => {});
   });
 });
 

@@ -25,6 +25,9 @@ far more accurate than parsing markup.
    - `GET /graph/v1/edges?id=<url>&direction=out|in` — how a node connects
    - `GET /graph/v1/search?q=...` — find nodes by label/metadata
    - `GET /graph/v1/path?from=<id>&to=<id>` — shortest path between pages
+     **plus the auditable edges behind each hop** — your citation for why
+     you walked that path
+   - `GET /graph/v1/events` — realtime SSE stream of graph changes
 3. **`GET {origin}/agent`** — the manifest: site info, sections, actions,
    endpoints. Use its declared actions instead of scraping.
 4. **MCP** — if `{origin}/mcp` is advertised, connect an MCP client: the
@@ -32,6 +35,19 @@ far more accurate than parsing markup.
    content is readable as markdown resources.
 5. **Compat (fallback)** — `llms.txt`, `agents.txt`, `robots.txt`,
    `sitemap.xml` may also be served; check `robots.txt` before bulk fetch.
+
+## 3. Provenance & realtime
+
+- Every graph edge carries **provenance** (where it came from:
+  `config`/`section`/`link`/`builder`/`extra`/`derived`) and **confidence**
+  (`extracted`/`inferred`/`ambiguous`). When you answer from the graph,
+  show the path you walked — the edges are your evidence. Prefer
+  `extracted` hops; treat `inferred` hops as leads to verify with `get_page`.
+- The graph is **live**: sites push changes at runtime. Subscribe to
+  `GET {origin}/graph/v1/events` (SSE) to get a snapshot, then a `graph`
+  event with `{ version, patches }` on every change. The `version` field of
+  `/graph/v1` tells you whether the graph moved since you last looked — no
+  need to re-crawl.
 
 ## 2. The agent API
 
@@ -53,7 +69,7 @@ Content-Type: application/json
 { "name": "get_page", "arguments": { "url": "/docs/install" } }
 ```
 
-## 3. MCP
+## 4. MCP
 
 Sites that serve **`{origin}/mcp`** speak the Model Context Protocol
 (streamable HTTP). Connect your MCP client to it and the site's actions
@@ -65,7 +81,7 @@ bunx grapheway-mcp https://example.com
 
 …to expose the same tools over stdio.
 
-## 4. Rules of engagement
+## 5. Rules of engagement
 
 - Always respect `robots.txt` for bulk fetching; user-requested live fetches
   are what `ChatGPT-User`/`Claude-User` style fetches are for.

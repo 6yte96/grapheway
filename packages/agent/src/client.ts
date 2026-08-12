@@ -164,12 +164,81 @@ export class GraphewayClient {
     return this.request<SearchResult>(`/graph/v1/search?q=${encodeURIComponent(q)}&limit=${limit}`);
   }
 
-  /** Shortest path between two nodes (`GET /graph/v1/path`), or null. */
-  async graphPath(from: string, to: string): Promise<string[] | null> {
-    const res = await this.requestOrNull<{ path: string[] }>(
+  /**
+   * Shortest path between two nodes with its edges (`GET /graph/v1/path`),
+   * or null. Every hop carries the edge that connects it — the auditable
+   * path: type, label, provenance and confidence of each relationship.
+   */
+  async graphPath(from: string, to: string): Promise<PathResult | null> {
+    const res = await this.requestOrNull<PathResult>(
       `/graph/v1/path?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     );
-    return res?.path ?? null;
+    if (!res) return null;
+    return { path: res.path, edges: res.edges ?? [] };
+  }
+
+  /**
+   * Subscribe to the site's graph updates over SSE (`GET /graph/v1/events`).
+   * The callback fires with a snapshot first, then a `graph` event on every
+   * patch the site applies. Returns an unsubscribe function.
+   */
+  async subscribeGraph(
+    onEvent: (event: GraphEvent) => void,
+    opts: { signal?: AbortSignal } = {},
+  ): Promise<() => void> {
+    const controller = new AbortController();
+    const onAbort = () => controller.abort();
+    opts.signal?.addEventListener("abort", onAbort, { once: true });
+
+    const res = await fetch(`${this.origin}/graph/v1/events`, {
+      headers: {
+        accept: "text/event-stream",
+        "user-agent": `grapheway-agent/${GRAPHEWAY_VERSION}`,
+      },
+      signal: controller.signal,
+    });
+    if (!res.ok || !res.body) {
+      throw new Error(`grapheway: graph events unavailable (HTTP ${res.status})`);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    void (async () => {
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          let idx: number;
+          while ((idx = buffer.indexOf("\n\n")) !== -1) {
+            const raw = buffer.slice(0, idx);
+            buffer = buffer.slice(idx + 2);
+            const eventLine = raw.split("\n").find((l) => l.startsWith("event: "));
+            const dataLine = raw.split("\n").find((l) => l.startsWith("data: "));
+            if (!dataLine) continue;
+            let data: unknown;
+            try {
+              data = JSON.parse(dataLine.slice(6).trim());
+            } catch {
+              continue;
+            }
+            onEvent({ event: eventLine ? eventLine.slice(7).trim() : "message", data });
+          }
+        }
+      } catch {
+        // Aborted (unsubscribe) or connection closed — normal teardown.
+      } finally {
+        opts.signal?.removeEventListener("abort", onAbort);
+        try {
+          await reader.cancel();
+        } catch {
+          // already closed
+        }
+      }
+    })();
+
+    return () => controller.abort();
   }
 
   /**
@@ -225,11 +294,33 @@ export class GraphewayClient {
 
 /** Response of `GET /graph/v1`. */
 export interface GraphSummary {
+  version?: number;
   nodes: number;
   edges: number;
   nodeTypes: string[];
   edgeTypes: string[];
+  /** Edge-count breakdown by provenance (config/section/link/builder/extra/derived). */
+  provenance?: Record<string, number>;
+  /** Edge-count breakdown by confidence (extracted/inferred/ambiguous). */
+  confidence?: Record<string, number>;
   endpoints?: Record<string, string>;
+}
+
+/** Response of `GET /graph/v1/path`: node ids + the edges behind each hop. */
+export interface PathResult {
+  path: string[];
+  edges: GraphEdge[];
+}
+
+/** An event delivered by `subscribeGraph` (SSE /graph/v1/events). */
+export interface GraphEvent {
+  event: string;
+  data: unknown;
+}
+
+/** A graph subscription event carrying `{ version, patches }`. */
+export interface GraphUpdateEvent extends GraphEvent {
+  data: { version: number; patches: Array<{ type: string; [k: string]: unknown }> };
 }
 
 /** Response of `GET /graph/v1/edges`. */

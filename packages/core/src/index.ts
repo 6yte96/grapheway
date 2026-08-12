@@ -14,5 +14,6 @@ export * from "./manifest.ts";
 export * from "./jsonld.ts";
 export * from "./graph.ts";
 export * from "./graph-query.ts";
+export * from "./graph-patch.ts";
 export * from "./graph-tools.ts";
 export * from "./discovery.ts";

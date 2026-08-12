@@ -22,16 +22,18 @@
  */
 
 import {
+  applyPatches,
   buildDiscovery,
   buildGraph,
   buildManifest,
   findNode,
-  findPath,
+  findPathWithEdges,
   neighborsOf,
   searchNodes,
   type GraphewayConfig,
   type GraphBuildOptions,
   type GraphEdgeType,
+  type GraphPatch,
   type KnowledgeGraph,
 } from "grapheway";
 import { createActionRunner } from "./actions.ts";
@@ -43,7 +45,13 @@ import {
   sessionIdFor,
   MCP_PROTOCOL_VERSION,
 } from "./mcp.ts";
-import type { GraphewayOptions, AgentResponse, AgentRequest, RouteHandler } from "./types.ts";
+import type {
+  GraphewayOptions,
+  AgentResponse,
+  AgentRequest,
+  RouteHandler,
+  ClosableAsyncIterable,
+} from "./types.ts";
 
 const CORS_HEADERS: Record<string, string> = {
   "access-control-allow-origin": "*",
@@ -65,10 +73,52 @@ function text(status: number, body: string, extra: Record<string, string> = {}):
   return respond(status, body, "text/plain; charset=utf-8", extra);
 }
 
+/** Format one SSE event (event name + JSON data). */
+function sse(event: string, data: unknown): string {
+  return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+}
+
+/** A tiny push-based async channel that adapters drain as a body stream. */
+function createPushChannel() {
+  const queue: string[] = [];
+  let wake: (() => void) | null = null;
+  let closed = false;
+  return {
+    push(data: string) {
+      queue.push(data);
+      wake?.();
+    },
+    close() {
+      closed = true;
+      wake?.();
+    },
+    async *[Symbol.asyncIterator](): AsyncGenerator<string> {
+      while (true) {
+        while (queue.length) yield queue.shift()!;
+        if (closed) return;
+        await new Promise<void>((resolve) => {
+          wake = resolve;
+        });
+      }
+    },
+  };
+}
+
 /** Create the framework-agnostic runtime agent handler. */
 export function createGrapheway(config: GraphewayConfig, options: GraphewayOptions = {}) {
   const manifest = buildManifest(config);
-  const graph: KnowledgeGraph = buildGraph(config, options.graph);
+
+  // The live graph: starts from the config projection, then apps can push
+  // GraphPatches at runtime (`patchGraph`). Subscribers (SSE, MCP, agents)
+  // receive every change — the realtime half of native access.
+  let liveGraph: KnowledgeGraph = buildGraph(config, options.graph);
+  let graphVersion = 0;
+  const graphListeners = new Set<(payload: { version: number; patches: GraphPatch[] }) => void>();
+  const subscribeGraph = (listener: (payload: { version: number; patches: GraphPatch[] }) => void) => {
+    graphListeners.add(listener);
+    return () => graphListeners.delete(listener);
+  };
+
   const prefix = (options.prefix ?? "/").replace(/\/+$/, "");
 
   const getPageMarkdown = async (path: string): Promise<string | null> =>
@@ -108,7 +158,7 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
 
   /** Resolve a node id to markdown for MCP resources/read. */
   const readNode = async (id: string): Promise<string> => {
-    const node = findNode(graph, id);
+    const node = findNode(liveGraph, id);
     if (!node) throw new Error(`Unknown node: ${id}`);
     const path = nodePath(node);
     if (path) {
@@ -132,25 +182,36 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
     // ---- Graph protocol (/graph/v1) ----
     {
       match: (p, m) => p === "/graph/v1" && m === "GET",
-      handler: () =>
-        json(200, {
-          nodes: graph.nodes.length,
-          edges: graph.edges.length,
-          nodeTypes: [...new Set(graph.nodes.map((n) => n.type))].sort(),
-          edgeTypes: [...new Set(graph.edges.map((e) => e.type))].sort(),
+      handler: () => {
+        const provenance: Record<string, number> = {};
+        const confidence: Record<string, number> = {};
+        for (const e of liveGraph.edges) {
+          provenance[e.provenance ?? "unknown"] = (provenance[e.provenance ?? "unknown"] ?? 0) + 1;
+          confidence[e.confidence ?? "unknown"] = (confidence[e.confidence ?? "unknown"] ?? 0) + 1;
+        }
+        return json(200, {
+          version: graphVersion,
+          nodes: liveGraph.nodes.length,
+          edges: liveGraph.edges.length,
+          nodeTypes: [...new Set(liveGraph.nodes.map((n) => n.type))].sort(),
+          edgeTypes: [...new Set(liveGraph.edges.map((e) => e.type))].sort(),
+          provenance,
+          confidence,
           endpoints: {
             node: "/graph/v1/node?id=<node-id>",
             edges: "/graph/v1/edges?id=<node-id>&direction=out|in|both",
             search: "/graph/v1/search?q=<query>",
             path: "/graph/v1/path?from=<id>&to=<id>",
+            events: "/graph/v1/events",
           },
-        }),
+        });
+      },
     },
     {
       match: (p, m) => p === "/graph/v1/node" && m === "GET",
       handler: (req) => {
         const id = new URL(req.url, "http://localhost").searchParams.get("id") ?? "";
-        const node = findNode(graph, id);
+        const node = findNode(liveGraph, id);
         if (!node) return json(404, { error: "Unknown node", id });
         return json(200, node);
       },
@@ -163,7 +224,7 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         const dir = sp.get("direction")?.toLowerCase();
         const direction = dir === "in" || dir === "out" ? dir : "both";
         const type = (sp.get("type") ?? undefined) as GraphEdgeType | undefined;
-        return json(200, neighborsOf(graph, id, direction, type));
+        return json(200, neighborsOf(liveGraph, id, direction, type));
       },
     },
     {
@@ -172,7 +233,7 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         const sp = new URL(req.url, "http://localhost").searchParams;
         const q = sp.get("q") ?? "";
         const limit = Number(sp.get("limit") ?? 10);
-        return json(200, { query: q, results: searchNodes(graph, q, Number.isFinite(limit) ? limit : 10) });
+        return json(200, { query: q, results: searchNodes(liveGraph, q, Number.isFinite(limit) ? limit : 10) });
       },
     },
     {
@@ -181,16 +242,32 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         const sp = new URL(req.url, "http://localhost").searchParams;
         const from = sp.get("from") ?? "";
         const to = sp.get("to") ?? "";
-        const path = findPath(graph, from, to);
-        if (!path) return json(404, { error: "No path between nodes", from, to });
-        return json(200, { from, to, path });
+        const result = findPathWithEdges(liveGraph, from, to);
+        if (!result) return json(404, { error: "No path between nodes", from, to });
+        return json(200, { from, to, path: result.path, edges: result.edges });
       },
+    },
+    {
+      // Realtime graph subscription (SSE): snapshot + every applied patch.
+      match: (p, m) => p === "/graph/v1/events" && m === "GET",
+      handler: () => ({
+        status: 200,
+        headers: {
+          ...CORS_HEADERS,
+          "content-type": "text/event-stream; charset=utf-8",
+          "cache-control": "no-store",
+          connection: "keep-alive",
+        },
+        body: "",
+        contentType: "text/event-stream; charset=utf-8",
+        bodyStream: graphEventStream(),
+      }),
     },
 
     // ---- Discovery ----
     {
       match: (p) => p === "/.well-known/agent",
-      handler: () => json(200, buildDiscovery(config, graph)),
+      handler: () => json(200, buildDiscovery(config, liveGraph)),
     },
 
     // ---- Manifest + actions (runtime) ----
@@ -256,7 +333,7 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
           manifest,
           runAction: runner.runAction,
           additionalTools,
-          graph,
+          graph: liveGraph,
           readNode,
         });
         if (response === null) {
@@ -269,6 +346,34 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
       },
     },
   ];
+
+  /** Live SSE stream of graph changes (snapshot + patches + heartbeat). */
+  function graphEventStream(): ClosableAsyncIterable<string> {
+    const channel = createPushChannel();
+    const unsubscribe = subscribeGraph((payload) => channel.push(sse("graph", payload)));
+    const heartbeat = setInterval(() => channel.push(": ping\n\n"), 15_000);
+    channel.push(
+      sse("graph", {
+        type: "snapshot",
+        version: graphVersion,
+        nodes: liveGraph.nodes.length,
+        edges: liveGraph.edges.length,
+      }),
+    );
+    return {
+      /** Close the stream early (e.g. client disconnected). */
+      close: () => channel.close(),
+      async *[Symbol.asyncIterator]() {
+        try {
+          yield* channel;
+        } finally {
+          clearInterval(heartbeat);
+          unsubscribe();
+          channel.close();
+        }
+      },
+    };
+  }
 
   return {
     /** The framework-agnostic handler. */
@@ -307,8 +412,37 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
     /** The generated manifest (same as GET /agent). */
     manifest,
 
-    /** The site's knowledge graph (same data served at /graph/v1). */
-    graph,
+    /**
+     * The site's live knowledge graph (same data served at /graph/v1).
+     * Re-read after calling `patchGraph` to see the new state.
+     */
+    get graph(): KnowledgeGraph {
+      return liveGraph;
+    },
+
+    /** Current graph version — increments on every patch. */
+    get version(): number {
+      return graphVersion;
+    },
+
+    /**
+     * Push graph changes at runtime. Subscribers (SSE /graph/v1/events,
+     * MCP clients, agents) receive the patches immediately.
+     * Returns the new graph version.
+     *
+     *   agent.patchGraph([
+     *     { type: "add_node", node: { id: "https://…/solar", type: "page", label: "Solar Hub" } },
+     *     { type: "add_edge", edge: { id: "e-live", source: "https://…", target: "https://…/solar", type: "links_to" } },
+     *   ]);
+     */
+    patchGraph(patches: GraphPatch | GraphPatch[]): number {
+      const list = Array.isArray(patches) ? patches : [patches];
+      liveGraph = applyPatches(liveGraph, list);
+      graphVersion += 1;
+      const payload = { version: graphVersion, patches: list };
+      for (const listener of [...graphListeners]) listener(payload);
+      return graphVersion;
+    },
   };
 }
 

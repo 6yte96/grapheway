@@ -19,7 +19,17 @@ export interface AgentResponse {
   headers: Record<string, string>;
   body: string;
   contentType: string;
+  /**
+   * Optional streaming body (SSE). When present, adapters write chunks as
+   * they arrive and keep the connection open (used by /graph/v1/events).
+   */   bodyStream?: ClosableAsyncIterable<string>;
+ }
+
+/** An async iterable that can also be closed early (e.g. client went away). */
+export interface ClosableAsyncIterable<T> extends AsyncIterable<T> {
+  close?: () => void;
 }
+
 
 /** A route handler. May be async (actions can await work). */
 export type RouteHandler = (req: AgentRequest, ctx: GraphewayContext) => Promise<AgentResponse> | AgentResponse;

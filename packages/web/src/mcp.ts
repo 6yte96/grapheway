@@ -18,7 +18,7 @@ import {
   GRAPHEWAY_VERSION,
   GRAPH_TOOLS,
   findNode,
-  findPath,
+  findPathWithEdges,
   neighborsOf,
   searchNodes,
   type AgentManifest,
@@ -96,7 +96,7 @@ export function callGraphTool(deps: McpDeps, name: string, args: Record<string, 
       return { query: args.q, results: searchNodes(g, String(args.q ?? ""), safe) };
     }
     case "graph_path":
-      return { path: findPath(g, String(args.from ?? ""), String(args.to ?? "")) };
+      return findPathWithEdges(g, String(args.from ?? ""), String(args.to ?? ""));
     default:
       return null;
   }

@@ -27,12 +27,39 @@ export interface GraphNode {
 
 export type GraphEdgeType = "links_to" | "is_part_of" | "related" | "mentions";
 
+/**
+ * Where an edge came from — the audit trail for the graph.
+ *
+ * - `config`   — declared directly in the site config (sections/links)
+ * - `section`  — a curated item listed under a section
+ * - `link`     — a standalone link declared in the config
+ * - `builder`  — produced by a custom `builder` function
+ * - `extra`    — merged in via the `extra` layer
+ * - `derived`  — inferred at runtime (e.g. discovered by the site itself)
+ */
+export type EdgeProvenance = "config" | "section" | "link" | "builder" | "extra" | "derived";
+
+/**
+ * How confident we are in a relationship (Graphify-style provenance).
+ *
+ * - `extracted` — explicitly declared: the relationship exists in the source
+ * - `inferred`  — reasoned/derived: usually right, worth verifying
+ * - `ambiguous` — evidence points more than one way
+ */
+export type EdgeConfidence = "extracted" | "inferred" | "ambiguous";
+
 export interface GraphEdge {
   id: string;
   source: string;
   target: string;
   type: GraphEdgeType;
   props?: Record<string, unknown>;
+  /** Where this edge came from (audit trail). */
+  provenance?: EdgeProvenance;
+  /** How confident we are in the relationship. */
+  confidence?: EdgeConfidence;
+  /** One-line human/agent-readable explanation of the relationship. */
+  note?: string;
 }
 
 export interface KnowledgeGraph {
@@ -114,14 +141,28 @@ export function projectGraph(config: GraphewayConfig): KnowledgeGraph {
       props: { description: section.description, optional: section.optional },
     });
     // Every section is reachable from the root (even without a URL of its own).
-    addEdge({ source: rootId, target: sectionNodeId, type: "links_to" });
+    addEdge({
+      source: rootId,
+      target: sectionNodeId,
+      type: "links_to",
+      provenance: "config",
+      confidence: "extracted",
+      note: `Section "${section.title}" declared in the site config`,
+    });
 
     for (const item of section.items ?? []) {
       const u = new URL(item.url, config.url);
       if (u.origin !== siteOrigin) continue;
       const id = resolveUrl(config, item.url);
       addNode({ id, type: "page", label: item.title, props: { notes: item.notes } });
-      addEdge({ source: sectionNodeId, target: id, type: "is_part_of" });
+      addEdge({
+        source: sectionNodeId,
+        target: id,
+        type: "is_part_of",
+        provenance: "section",
+        confidence: "extracted",
+        note: `Curated item under section "${section.title}"`,
+      });
     }
   });
 
@@ -130,19 +171,41 @@ export function projectGraph(config: GraphewayConfig): KnowledgeGraph {
     if (u.origin !== siteOrigin) continue;
     const id = resolveUrl(config, link.url);
     addNode({ id, type: "page", label: link.title, props: { description: link.description } });
-    addEdge({ source: rootId, target: id, type: "links_to" });
+    addEdge({
+      source: rootId,
+      target: id,
+      type: "links_to",
+      provenance: "link",
+      confidence: "extracted",
+      note: `Link "${link.title}" declared in the site config`,
+    });
   }
 
   return { nodes, edges };
 }
 
+/** Default provenance for edges coming out of the custom layers. */
+const LAYER_PROVENANCE: Record<"builder" | "extra", Pick<GraphEdge, "provenance" | "confidence">> = {
+  builder: { provenance: "builder", confidence: "extracted" },
+  extra: { provenance: "extra", confidence: "extracted" },
+};
+
+/** Tag every edge of a layer with default provenance (author's own wins). */
+function tagLayer(
+  graph: KnowledgeGraph,
+  layer: "builder" | "extra",
+): KnowledgeGraph {
+  return { ...graph, edges: graph.edges.map((e) => ({ ...LAYER_PROVENANCE[layer], ...e })) };
+}
+
 /** Build the site's knowledge graph. Custom builder wins; extras merge. */
 export function buildGraph(config: GraphewayConfig, options: GraphBuildOptions = {}): KnowledgeGraph {
-  const base = options.builder ? options.builder(config) : projectGraph(config);
+  const projected = options.builder ? options.builder(config) : projectGraph(config);
+  const base = options.builder ? tagLayer(projected, "builder") : projected;
   const extra = options.extra;
   if (!extra) return base;
   return {
     nodes: [...base.nodes, ...extra.nodes.filter((n) => !base.nodes.some((b) => b.id === n.id))],
-    edges: [...base.edges, ...extra.edges],
+    edges: [...base.edges, ...tagLayer(extra, "extra").edges],
   };
 }

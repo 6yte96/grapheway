@@ -126,6 +126,9 @@ describe("graph traversal (native access)", () => {
     const client = new GraphewayClient(base);
     const summary = await client.graphSummary();
     expect(summary.nodes).toBe(4); // root + section + gadgets + pricing
+    expect(summary.version).toBe(0);
+    expect(summary.provenance?.["config"]).toBeGreaterThan(0);
+    expect(summary.confidence?.extracted).toBeGreaterThan(0);
     const hits = await client.graphSearch("gadgets");
     expect(hits.results.length).toBeGreaterThan(0);
     expect(hits.results[0]!.node.label).toBe("Gadgets");
@@ -134,14 +137,18 @@ describe("graph traversal (native access)", () => {
     expect(await client.graphNode("nope")).toBeNull();
   });
 
-  test("graphEdges and graphPath", async () => {
+  test("graphEdges and graphPath (auditable path with edges)", async () => {
     const client = new GraphewayClient(base);
     const gadgets = (await client.graphSearch("gadgets")).results[0]!.node.id;
     const root = (await client.graphSearch("Acme Store")).results[0]!.node.id;
     const neighbors = await client.graphEdges(gadgets, "in");
     expect(neighbors.edges.length).toBeGreaterThan(0);
+    expect(neighbors.edges[0]!.provenance).toBeTruthy();
     const path = await client.graphPath(root, gadgets);
-    expect(path?.length).toBe(3); // root → section → page
+    expect(path?.path.length).toBe(3); // root → section → page
+    expect(path?.edges).toHaveLength(2);
+    expect(path?.edges[0]!.confidence).toBe("extracted");
+    expect(await client.graphPath(root, `${root}/nope`)).toBeNull();
   });
 
   test("traverse walks the graph instead of crawling", async () => {
@@ -150,6 +157,30 @@ describe("graph traversal (native access)", () => {
     const walked = await client.traverse(start, 2);
     expect(walked.nodes.length).toBeGreaterThanOrEqual(4);
     expect(walked.edges.length).toBeGreaterThan(0);
+  });
+
+  test("subscribeGraph receives snapshot + runtime patches (realtime)", async () => {
+    const client = new GraphewayClient(base);
+    const events: Array<{ event: string; data: any }> = [];
+    const unsub = await client.subscribeGraph((ev) => events.push(ev as any));
+    await new Promise((r) => setTimeout(r, 100)); // let the snapshot arrive
+
+    const liveId = `${base}/live-gadget`;
+    agent.patchGraph([
+      { type: "add_node", node: { id: liveId, type: "page", label: "Live Gadget" } },
+    ]);
+    await new Promise((r) => setTimeout(r, 200));
+    unsub();
+
+    const snap = events.find((e) => (e.data as any)?.type === "snapshot");
+    expect(snap).toBeTruthy();
+    expect((snap!.data as any).version).toBe(0);
+
+    const patch = events.find((e) =>
+      (e.data as any)?.patches?.some((p: any) => p.type === "add_node"),
+    );
+    expect(patch).toBeTruthy();
+    expect((patch!.data as any).patches[0].node.label).toBe("Live Gadget");
   });
 });
 

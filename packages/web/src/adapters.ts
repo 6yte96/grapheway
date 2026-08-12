@@ -24,7 +24,7 @@ export function toNodeHandler(agentHandler: (req: AgentRequest) => Promise<Agent
     };
 
     const result = await agentHandler(request);
-    writeResponse(res, result);
+    await writeResponse(res, result);
   };
 }
 
@@ -41,6 +41,8 @@ export function toExpressHandler(agentHandler: (req: AgentRequest) => Promise<Ag
     const expressRes = res as {
       status: (c: number) => { json: (b: unknown) => void; send: (b: string) => void };
       set: (k: string, v: string) => void;
+      write: (chunk: string) => void;
+      end: () => void;
     };
     const request: AgentRequest = {
       method: expressReq.method,
@@ -51,6 +53,13 @@ export function toExpressHandler(agentHandler: (req: AgentRequest) => Promise<Ag
     agentHandler(request).then((result) => {
       for (const [k, v] of Object.entries(result.headers)) expressRes.set(k, v);
       const s = expressRes.status(result.status);
+      if (result.bodyStream) {
+        void (async () => {
+          for await (const chunk of result.bodyStream!) expressRes.write(chunk);
+          expressRes.end();
+        })();
+        return;
+      }
       if (result.contentType.includes("json")) s.json(JSON.parse(result.body || "null"));
       else s.send(result.body);
     });
@@ -87,6 +96,24 @@ export function toHonoHandler(agentHandler: (req: AgentRequest) => Promise<Agent
       body,
     };
     const result = await agentHandler(request);
+    if (result.bodyStream) {
+      const stream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          try {
+            for await (const chunk of result.bodyStream!) {
+              controller.enqueue(new TextEncoder().encode(chunk));
+            }
+          } finally {
+            controller.close();
+          }
+        },
+        cancel: () => (result.bodyStream as { close?: () => void })?.close?.(),
+      });
+      return honoC.newResponse(stream, {
+        status: result.status,
+        headers: { "content-type": result.contentType, ...result.headers },
+      });
+    }
     return honoC.newResponse(result.body, {
       status: result.status,
       headers: { "content-type": result.contentType, ...result.headers },
@@ -102,9 +129,29 @@ function safeParse(s: string): unknown {
   }
 }
 
-function writeResponse(res: ServerResponse, result: AgentResponse) {
+async function writeResponse(res: ServerResponse, result: AgentResponse) {
   res.statusCode = result.status;
   for (const [k, v] of Object.entries(result.headers)) res.setHeader(k, v);
   res.setHeader("content-type", result.contentType);
+  if (result.bodyStream) {
+    // Streaming response (SSE): write chunks as they arrive; clean up on
+    // client disconnect or stream end. `res.write` on a disconnected socket
+    // surfaces as an async 'error' event — handle it so it never becomes an
+    // uncaught exception that takes the whole server down.
+    res.on("error", () => res.destroy());
+    // When the client goes away, close the upstream stream too so its
+    // heartbeat interval + listeners are released, not leaked.
+    res.on("close", () => (result.bodyStream as { close?: () => void })?.close?.());
+    res.flushHeaders?.();
+    try {
+      for await (const chunk of result.bodyStream) {
+        res.write(chunk);
+      }
+      res.end();
+    } catch {
+      res.destroy();
+    }
+    return;
+  }
   res.end(result.body);
 }

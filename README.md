@@ -144,7 +144,8 @@ GET  /graph/v1            graph summary
 GET  /graph/v1/node       a node (page/section) of the site graph
 GET  /graph/v1/edges      edges touching a node (links, relations)
 GET  /graph/v1/search     ranked node search over the graph
-GET  /graph/v1/path       shortest path between two nodes
+GET  /graph/v1/path       shortest path between two nodes (auditable)
+GET  /graph/v1/events     live graph events (SSE) — realtime subscriptions
 GET  /agent               full manifest
 GET  /agent/info          site info          GET  /agent/sections   curated sections
 GET  /agent/actions       declared actions   POST /agent/action     run an action
@@ -293,6 +294,104 @@ Claude Desktop config:
 AI agent how to discover and use agent-ready endpoints (probe
 `/.well-known/agent` → traverse the graph → call actions → MCP), so agents
 know to use your structured surface before scraping HTML.
+
+---
+
+## Provenance & confidence — answers you can audit
+
+Every edge in a grapheway graph carries **provenance** (where it came from:
+a `config` declaration, a `section`, a `link` on a page, a `builder`
+function, or `derived` at runtime) and a **confidence** tag — the same
+`EXTRACTED` / `INFERRED` / `AMBIGUOUS` trust model that made Graphify famous,
+adapted from code to the web:
+
+| Confidence | Meaning |
+| --- | --- |
+| `extracted` | Ground truth — the site owner declared it or it was read directly from a page's links. |
+| `inferred` | Computed with clear evidence (e.g. a link found in a section or a parent page). |
+| `ambiguous` | Best-effort — worth verifying before relying on it (e.g. deduped links, guessed pages). |
+
+The graph **summary** reports how trustworthy the map is:
+
+```json
+{
+  "nodes": 12,
+  "edges": 31,
+  "provenance": { "config": 6, "section": 9, "link": 12, "derived": 4 },
+  "confidence": { "extracted": 18, "inferred": 9, "ambiguous": 4 }
+}
+```
+
+And **`graph_path` doesn't just answer — it shows its work**: the response
+includes every edge in the path with its provenance and confidence, so an
+agent can decide how much to trust the route, and a site owner can see
+exactly what an agent was told.
+
+```json
+{
+  "found": true,
+  "path": ["/", "/docs", "/docs/install"],
+  "edges": [
+    {
+      "from": "/", "to": "/docs", "type": "link",
+      "provenance": "section", "confidence": "extracted",
+      "note": "Declared in 'Getting Started' section"
+    }
+  ]
+}
+```
+
+---
+
+## Realtime — the live graph
+
+Your graph is not a static dump: it's a **live structure agents can subscribe
+to**. Call `patchGraph()` from your app code whenever the world changes — new
+product, new docs page, price update — and the server applies the patch and
+broadcasts it:
+
+```ts
+const agent = createGrapheway(config, { search, getPageMarkdown, actions });
+
+// Anywhere in your app:
+agent.patchGraph({
+  addEdges: [{ from: "/", to: "/products/neo", type: "link" }],
+  setNodeMeta: { "/products/neo": { title: "NEO Gadget" } },
+  removeNodes: ["/products/legacy"],
+});
+```
+
+Agents connect to `GET /graph/v1/events` over **Server-Sent Events**: they
+receive the current snapshot, then a stream of patches as the site evolves —
+no polling, no re-crawling:
+
+```bash
+curl -N https://acme.example/graph/v1/events
+```
+
+```
+event: snapshot
+data: {"nodes":12,"edges":31}
+
+event: patch
+data: {"addEdges":[{"from":"/","to":"/products/neo","type":"link"}],"setNodeMeta":{"/products/neo":{"title":"NEO Gadget"}}}
+
+event: heartbeat
+data: {}
+```
+
+The `@grapheway/agent` client wraps it in a typed subscription that streams
+patches straight into a local graph:
+
+```ts
+const acme = new GraphewayClient("https://acme.example");
+const unsub = acme.subscribeGraph((patch) => {
+  console.log("graph changed:", patch.addEdges?.length ?? 0, "new edges");
+});
+```
+
+That's Graphify's "always-on" promise, on the web side: **agents stop
+re-crawling your site — your site pushes its truth to them.**
 
 ---
 

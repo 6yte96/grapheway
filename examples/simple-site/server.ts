@@ -79,9 +79,36 @@ server.listen(PORT, () => {
   Site:        http://localhost:${PORT}/
   Discovery:   http://localhost:${PORT}/.well-known/agent
   Graph:       http://localhost:${PORT}/graph/v1
+  Events:      http://localhost:${PORT}/graph/v1/events  (realtime SSE)
   Manifest:    http://localhost:${PORT}/agent
   MCP:         http://localhost:${PORT}/mcp
   Custom tool: check_device_status (e.g. serial WB-0001)
   Compat:      http://localhost:${PORT}/llms.txt · robots.txt · sitemap.xml
   `);
+
+  // Realtime demo: a new product appears at runtime. Push a graph patch so
+  // subscribed agents (SSE /graph/v1/events) learn about it immediately.
+  setTimeout(() => {
+    const root = `http://localhost:${PORT}`;
+    const solar = `${root}/products/solar-hub`;
+    agent.patchGraph([
+      {
+        type: "add_node",
+        node: { id: solar, type: "page", label: "Solar Hub", props: { notes: "New device — just released" } },
+      },
+      {
+        type: "add_edge",
+        edge: {
+          id: "e-live-1",
+          source: root,
+          target: solar,
+          type: "links_to",
+          provenance: "derived",
+          confidence: "inferred",
+          note: "Discovered at runtime by the site itself",
+        },
+      },
+    ]);
+    console.log(`[realtime] graph v${agent.version}: +1 node (Solar Hub) +1 inferred edge`);
+  }, 3_000);
 });
