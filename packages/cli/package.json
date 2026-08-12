@@ -6,11 +6,18 @@
   "main": "./src/cli.ts",
   "types": "./src/cli.ts",
   "bin": {
-    "grapheway": "./dist/cli.js"
+    "grapheway": "./src/cli.ts"
   },
-  "files": ["dist", "src"],
+  "files": ["src"],
   "keywords": ["agent", "cli", "llms.txt", "agents.txt", "robots.txt", "geo", "audit"],
   "license": "GPL-3.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.18",
+    "bun": ">=1.0"
+  },
   "dependencies": {
     "grapheway": "workspace:*",
     "@grapheway/web": "workspace:*",

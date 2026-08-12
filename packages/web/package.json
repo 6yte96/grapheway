@@ -11,9 +11,16 @@
       "default": "./src/index.ts"
     }
   },
-  "files": ["dist", "src"],
+  "files": ["src"],
   "keywords": ["agent", "mcp", "llms.txt", "agents.txt", "api", "geo", "ai", "llm"],
   "license": "GPL-3.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.18",
+    "bun": ">=1.0"
+  },
   "dependencies": {
     "grapheway": "workspace:*"
   },

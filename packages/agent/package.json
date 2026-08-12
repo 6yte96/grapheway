@@ -15,9 +15,16 @@
   "bin": {
     "grapheway-mcp": "./src/mcp-stdio.ts"
   },
-  "files": ["dist", "src", "skill"],
+  "files": ["src", "skill"],
   "keywords": ["agent", "mcp", "llms.txt", "agents.txt", "client", "ai", "llm", "skill"],
   "license": "GPL-3.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.18",
+    "bun": ">=1.0"
+  },
   "scripts": {
     "test": "bun test"
   },

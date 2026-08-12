@@ -11,7 +11,7 @@
       "default": "./src/index.ts"
     }
   },
-  "files": ["dist", "src"],
+  "files": ["src"],
   "keywords": [
     "agent",
     "knowledge-graph",
@@ -23,6 +23,13 @@
     "native-access"
   ],
   "license": "GPL-3.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.18",
+    "bun": ">=1.0"
+  },
   "scripts": {
     "test": "bun test"
   }

@@ -355,6 +355,30 @@ bun run examples/simple-site/demo.ts  # run the agent client against it
 
 ---
 
+## Publishing (npm)
+
+Every push to `main` runs the quality gate (typecheck + full test suite) and
+then publishes **every package whose version is not yet on npm** — bump the
+version, push, and it ships. See `.github/workflows/publish.yml`.
+
+1. **Bump the version** — keep all five packages in lockstep (they depend on
+   each other via `workspace:*`): set the same new `"version"` (e.g. `0.2.0`)
+   in `packages/{core,web,compat,agent,cli}/package.json`, commit, push to `main`.
+2. **Add the npm token** — create an npm *automation* token
+   (npmjs.com → Access Tokens → Generate new → *Automation*), then add it as a
+   repository secret named `NPM_TOKEN`:
+   GitHub → repo → **Settings → Secrets and variables → Actions**.
+   (A local `.env` is never read — GitHub Actions uses repository secrets.)
+3. Push to `main` — the workflow typechecks, runs the tests, then publishes
+   each unpublished version in dependency order:
+   `grapheway` → `@grapheway/compat` → `@grapheway/web` → `@grapheway/agent` → `@grapheway/cli`.
+   Versions already on npm are skipped, so docs-only pushes are safe.
+
+> Packages ship as TypeScript source (no build step) — install with **Bun** or
+> **Node ≥ 22.18** (native type stripping). Binaries: `grapheway`, `grapheway-mcp`.
+
+---
+
 ## License
 
 GPL-3.0
