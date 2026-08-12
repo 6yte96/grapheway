@@ -40,6 +40,7 @@
       "dependencies": {
         "@grapheway/compat": "workspace:*",
         "@grapheway/web": "workspace:*",
+        "@types/node": "^22.10.0",
         "grapheway": "workspace:*",
       },
     },
@@ -58,6 +59,7 @@
       "name": "@grapheway/web",
       "version": "0.1.0",
       "dependencies": {
+        "@types/node": "^22.10.0",
         "grapheway": "workspace:*",
       },
     },

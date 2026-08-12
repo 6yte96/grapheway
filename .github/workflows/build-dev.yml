@@ -44,6 +44,9 @@ jobs:
       - name: Run tests
         run: bun test
 
+      - name: Build packages (dist)
+        run: bun run build
+
       - name: Resolve workspace deps
         # npm does not rewrite `workspace:*` at pack time — pin to concrete
         # versions first so the tarballs are actually installable.

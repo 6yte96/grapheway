@@ -3,13 +3,31 @@
   "version": "0.1.0",
   "description": "CLI for grapheway: generate agent files (llms.txt, agents.txt, robots.txt, agents.json), audit any live URL for agent-readiness (GEO score), and serve the agent endpoint for static sites.",
   "type": "module",
-  "main": "./src/cli.ts",
-  "types": "./src/cli.ts",
-  "bin": {
-    "grapheway": "./src/cli.ts"
+  "main": "./dist/cli.js",
+  "types": "./dist/cli.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/cli.d.ts",
+      "bun": "./src/cli.ts",
+      "default": "./dist/cli.js"
+    }
   },
-  "files": ["src"],
-  "keywords": ["agent", "cli", "llms.txt", "agents.txt", "robots.txt", "geo", "audit"],
+  "bin": {
+    "grapheway": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "keywords": [
+    "agent",
+    "cli",
+    "llms.txt",
+    "agents.txt",
+    "robots.txt",
+    "geo",
+    "audit"
+  ],
   "license": "GPL-3.0",
   "publishConfig": {
     "access": "public"
@@ -21,7 +39,8 @@
   "dependencies": {
     "grapheway": "workspace:*",
     "@grapheway/web": "workspace:*",
-    "@grapheway/compat": "workspace:*"
+    "@grapheway/compat": "workspace:*",
+    "@types/node": "^22.10.0"
   },
   "scripts": {
     "test": "bun test"

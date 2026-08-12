@@ -11,6 +11,8 @@
  * read info and take basic actions against the site without scraping.
  */
 
+import { realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { GraphewayClient } from "./client.ts";
 import { GRAPHEWAY_VERSION, GRAPH_TOOLS, type AgentManifest } from "grapheway";
 
@@ -158,7 +160,13 @@ export async function runStdioServer(baseUrl: string) {
 function isCliEntry(): boolean {
   const entry = process.argv[1];
   if (!entry) return false;
-  return entry.endsWith("mcp-stdio.ts") || entry.endsWith("mcp-stdio.js");
+  try {
+    // Works whether invoked as source (bun), dist (node), or via an npm bin
+    // symlink (node_modules/.bin/grapheway-mcp → dist/mcp-stdio.js).
+    return realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return entry.endsWith("mcp-stdio.ts") || entry.endsWith("mcp-stdio.js");
+  }
 }
 
 if (isCliEntry()) {

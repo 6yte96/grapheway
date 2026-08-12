@@ -347,8 +347,9 @@ grapheway/
 
 ```bash
 bun install          # install workspace deps
+bun run build        # compile packages/* to dist/ (JS bundles + .d.ts)
 bun test             # 85+ tests across all packages
-npx tsc --noEmit     # typecheck
+npx tsc --noEmit     # typecheck (resolves packages via tsconfig paths)
 bun run example      # start the demo site on :4321
 bun run examples/simple-site/demo.ts  # run the agent client against it
 ```
@@ -374,10 +375,10 @@ version, push, and it ships. See `.github/workflows/publish.yml`.
    `grapheway` → `@grapheway/compat` → `@grapheway/web` → `@grapheway/agent` → `@grapheway/cli`.
    Versions already on npm are skipped, so docs-only pushes are safe.
 
-> Packages ship as TypeScript source (no build step) — works with **Bun**, **Deno**,
-> and bundler-based toolchains (Vite, Next.js, tsup, …). Plain Node can't load
-> `.ts` from `node_modules` yet — a compiled `dist` build is planned. Binaries:
-> `grapheway`, `grapheway-mcp`.
+> Packages compile to `dist/` (JS bundles + type declarations) — works on **Node**,
+> **Bun**, **Deno**, and bundlers. In this monorepo, Bun resolves package imports
+> to `src` for dev, so `bun run build` is only needed when producing artifacts.
+> Binaries: `grapheway`, `grapheway-mcp`.
 
 ### Dev builds (artifacts)
 

@@ -3,16 +3,29 @@
   "version": "0.1.0",
   "description": "Drop-in runtime agent endpoint for any Node web app: knowledge graph (/graph/v1), discovery (/.well-known/agent), actions, open MCP (/mcp) + framework adapters.",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "bun": "./src/index.ts",
+      "default": "./dist/index.js"
     }
   },
-  "files": ["src"],
-  "keywords": ["agent", "mcp", "llms.txt", "agents.txt", "api", "geo", "ai", "llm"],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "keywords": [
+    "agent",
+    "mcp",
+    "llms.txt",
+    "agents.txt",
+    "api",
+    "geo",
+    "ai",
+    "llm"
+  ],
   "license": "GPL-3.0",
   "publishConfig": {
     "access": "public"
@@ -22,7 +35,8 @@
     "bun": ">=1.0"
   },
   "dependencies": {
-    "grapheway": "workspace:*"
+    "grapheway": "workspace:*",
+    "@types/node": "^22.10.0"
   },
   "scripts": {
     "test": "bun test"
