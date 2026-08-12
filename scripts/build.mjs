@@ -39,7 +39,7 @@ const tscBin = join(
   process.platform === "win32" ? "tsc.cmd" : "tsc",
 );
 
-const PACKAGES = ["core", "web", "compat", "agent", "cli"];
+const PACKAGES = ["core", "web", "compat", "agent", "probe", "cli"];
 
 /** Entry points (relative to each package dir). */
 const ENTRIES = {
@@ -48,6 +48,7 @@ const ENTRIES = {
   compat: ["src/index.ts"],
   agent: ["src/index.ts", "src/mcp-stdio.ts"],
   cli: ["src/cli.ts"],
+  probe: ["src/index.ts"],
 };
 
 /** dist files that must be executable with a node shebang. */

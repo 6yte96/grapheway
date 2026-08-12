@@ -7,7 +7,7 @@
  *   grapheway serve  [--config grapheway.config.ts] [--port 3000]
  */
 
-import { auditUrl, generate, parseFlags, serve } from "./commands.ts";
+import { auditUrl, generate, parseFlags, parseProbeFlags, probe, serve } from "./commands.ts";
 import { DEFAULT_CONFIG_PATH, loadConfig } from "./load-config.ts";
 
 const HELP = `grapheway — native agent access for your web app
@@ -17,6 +17,13 @@ Usage:
       Serve the runtime agent surface: discovery (/.well-known/agent),
       knowledge graph (/graph/v1), JSON API (/agent), MCP (/mcp) — plus
       the optional compat files (llms.txt, robots.txt, sitemap.xml).
+
+  grapheway probe <url> [--port <port>] [--out <dir>] [--depth <n>] [--max-pages <n>] [--no-serve]
+      Convert ANY website into an agent-native knowledge graph — no site
+      involvement, no paid crawlers. Crawls the site, extracts its content
+      (nav, headings, links, OpenAPI endpoints) into a tagged graph, then
+      serves it locally as the full agent surface (discovery, /graph/v1,
+      /agent, MCP) and/or exports graph.json + config.json with --out.
 
   grapheway generate [--config <file>] [--out <dir>]
       Generate the legacy static files (llms.txt, agents.txt, agents.json,
@@ -61,6 +68,11 @@ async function main() {
         console.log(`  ${mark} ${check.label}${detail}`);
       }
       console.log(`\n  ${result.summary}\n`);
+      break;
+    }
+    case "probe": {
+      const flags = parseProbeFlags(args.slice(1));
+      await probe(flags);
       break;
     }
     case "serve": {

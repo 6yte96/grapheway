@@ -19,7 +19,8 @@
       "grapheway": ["./packages/core/src/index.ts"],
       "@grapheway/web": ["./packages/web/src/index.ts"],
       "@grapheway/compat": ["./packages/compat/src/index.ts"],
-      "@grapheway/agent": ["./packages/agent/src/index.ts"]
+      "@grapheway/agent": ["./packages/agent/src/index.ts"],
+      "@grapheway/probe": ["./packages/probe/src/index.ts"]
     },
     "noEmit": true
   },

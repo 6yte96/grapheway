@@ -39,6 +39,7 @@
       },
       "dependencies": {
         "@grapheway/compat": "workspace:*",
+        "@grapheway/probe": "workspace:*",
         "@grapheway/web": "workspace:*",
         "@types/node": "^22.10.0",
         "grapheway": "workspace:*",
@@ -48,12 +49,21 @@
       "name": "@grapheway/compat",
       "version": "0.1.0",
       "dependencies": {
-        "grapheway": "workspace:*",
+        "grapheway": "0.1.0",
       },
     },
     "packages/core": {
       "name": "grapheway",
       "version": "0.1.0",
+    },
+    "packages/probe": {
+      "name": "@grapheway/probe",
+      "version": "0.1.0",
+      "dependencies": {
+        "@grapheway/web": "workspace:*",
+        "@types/node": "^22.10.0",
+        "grapheway": "workspace:*",
+      },
     },
     "packages/web": {
       "name": "@grapheway/web",
@@ -70,6 +80,8 @@
     "@grapheway/cli": ["@grapheway/cli@workspace:packages/cli"],
 
     "@grapheway/compat": ["@grapheway/compat@workspace:packages/compat"],
+
+    "@grapheway/probe": ["@grapheway/probe@workspace:packages/probe"],
 
     "@grapheway/web": ["@grapheway/web@workspace:packages/web"],
 

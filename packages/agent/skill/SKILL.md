@@ -2,8 +2,9 @@
 name: grapheway
 description: >
   Discover and use agent-ready endpoints on any website that runs grapheway
-  (or serves the standard agent files). Use this whenever a user asks you to
-  get information from a website, summarize its content, or perform basic
+  (or serves the standard agent files), and probe any OTHER website into a
+  graph with `grapheway probe`. Use this whenever a user asks you to get
+  information from a website, summarize its content, or perform basic
   actions on it — before falling back to scraping HTML.
 ---
 
@@ -81,7 +82,33 @@ bunx grapheway-mcp https://example.com
 
 …to expose the same tools over stdio.
 
-## 5. Rules of engagement
+## 5. Probing sites that are NOT agent-ready
+
+Most sites don't run grapheway. Instead of scraping their HTML by hand,
+convert them into a graph first with the probe tool:
+
+```bash
+# Serve the site's knowledge graph locally (discovery, /graph/v1, /agent, /mcp)
+grapheway probe https://legacy-docs.example --port 4321
+
+# Or export the graph as JSON for offline/CI use
+grapheway probe https://legacy-docs.example --no-serve --out ./graph
+```
+
+Then point your client at `http://localhost:4321` and use the standard flow
+(discovery → graph → get_page → MCP) against the *probed* site. The probe:
+
+- extracts **knowledge, not tech stack** — nav, headings, links, meta — into
+  a tagged graph (nav links `extracted`, content links `inferred`, headings
+  `derived`)
+- detects **OpenAPI** specs (`openapi.json`, `swagger.json`, …) and turns
+  endpoints into typed `api` nodes with method, path, summary, tags
+- respects `robots.txt`, crawls same-origin only
+- converts pages to clean markdown on demand (`get_page`)
+
+When you can't run the probe locally, fall back to reading HTML directly.
+
+## 6. Rules of engagement
 
 - Always respect `robots.txt` for bulk fetching; user-requested live fetches
   are what `ChatGPT-User`/`Claude-User` style fetches are for.

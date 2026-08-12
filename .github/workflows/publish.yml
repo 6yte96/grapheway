@@ -69,7 +69,7 @@ jobs:
         run: |
           set -euo pipefail
           # Dependency order: core first, then the packages built on it.
-          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli; do
+          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli @grapheway/probe; do
             if [ "$pkg" = "grapheway" ]; then
               dir="packages/core"
             else
@@ -90,7 +90,7 @@ jobs:
 
       - name: Verify published versions
         run: |
-          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli; do
+          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli @grapheway/probe; do
             if [ "$pkg" = "grapheway" ]; then
               dir="packages/core"
             else

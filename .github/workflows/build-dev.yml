@@ -56,7 +56,7 @@ jobs:
         run: |
           # Clean first so old versions don't pile up across version bumps.
           rm -rf artifacts && mkdir -p artifacts
-          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli; do
+          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli @grapheway/probe; do
             npm pack -w "$pkg" --pack-destination artifacts >/dev/null
           done
           ls -la artifacts

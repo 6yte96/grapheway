@@ -37,9 +37,10 @@
     "bun": ">=1.0"
   },
   "dependencies": {
-    "grapheway": "workspace:*",
-    "@grapheway/web": "workspace:*",
-    "@grapheway/compat": "workspace:*",
+    "grapheway": "0.1.0",
+    "@grapheway/web": "0.1.0",
+    "@grapheway/compat": "0.1.0",
+    "@grapheway/probe": "0.1.0",
     "@types/node": "^22.10.0"
   },
   "scripts": {

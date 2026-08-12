@@ -8,6 +8,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import type { GraphewayConfig, AuditResult } from "grapheway";
 import { compatHandler, generateAll } from "@grapheway/compat";
 import { createGrapheway, toNodeHandler } from "@grapheway/web";
+import { exportProbed, probeSite, serveProbed, summarizeProbe } from "@grapheway/probe";
 import { loadConfig } from "./load-config.ts";
 
 /**
@@ -171,6 +172,47 @@ export async function auditUrl(url: string): Promise<AuditResult> {
 }
 
 /**
+ * `grapheway probe <url> [--port n] [--out dir] [--depth n] [--max-pages n]`
+ * — convert any legacy website into an agent-native graph. Crawls the site,
+ * builds a tagged knowledge graph from its content (nav, headings, links,
+ * OpenAPI endpoints), then serves it locally as the full agent surface —
+ * discovery, /graph/v1, /agent, MCP — for agents to use, and/or exports it.
+ */
+export interface ProbeFlags {
+  url: string;
+  port?: number;
+  outDir?: string;
+  depth?: number;
+  maxPages?: number;
+  noServe?: boolean;
+}
+
+export async function probe(flags: ProbeFlags): Promise<void> {
+  const { url, port, outDir, depth, maxPages, noServe } = flags;
+  const result = await probeSite(url, { maxDepth: depth, maxPages });
+  console.log("\n" + summarizeProbe(result) + "\n");
+
+  if (outDir) {
+    const files = await exportProbed(result, { outDir });
+    for (const f of files) console.log(`  ✓ ${f}`);
+    console.log("");
+  }
+
+  if (noServe) return;
+
+  const server = await serveProbed(url, { result });
+  const p = port ?? 4321;
+  console.log(`Serving "${result.config.name}" as an agent surface:`);
+  console.log(`  discovery    http://localhost:${p}/.well-known/agent`);
+  console.log(`  graph        http://localhost:${p}/graph/v1`);
+  console.log(`  events       http://localhost:${p}/graph/v1/events (realtime SSE)`);
+  console.log(`  manifest     http://localhost:${p}/agent`);
+  console.log(`  MCP          http://localhost:${p}/mcp`);
+  console.log(`  point agents at http://localhost:${p} (grapheway-mcp, GraphewayClient, SKILL.md)\n`);
+  await new Promise<void>(() => {}); // keep serving
+}
+
+/**
  * `grapheway serve --config path [--port n]` — serve the runtime agent
  * surface (discovery, graph, /agent, /mcp) plus the optional compat files.
  */
@@ -213,4 +255,27 @@ export function parseFlags(args: string[]): { configPath: string; outDir?: strin
     else if (a === "--port" || a === "-p") port = Number(args[++i] ?? 3000);
   }
   return { configPath, outDir, port };
+}
+
+/** Parse `probe` flags: <url> [--port n] [--out dir] [--depth n] [--max-pages n] [--no-serve]. */
+export function parseProbeFlags(args: string[]): ProbeFlags {
+  let url = "";
+  let port: number | undefined;
+  let outDir: string | undefined;
+  let depth: number | undefined;
+  let maxPages: number | undefined;
+  let noServe = false;
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i] ?? "";
+    if (a === "--port" || a === "-p") port = Number(args[++i] ?? 4321);
+    else if (a === "--out" || a === "-o") outDir = args[++i];
+    else if (a === "--depth" || a === "-d") depth = Number(args[++i] ?? 3);
+    else if (a === "--max-pages" || a === "-m") maxPages = Number(args[++i] ?? 50);
+    else if (a === "--no-serve") noServe = true;
+    else if (!url && !a.startsWith("-")) url = a;
+  }
+  if (!url) {
+    throw new Error("probe requires a URL, e.g. grapheway probe https://docs.example.com");
+  }
+  return { url, port, outDir, depth, maxPages, noServe };
 }

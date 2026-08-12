@@ -13,7 +13,7 @@
 
 import type { GraphewayConfig } from "./types.ts";
 
-export type GraphNodeType = "page" | "section" | "entity" | "concept";
+export type GraphNodeType = "page" | "section" | "entity" | "concept" | "api";
 
 export interface GraphNode {
   /** Stable identifier — absolute URL for pages/sections, urn: for others. */
@@ -25,7 +25,7 @@ export interface GraphNode {
   props?: Record<string, unknown>;
 }
 
-export type GraphEdgeType = "links_to" | "is_part_of" | "related" | "mentions";
+export type GraphEdgeType = "links_to" | "is_part_of" | "related" | "mentions" | "exposes";
 
 /**
  * Where an edge came from — the audit trail for the graph.
@@ -53,6 +53,8 @@ export interface GraphEdge {
   source: string;
   target: string;
   type: GraphEdgeType;
+  /** Optional human/agent-readable text for the relationship (e.g. link text). */
+  label?: string;
   props?: Record<string, unknown>;
   /** Where this edge came from (audit trail). */
   provenance?: EdgeProvenance;
