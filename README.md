@@ -374,8 +374,10 @@ version, push, and it ships. See `.github/workflows/publish.yml`.
    `grapheway` → `@grapheway/compat` → `@grapheway/web` → `@grapheway/agent` → `@grapheway/cli`.
    Versions already on npm are skipped, so docs-only pushes are safe.
 
-> Packages ship as TypeScript source (no build step) — install with **Bun** or
-> **Node ≥ 22.18** (native type stripping). Binaries: `grapheway`, `grapheway-mcp`.
+> Packages ship as TypeScript source (no build step) — works with **Bun**, **Deno**,
+> and bundler-based toolchains (Vite, Next.js, tsup, …). Plain Node can't load
+> `.ts` from `node_modules` yet — a compiled `dist` build is planned. Binaries:
+> `grapheway`, `grapheway-mcp`.
 
 ### Dev builds (artifacts)
 

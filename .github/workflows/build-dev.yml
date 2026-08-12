@@ -16,7 +16,9 @@ on:
 
 concurrency:
   group: build-dev
-  cancel-in-progress: false
+  # An older build is obsolete once a newer push lands — cancel it to avoid
+  # two commit-backs racing for a non-fast-forward push.
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -49,11 +51,18 @@ jobs:
 
       - name: Pack all packages into artifacts/
         run: |
-          mkdir -p artifacts
+          # Clean first so old versions don't pile up across version bumps.
+          rm -rf artifacts && mkdir -p artifacts
           for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli; do
             npm pack -w "$pkg" --pack-destination artifacts >/dev/null
           done
           ls -la artifacts
+
+      - name: Restore package.json (revert resolver mutation)
+        # Safety net: the resolver pinned workspace:* -> versions above; make
+        # sure those rewrites can never end up in a commit, whatever the
+        # file_pattern of the commit step below.
+        run: git checkout -- packages/*/package.json
 
       - name: Commit artifacts back to dev
         uses: stefanzweifel/git-auto-commit-action@v5
