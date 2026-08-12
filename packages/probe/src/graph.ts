@@ -12,15 +12,8 @@
  *                   (read directly from the spec)
  */
 
-import {
-  buildDiscovery,
-  projectGraph,
-  type GraphewayConfig,
-  type GraphEdge,
-  type GraphNode,
-  type KnowledgeGraph,
-} from "grapheway";
-import { slugify, type PageKnowledge } from "./html.ts";
+import type { GraphewayConfig, GraphEdge, GraphNode, KnowledgeGraph } from "grapheway";
+import type { PageKnowledge } from "./html.ts";
 
 export interface ProbeStats {
   pages: number;
@@ -52,7 +45,7 @@ function cleanTitle(title: string, siteName: string): string {
 }
 
 /** Describe an OpenAPI operation in one line. */
-function describeEndpoint(spec: any, path: string, method: string, op: any): string {
+function describeEndpoint(path: string, method: string, op: Record<string, any>): string {
   const summary = op.summary ?? op.description ?? "";
   const tag = Array.isArray(op.tags) && op.tags.length > 0 ? ` [${op.tags.join(", ")}]` : "";
   return `${method.toUpperCase()} ${path}${summary ? ` — ${String(summary).split("\n")[0]}` : ""}${tag}`;
@@ -70,6 +63,7 @@ export function buildFromCrawl(
   pages: PageKnowledge[],
   openApi?: unknown,
   openApiUrl?: string,
+  crawlStats?: { skippedByRobots?: number; failed?: number },
 ): ProbeResult {
   const root = origin.replace(/\/+$/, "");
   const siteName = pages[0]?.title
@@ -211,7 +205,7 @@ export function buildFromCrawl(
         addNode({
           id,
           type: "api",
-          label: describeEndpoint(spec, path, method, op),
+          label: describeEndpoint(path, method, op),
           props: {
             method,
             path,
@@ -247,8 +241,8 @@ export function buildFromCrawl(
       headings: pages.reduce((s, p) => s + p.headings.length, 0),
       edges: edges.length,
       endpoints: endpoints > 0 ? endpoints : undefined,
-      skippedByRobots: 0,
-      failed: 0,
+      skippedByRobots: crawlStats?.skippedByRobots ?? 0,
+      failed: crawlStats?.failed ?? 0,
     },
   };
 }
@@ -267,6 +261,3 @@ export function summarizeProbe(result: ProbeResult): string {
   if (stats.failed) lines.push(`  failed:   ${stats.failed} urls`);
   return lines.join("\n");
 }
-
-/** Re-export the discovery builder so callers can preview the agent card. */
-export { buildDiscovery, projectGraph, slugify };

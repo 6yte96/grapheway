@@ -63,23 +63,33 @@ export async function serveProbed(
     options.result ??
     (async () => {
       const crawl = await crawlSite(origin, options);
-      return buildFromCrawl(origin, [...crawl.pages.values()], crawl.openApi, crawl.openApiUrl);
+      return buildFromCrawl(origin, [...crawl.pages.values()], crawl.openApi, crawl.openApiUrl, crawl.stats);
     })();
 
   const probe = await result;
 
-  // Live page → markdown, using the cached crawl when we have it.
+  // Live page → markdown, using the cached crawl when we have it. `path` may
+  // be absolute (agents often pass search-result URLs back to get_page), so
+  // normalize it to a root-relative path first.
   const byPath = new Map(
     probe.pages.map((p) => [new URL(p.url).pathname, p]),
   );
+  const toPath = (path: string): string => {
+    try {
+      return new URL(path, origin).pathname;
+    } catch {
+      return path.startsWith("/") ? path : `/${path}`;
+    }
+  };
 
   const agent = createGrapheway(probe.config, {
     graph: { builder: () => probe.graph },
     getPageMarkdown: async (path: string) => {
-      const cached = byPath.get(path.startsWith("/") ? path : `/${path}`);
+      const normalized = toPath(path);
+      const cached = byPath.get(normalized);
       if (cached) return htmlToMarkdown(cached.html);
       // Live fetch for pages the probe didn't reach.
-      const res = await fetch(`${origin}${path.startsWith("/") ? path : `/${path}`}`, {
+      const res = await fetch(`${origin}${normalized}`, {
         headers: { "user-agent": "grapheway-probe/0.1" },
       });
       if (!res.ok) return null;

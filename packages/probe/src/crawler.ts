@@ -38,14 +38,15 @@ export interface CrawlResult {
   stats: CrawlStats;
 }
 
-const OPENAPI_PATHS = [
-  "/openapi.json",
+// Most common first: probing these before the crawl starts is cheap, and
+// covers the vast majority of documented APIs. The rest are only tried if
+// the common ones all 404, so sites without a spec don't pay for 11 probes.
+const OPENAPI_PATHS_COMMON = ["/openapi.json", "/swagger.json", "/api/openapi.json"];
+const OPENAPI_PATHS_EXTRA = [
   "/openapi.yaml",
   "/openapi.yml",
-  "/swagger.json",
   "/swagger.yaml",
   "/swagger.yml",
-  "/api/openapi.json",
   "/api/swagger.json",
   "/docs/openapi.json",
   "/v3/api-docs",
@@ -102,15 +103,24 @@ function blockedByRobots(path: string, rules: string[]): boolean {
  * Pages are keyed by their normalized URL (trailing slash trimmed, hash
  * stripped) so the graph can refer to them canonically.
  */
+/** Parse + verify one fetched OpenAPI candidate; returns null when not a spec. */
+function tryParseSpec(text: string): unknown | null {
+  const trimmed = text.trim();
+  if (!trimmed.startsWith("{")) return null;
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (parsed && typeof parsed === "object" && (parsed.openapi || parsed.swagger)) return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function crawlSite(origin: string, options: CrawlOptions = {}): Promise<CrawlResult> {
-  const {
-    maxPages = 50,
-    maxDepth = 3,
-    concurrency = 4,
-    headers = {},
-    respectRobots = true,
-    signal,
-  } = options;
+  const maxPages = Number.isFinite(options.maxPages) ? Math.max(1, Math.floor(options.maxPages!)) : 50;
+  const maxDepth = Number.isFinite(options.maxDepth) ? Math.max(1, Math.floor(options.maxDepth!)) : 3;
+  const concurrency = Number.isFinite(options.concurrency) ? Math.max(1, Math.floor(options.concurrency!)) : 4;
+  const { headers = {}, respectRobots = true, signal } = options;
 
   const root = origin.replace(/\/+$/, "");
   const base = new URL(root);
@@ -122,23 +132,27 @@ export async function crawlSite(origin: string, options: CrawlOptions = {}): Pro
     if (robots.ok) robotsRules = parseRobots(robots.text);
   }
 
-  // OpenAPI detection: probe the well-known paths (cheap, parallel).
+  // OpenAPI detection: probe the common paths first; only probe the rest if
+  // none of them hit, so sites without a spec don't pay for 11 requests.
   let openApi: unknown;
   let openApiUrl: string | undefined;
-  const specProbe = await Promise.all(
-    OPENAPI_PATHS.map(async (p) => ({ p, res: await fetchWithStatus(`${root}${p}`, headers, signal) })),
-  );
-  for (const { p, res } of specProbe) {
-    if (res.ok && res.text.trim().startsWith("{")) {
-      try {
-        openApi = JSON.parse(res.text);
+  const probeBatch = async (paths: string[]): Promise<boolean> => {
+    const results = await Promise.all(
+      paths.map(async (p) => ({ p, res: await fetchWithStatus(`${root}${p}`, headers, signal) })),
+    );
+    for (const { p, res } of results) {
+      if (!res.ok) continue;
+      const spec = tryParseSpec(res.text);
+      if (spec) {
+        openApi = spec;
         openApiUrl = `${root}${p}`;
-        break;
-      } catch {
-        // not JSON — try the next path
+        return true;
       }
     }
-  }
+    return false;
+  };
+  const found = await probeBatch(OPENAPI_PATHS_COMMON);
+  if (!found) await probeBatch(OPENAPI_PATHS_EXTRA);
 
   const pages = new Map<string, PageKnowledge>();
   const stats: CrawlStats = { fetched: 0, skippedByRobots: 0, skippedByDepth: 0, skippedByLimit: 0, failed: 0 };

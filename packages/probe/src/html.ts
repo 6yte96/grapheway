@@ -8,6 +8,8 @@
  * ReadTheDocs, Mintlify, …) and most legacy HTML.
  */
 
+import { htmlToMarkdown as webHtmlToMarkdown } from "@grapheway/web";
+
 export interface HeadingKnowledge {
   level: 1 | 2 | 3;
   text: string;
@@ -129,6 +131,11 @@ export function markNavLinks(html: string, links: LinkKnowledge[]): LinkKnowledg
     ...(html.match(/<header[\s\S]*?<\/header>/gi) ?? []),
     ...(html.match(/<(?:ul|div|section)[^>]+(?:class|id)=["'][^"']*(?:nav|menu|sidebar|toc|docs)[^"']*["'][^>]*>[\s\S]*?<\/(?:ul|div|section)>/gi) ?? []),
   ];
+  const normalize = (pathname: string): string => {
+    // The crawler normalizes URLs (trailing slash trimmed), so compare nav
+    // hrefs the same way or "/docs/" vs "/docs" would misclassify.
+    return pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  };
   for (const container of containers) {
     const re = /href=["']([^"']+)["']/gi;
     let m: RegExpExecArray | null;
@@ -137,7 +144,7 @@ export function markNavLinks(html: string, links: LinkKnowledge[]): LinkKnowledg
       if (href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("javascript:")) continue;
       try {
         const u = new URL(href, "http://placeholder.local");
-        navHrefs.add(u.pathname + u.search);
+        navHrefs.add(normalize(u.pathname) + u.search);
       } catch {
         // ignore
       }
@@ -147,7 +154,7 @@ export function markNavLinks(html: string, links: LinkKnowledge[]): LinkKnowledg
     if (!l.internal) return l;
     try {
       const u = new URL(l.url);
-      if (navHrefs.has(u.pathname + u.search)) return { ...l, inNav: true };
+      if (navHrefs.has(normalize(u.pathname) + u.search)) return { ...l, inNav: true };
     } catch {
       // ignore
     }
@@ -155,9 +162,10 @@ export function markNavLinks(html: string, links: LinkKnowledge[]): LinkKnowledg
   });
 }
 
-/** Extract headings (h1–h3) with anchor ids. */
+/** Extract headings (h1–h3) with anchor ids, deduped within the page. */
 export function extractHeadings(html: string): HeadingKnowledge[] {
   const headings: HeadingKnowledge[] = [];
+  const usedIds = new Set<string>();
   const re = /<h([123])\b[^>]*>([\s\S]*?)<\/h\1>/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(html)) !== null) {
@@ -166,7 +174,15 @@ export function extractHeadings(html: string): HeadingKnowledge[] {
     const text = innerText(raw);
     if (!text) continue;
     const idMatch = /<h[123]\b[^>]*id=["']([^"']+)["']/i.exec(m[0]);
-    const id = idMatch?.[1] ?? slugify(text);
+    let id = idMatch?.[1] ?? slugify(text);
+    // Two headings with the same text (or same explicit id) would collide
+    // on the same node id — disambiguate with a counter.
+    if (usedIds.has(id)) {
+      let n = 2;
+      while (usedIds.has(`${id}-${n}`)) n++;
+      id = `${id}-${n}`;
+    }
+    usedIds.add(id);
     headings.push({ level, text, id });
   }
   return headings;
@@ -185,33 +201,13 @@ export function extractPage(html: string, url: URL): PageKnowledge {
 }
 
 /**
- * Cheap text → markdown for probed pages. Reuses the same rules as
- * @grapheway/web's htmlToMarkdown (kept dependency-free here so the probe
- * can also run standalone, e.g. in workers).
+ * Cheap text → markdown for probed pages: strips navigation/footer chrome
+ * first (agents read content, not menus), then delegates to the shared
+ * converter in @grapheway/web so the two never drift.
  */
 export function htmlToMarkdown(html: string): string {
-  let s = html;
-  s = s.replace(/<!--[\s\S]*?-->/g, "");
-  s = s.replace(/<script[\s\S]*?<\/script>/gi, "");
-  s = s.replace(/<style[\s\S]*?<\/style>/gi, "");
-  s = s.replace(/<noscript[\s\S]*?<\/noscript>/gi, "");
-  s = s.replace(/<nav[\s\S]*?<\/nav>/gi, "");
-  s = s.replace(/<footer[\s\S]*?<\/footer>/gi, "");
-  s = s.replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, (_m, t: string) => `# ${t.trim()}\n\n`);
-  s = s.replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, (_m, t: string) => `## ${t.trim()}\n\n`);
-  s = s.replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, (_m, t: string) => `### ${t.trim()}\n\n`);
-  s = s.replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi, (_m, t: string) => `#### ${t.trim()}\n\n`);
-  s = s.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_m, t: string) => `- ${t.trim()}\n`);
-  s = s.replace(/<br\s*\/?>/gi, "\n");
-  s = s.replace(/<p[^>]*>/gi, "\n\n");
-  s = s.replace(/<\/p>/gi, "\n\n");
-  s = s.replace(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_m, href: string, text: string) => `[${text.trim()}](${href})`);
-  s = s.replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, (_m, t: string) => `**${t.trim()}**`);
-  s = s.replace(/<em[^>]*>([\s\S]*?)<\/em>/gi, (_m, t: string) => `_${t.trim()}_`);
-  s = s.replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, (_m, t: string) => "`" + t.trim() + "`");
-  s = s.replace(/<pre[^>]*>([\s\S]*?)<\/pre>/gi, (_m, t: string) => "```\n" + t.trim() + "\n```\n");
-  s = s.replace(/<[^>]+>/g, "");
-  s = s.replace(/[ \t]+\n/g, "\n");
-  s = s.replace(/\n{3,}/g, "\n\n");
-  return s.trim() + "\n";
+  const stripped = html
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "");
+  return webHtmlToMarkdown(stripped);
 }

@@ -47,5 +47,5 @@ export { exportProbed, type ExportOptions } from "./export.ts";
 export async function probeSite(url: string, options: CrawlOptions = {}): Promise<ProbeResult> {
   const origin = url.replace(/\/+$/, "");
   const crawl = await crawlSite(origin, options);
-  return buildFromCrawl(origin, [...crawl.pages.values()], crawl.openApi, crawl.openApiUrl);
+  return buildFromCrawl(origin, [...crawl.pages.values()], crawl.openApi, crawl.openApiUrl, crawl.stats);
 }

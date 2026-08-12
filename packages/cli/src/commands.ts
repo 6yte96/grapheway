@@ -257,6 +257,13 @@ export function parseFlags(args: string[]): { configPath: string; outDir?: strin
   return { configPath, outDir, port };
 }
 
+/** Parse a positive integer flag value; returns undefined when absent or junk. */
+function positiveInt(raw: string | undefined, fallback: number): number | undefined {
+  if (raw === undefined) return fallback;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined;
+}
+
 /** Parse `probe` flags: <url> [--port n] [--out dir] [--depth n] [--max-pages n] [--no-serve]. */
 export function parseProbeFlags(args: string[]): ProbeFlags {
   let url = "";
@@ -267,10 +274,10 @@ export function parseProbeFlags(args: string[]): ProbeFlags {
   let noServe = false;
   for (let i = 0; i < args.length; i++) {
     const a = args[i] ?? "";
-    if (a === "--port" || a === "-p") port = Number(args[++i] ?? 4321);
+    if (a === "--port" || a === "-p") port = positiveInt(args[++i], 4321) ?? 4321;
     else if (a === "--out" || a === "-o") outDir = args[++i];
-    else if (a === "--depth" || a === "-d") depth = Number(args[++i] ?? 3);
-    else if (a === "--max-pages" || a === "-m") maxPages = Number(args[++i] ?? 50);
+    else if (a === "--depth" || a === "-d") depth = positiveInt(args[++i], 3);
+    else if (a === "--max-pages" || a === "-m") maxPages = positiveInt(args[++i], 50);
     else if (a === "--no-serve") noServe = true;
     else if (!url && !a.startsWith("-")) url = a;
   }
