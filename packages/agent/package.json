@@ -40,7 +40,8 @@
     "bun": ">=1.0"
   },
   "scripts": {
-    "test": "bun test"
+    "test": "bun test",
+    "prepublishOnly": "bun ../../scripts/build.mjs"
   },
   "devDependencies": {
     "@grapheway/web": "0.1.0",

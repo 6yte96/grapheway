@@ -39,6 +39,7 @@
     "@types/node": "^22.10.0"
   },
   "scripts": {
-    "test": "bun test"
+    "test": "bun test",
+    "prepublishOnly": "bun ../../scripts/build.mjs"
   }
 }

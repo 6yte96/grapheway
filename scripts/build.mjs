@@ -15,6 +15,13 @@
  *      dropped it.
  *
  * Requires Bun (uses Bun.build). Run via `bun run build`.
+ *
+ * Why the published packages carry a `bun` export condition pointing at
+ * src/index.ts: it keeps the monorepo's own dev loop (bun test, examples,
+ * CLI) on source — no build needed — and Bun consumers natively run TS.
+ * Node and bundler consumers get the compiled dist via the `default`
+ * condition. Shipping `src` in the tarballs is therefore intentional; do
+ * not "simplify" the condition away without reworking the dev flow.
  */
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
@@ -22,6 +29,15 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+// Local tsc binary (typescript is a devDependency). Never `npx tsc` — npx can
+// fall back to the network and fetch an unrelated "tsc" package.
+const tscBin = join(
+  root,
+  "node_modules",
+  ".bin",
+  process.platform === "win32" ? "tsc.cmd" : "tsc",
+);
 
 const PACKAGES = ["core", "web", "compat", "agent", "cli"];
 
@@ -40,7 +56,13 @@ const BIN_FILES = new Map([
   ["cli", ["cli.js"]],
 ]);
 
-/** Rewrite relative ".ts" specifiers to ".js" inside emitted .d.ts files. */
+/**
+ * Rewrite relative ".ts" import specifiers to ".js" inside emitted .d.ts
+ * files, so consumers' tsc resolves them to the sibling .d.ts files.
+ *
+ * Scoped to import contexts only (from "…", import("…"), import "…") — never
+ * rewrites string-literal values or comments that merely contain a .ts path.
+ */
 function rewriteSpecifiers(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
@@ -49,7 +71,10 @@ function rewriteSpecifiers(dir) {
       continue;
     }
     if (!entry.name.endsWith(".d.ts")) continue;
-    const text = readFileSync(path, "utf8").replace(/(["'])(\.\.?\/[^"']*?)\.ts\1/g, "$1$2.js$1");
+    const text = readFileSync(path, "utf8").replace(
+      /(\bfrom\s*|\bimport\s*\(\s*|\bimport\s*)(["'])(\.\.?\/[^"']*?)\.ts\2/g,
+      "$1$2$3.js$2",
+    );
     writeFileSync(path, text);
   }
 }
@@ -62,7 +87,7 @@ for (const pkg of PACKAGES) {
   mkdirSync(dist, { recursive: true });
 
   // 1. Type declarations.
-  execSync(`npx tsc -p packages/${pkg}/tsconfig.build.json`, { cwd: root, stdio: "inherit" });
+  execSync(`"${tscBin}" -p packages/${pkg}/tsconfig.build.json`, { cwd: root, stdio: "inherit" });
 
   // 2. JavaScript bundles.
   const result = await Bun.build({
@@ -81,7 +106,8 @@ for (const pkg of PACKAGES) {
   // 3. Fix .ts specifiers in declarations.
   rewriteSpecifiers(dist);
 
-  // 4. Guarantee bin entries are directly executable by node.
+  // 4. Guarantee bin entries are directly executable by node (assert the
+  //    exact shebang — a wrong one, e.g. bun-only, must not slip through).
   for (const bin of BIN_FILES.get(pkg) ?? []) {
     const file = join(dist, bin);
     if (!existsSync(file)) {
@@ -89,7 +115,9 @@ for (const pkg of PACKAGES) {
       process.exit(1);
     }
     const body = readFileSync(file, "utf8");
-    if (!body.startsWith("#!")) writeFileSync(file, "#!/usr/bin/env node\n" + body);
+    if (!body.startsWith("#!/usr/bin/env node")) {
+      writeFileSync(file, "#!/usr/bin/env node\n" + body.replace(/^#[^\n]*\n/, ""));
+    }
   }
 
   // 5. Sanity: the package's main entry must exist.
