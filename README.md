@@ -659,6 +659,15 @@ npm i https://github.com/6yte96/grapheway/raw/dev/artifacts/grapheway-0.1.0.tgz
 
 ---
 
+## Further reading
+
+- [**White paper**](./docs/whitepaper.md) — the architecture, why graphs beat static files, the provenance model
+- [**Contributing**](./CONTRIBUTING.md) — development workflow, project structure, code conventions
+- [**Changelog**](./CHANGELOG.md) — version history and what's new
+- [**Landing page**](./docs/index.html) — grapheway.dev (host via GitHub Pages)
+
+---
+
 ## License
 
 GPL-3.0
