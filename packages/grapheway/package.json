@@ -1,8 +1,9 @@
 {
   "name": "grapheway",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Native agent access for your web app — knowledge graph runtime, probe, MCP, CLI",
   "type": "module",
+  "private": false,
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",
   "exports": {
