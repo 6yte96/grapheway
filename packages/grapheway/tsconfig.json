@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "paths": {
+      "grapheway": ["./src/core/index.ts"],
+      "grapheway/web": ["./src/web/index.ts"],
+      "grapheway/probe": ["./src/probe/index.ts"],
+      "grapheway/agent": ["./src/agent/index.ts"],
+      "grapheway/compat": ["./src/compat/index.ts"],
+      "grapheway/cli": ["./src/cli/cli.ts"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ]
+}

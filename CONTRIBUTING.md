@@ -23,12 +23,12 @@ bun test
 ```
 grapheway/
 ├─ packages/
-│  ├─ core/       grapheway           — graph model, discovery, manifest (zero deps)
-│  ├─ web/        @grapheway/web      — runtime endpoint + adapters + MCP
-│  ├─ probe/      @grapheway/probe    — convert any site into a graph
-│  ├─ compat/     @grapheway/compat   — optional legacy files
-│  ├─ agent/      @grapheway/agent    — typed client + skill
-│  └─ cli/        @grapheway/cli      — gateway / probe / mcp-config / serve / audit / generate
+│  ├─ src/core/   graph model, discovery, manifest (zero deps)
+│  ├─ src/web/    runtime endpoint + adapters + MCP
+│  ├─ src/probe/  convert any site into a graph
+│  ├─ src/compat/ optional legacy files
+│  ├─ src/agent/  typed client + skill
+│  └─ src/cli/    gateway / probe / mcp-config / serve / audit / generate
 ├─ examples/
 │  └─ simple-site/                    — runnable demo
 ├─ scripts/

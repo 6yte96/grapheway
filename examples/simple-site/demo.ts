@@ -7,7 +7,7 @@
  * This is exactly what an AI agent would do to read info and perform
  * basic actions on an agent-ready site.
  */
-import { GraphewayClient } from "@grapheway/agent";
+import { GraphewayClient } from "grapheway/agent";
 
 const client = new GraphewayClient("http://localhost:4321");
 

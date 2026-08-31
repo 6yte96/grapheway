@@ -1,31 +1,23 @@
 name: Build packages (dev)
 
-# On every push to `dev`, builds all five packages on the GitHub runner and
-# commits the resulting tarballs back into the repo on the `dev` branch under
-# artifacts/ — grab the latest build straight from the branch, no local build.
-#
-#   npm i https://github.com/6yte96/grapheway/raw/dev/artifacts/grapheway-0.1.0.tgz
-#
-# The commit-back is tagged `[skip ci]`, so the workflow does not loop on
-# itself. Publishing to npm stays on the `main`-only workflow (publish.yml).
+# On every push to `dev`, builds the unified package on the GitHub runner and
+# commits the tarball back into the repo on `dev` under `artifacts/`.
 
 on:
   push:
     branches: [dev]
-  workflow_dispatch: # manual: rebuild + commit artifacts now
+  workflow_dispatch:
 
 concurrency:
   group: build-dev
-  # An older build is obsolete once a newer push lands — cancel it to avoid
-  # two commit-backs racing for a non-fast-forward push.
   cancel-in-progress: true
 
 jobs:
   build:
-    name: Build & commit tarballs
+    name: Build & commit tarball
     runs-on: ubuntu-latest
     permissions:
-      contents: write # needed to commit the tarballs back to dev
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,31 +36,18 @@ jobs:
       - name: Run tests
         run: bun test
 
-      - name: Build packages (dist)
+      - name: Build
         run: bun run build
 
-      - name: Resolve workspace deps
-        # npm does not rewrite `workspace:*` at pack time — pin to concrete
-        # versions first so the tarballs are actually installable.
-        run: node scripts/resolve-workspace-deps.mjs
-
-      - name: Pack all packages into artifacts/
+      - name: Pack into artifacts/
         run: |
-          # Clean first so old versions don't pile up across version bumps.
           rm -rf artifacts && mkdir -p artifacts
-          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli @grapheway/probe; do
-            npm pack -w "$pkg" --pack-destination artifacts >/dev/null
-          done
-          ls -la artifacts
+          cd packages/grapheway
+          npm pack --pack-destination ../../artifacts >/dev/null
+          ls -la ../../artifacts
 
-      - name: Restore package.json (revert resolver mutation)
-        # Safety net: the resolver pinned workspace:* -> versions above; make
-        # sure those rewrites can never end up in a commit, whatever the
-        # file_pattern of the commit step below.
-        run: git checkout -- packages/*/package.json
-
-      - name: Commit artifacts back to dev
+      - name: Commit artifact back to dev
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "[skip ci] build(dev): refresh package tarballs"
+          commit_message: "[skip ci] build(dev): refresh package tarball"
           file_pattern: artifacts/

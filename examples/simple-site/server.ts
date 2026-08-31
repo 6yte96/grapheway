@@ -8,8 +8,8 @@
  *       bun run examples/simple-site/demo.ts          (agent client demo)
  */
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { createGrapheway, injectHead, toNodeHandler } from "@grapheway/web";
-import { compatHandler } from "@grapheway/compat";
+import { createGrapheway, injectHead, toNodeHandler } from "grapheway/web";
+import { compatHandler } from "grapheway/compat";
 import { graphewayConfig } from "./grapheway.config.ts";
 import { markdownDocs, pages } from "./pages.ts";
 

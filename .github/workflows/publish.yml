@@ -1,25 +1,18 @@
 name: Publish to npm
 
-# Auto-publish: every push to `main` runs the quality gate (typecheck +
-# tests) and then publishes *any package whose version is not yet on npm*.
-#
-#   Workflow: bump versions -> push to main -> action ships them.
-#
-# The npm token is NOT stored in the repo. It is read from the repository
-# secret `NPM_TOKEN` (Settings -> Secrets and variables -> Actions), created
-# from an npm *automation* token (npmjs.com -> Access Tokens -> Automation).
+# Publishes the unified grapheway package to npm.
+# Bump the version in packages/grapheway/package.json, push to main, and it ships.
 
 on:
   push:
     branches: [main]
-  workflow_dispatch: # manual run: publish anything not yet on npm
+  workflow_dispatch:
 
 concurrency:
   group: npm-publish
   cancel-in-progress: false
 
 jobs:
-  # ── Gate: code must typecheck and pass tests before anything ships ─────
   quality:
     name: Typecheck & tests
     runs-on: ubuntu-latest
@@ -35,7 +28,6 @@ jobs:
       - name: Run tests
         run: bun test
 
-  # ── Publish: dependency order, skipping versions already on npm ────────
   publish:
     name: Publish to npm
     needs: quality
@@ -50,60 +42,30 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build packages (dist)
+      - name: Build
         run: bun run build
 
-      - name: Authenticate with the npm registry
+      - name: Authenticate with npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+
+      - name: Publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # Append so a committed .npmrc (registry, engine-strict, …) survives.
-          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+          cd packages/grapheway
+          version="$(node -p "require('./package.json').version")"
+          if npm view "grapheway@$version" version >/dev/null 2>&1; then
+            echo "✓ grapheway@$version already published — skipped"
+          else
+            echo "⬆ Publishing grapheway@$version"
+            npm publish --access public
+          fi
 
-      - name: Resolve workspace deps for publishing
-        # npm does not rewrite `workspace:*` at pack time, so pin them to the
-        # concrete versions first (ephemeral runner — repo stays untouched).
-        run: node scripts/resolve-workspace-deps.mjs
-
-      - name: Publish unpublished versions
+      - name: Verify
         run: |
-          set -euo pipefail
-          # Dependency order: core first, then the packages built on it.
-          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli @grapheway/probe; do
-            if [ "$pkg" = "grapheway" ]; then
-              dir="packages/core"
-            else
-              dir="packages/${pkg#@grapheway/}"
-            fi
-            version="$(node -p "require('./${dir}/package.json').version")"
-            if npm view "$pkg@$version" version >/dev/null 2>&1; then
-              echo "✓ $pkg@$version already published — skipped"
-            else
-              echo "⬆ Publishing $pkg@$version"
-              if [ "${pkg#@}" != "$pkg" ]; then
-                npm publish -w "$pkg" --access public
-              else
-                npm publish -w "$pkg"
-              fi
-            fi
-          done
-
-      - name: Verify published versions
-        run: |
-          for pkg in grapheway @grapheway/compat @grapheway/web @grapheway/agent @grapheway/cli @grapheway/probe; do
-            if [ "$pkg" = "grapheway" ]; then
-              dir="packages/core"
-            else
-              dir="packages/${pkg#@grapheway/}"
-            fi
-            version="$(node -p "require('./${dir}/package.json').version")"
-            echo "  $pkg@$(npm view "$pkg@$version" version 2>/dev/null || echo not published)"
-            deps="$(npm view "$pkg@$version" dependencies 2>/dev/null || echo '{}')"
-            # grep for 'workspace' (not 'workspace:') to also catch the legacy
-            # object form { "name": { "workspace": "*" } } if it ever appears.
-            if echo "$deps" | grep -q 'workspace'; then
-              echo "✗ $pkg@$version published with a workspace protocol dependency — BROKEN"
-              exit 1
-            fi
-          done
-          echo "✓ all published manifests use concrete versions"
+          cd packages/grapheway
+          version="$(node -p "require('./package.json').version")"
+          published=$(npm view "grapheway@$version" version 2>/dev/null || echo "not published")
+          echo "  grapheway@$published"

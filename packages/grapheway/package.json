@@ -1,0 +1,71 @@
+{
+  "name": "grapheway",
+  "version": "0.1.0",
+  "description": "Native agent access for your web app — knowledge graph runtime, probe, MCP, CLI",
+  "type": "module",
+  "main": "./dist/core/index.js",
+  "types": "./dist/core/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts"
+    },
+    "./web": {
+      "import": "./dist/web/index.js",
+      "types": "./dist/web/index.d.ts"
+    },
+    "./probe": {
+      "import": "./dist/probe/index.js",
+      "types": "./dist/probe/index.d.ts"
+    },
+    "./agent": {
+      "import": "./dist/agent/index.js",
+      "types": "./dist/agent/index.d.ts"
+    },
+    "./compat": {
+      "import": "./dist/compat/index.js",
+      "types": "./dist/compat/index.d.ts"
+    },
+    "./cli": {
+      "import": "./dist/cli/cli.js",
+      "types": "./dist/cli/cli.d.ts"
+    }
+  },
+  "bin": {
+    "grapheway": "./dist/cli/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node ../../scripts/build-unified.mjs",
+    "test": "bun test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "mcp",
+    "knowledge-graph",
+    "llm",
+    "chatgpt",
+    "claude",
+    "crawler",
+    "web scraping"
+  ],
+  "author": "Operivora",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/6yte96/grapheway",
+    "directory": "packages/grapheway"
+  },
+  "homepage": "https://github.com/6yte96/grapheway#readme",
+  "bugs": {
+    "url": "https://github.com/6yte96/grapheway/issues"
+  }
+}
