@@ -7,9 +7,6 @@
     "demo": "bun run demo.ts"
   },
   "dependencies": {
-    "@grapheway/agent": "workspace:*",
-    "@grapheway/compat": "workspace:*",
-    "@grapheway/web": "workspace:*",
     "grapheway": "workspace:*"
   }
 }
