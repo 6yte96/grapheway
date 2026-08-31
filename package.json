@@ -3,15 +3,15 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*",
+    "packages/grapheway",
     "examples/*"
   ],
   "scripts": {
-    "build": "bun scripts/build.mjs",
+    "build": "bun scripts/build-unified.mjs",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "example": "bun run examples/simple-site/server.ts",
-    "cli": "bun run packages/cli/src/cli.ts"
+    "cli": "bun run packages/grapheway/src/cli/cli.ts"
   },
   "engines": {
     "bun": ">=1.0",

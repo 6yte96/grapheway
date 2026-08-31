@@ -16,18 +16,18 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "grapheway": ["./packages/core/src/index.ts"],
-      "@grapheway/web": ["./packages/web/src/index.ts"],
-      "@grapheway/compat": ["./packages/compat/src/index.ts"],
-      "@grapheway/agent": ["./packages/agent/src/index.ts"],
-      "@grapheway/probe": ["./packages/probe/src/index.ts"]
+      "grapheway": ["./packages/grapheway/src/core/index.ts"],
+      "grapheway/web": ["./packages/grapheway/src/web/index.ts"],
+      "grapheway/probe": ["./packages/grapheway/src/probe/index.ts"],
+      "grapheway/agent": ["./packages/grapheway/src/agent/index.ts"],
+      "grapheway/compat": ["./packages/grapheway/src/compat/index.ts"],
+      "grapheway/cli": ["./packages/grapheway/src/cli/cli.ts"]
     },
     "noEmit": true
   },
   "include": [
-    "packages/*/src/**/*.ts",
-    "packages/*/test/**/*.ts",
-    "packages/*/skill/**/*.ts",
+    "packages/grapheway/src/**/*.ts",
+    "packages/grapheway/test/**/*.ts",
     "examples/**/*.ts"
   ]
 }

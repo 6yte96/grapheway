@@ -5,13 +5,13 @@ fees.** Your site opens its own door: its content becomes a live, typed
 knowledge graph that agents discover, traverse, search and act on — over
 open protocols, at runtime, for free.
 
-Two tools, one protocol:
+One package, subpath imports:
 
-- **For webservers — `@grapheway/web`.** Your site opts in: install the
+- **For webservers — `grapheway/web`.** Your site opts in: install the
   runtime, describe it in one config, and its content becomes a live, typed
   knowledge graph that agents discover, traverse, search and act on — over
   open protocols, at runtime, for free.
-- **For agents — `@grapheway/probe`.** No site involvement needed: point it
+- **For agents — `grapheway/probe`.** No site involvement needed: point it
   at *any* legacy website (docs, APIs, anything), and it converts the site's
   own content into the same graph — served locally for agents to use, or
   exported as JSON. `grapheway probe <url>`.
@@ -39,17 +39,23 @@ Deno, and the browser, and works with Express, Hono, Next.js, plain
 
 ---
 
-## Packages (monorepo)
+## Subpath exports
 
-| Package | What it is |
+One install. Import what you need:
+
+```bash
+npm install grapheway
+# or: bun add grapheway
+```
+
+| Import | What it is |
 | --- | --- |
-| [`grapheway`](./packages/core) | Runtime core: graph model, discovery, manifest, JSON-LD. Zero deps. |
-| [`@grapheway/web`](./packages/web) | **For webservers** — drop-in agent endpoint: graph, `/agent`, `/mcp` + framework adapters. |
-| [`@grapheway/probe`](./packages/probe) | **For agents** — convert ANY legacy site into a graph (docs, APIs, HTML): crawl → graph → serve locally / export JSON. |
-| [`@grapheway/compat`](./packages/compat) | Optional legacy files (llms.txt, agents.txt, robots.txt, sitemap.xml) — decoupled. |
-| [`@grapheway/agent`](./packages/agent) | The agent side: typed `GraphewayClient` + a `SKILL.md` that teaches agents to use graph endpoints before scraping. |
-| [`@grapheway/cli`](./packages/cli) | `grapheway gateway`, `grapheway probe <url>`, `grapheway mcp-config`, `grapheway audit <url>`, `grapheway serve`, `grapheway generate`. |
-| [`examples/simple-site`](./examples/simple-site) | A complete demo site with a custom action. |
+| `grapheway` | Core: graph model, discovery, manifest, JSON-LD. Zero deps. |
+| `grapheway/web` | **For webservers** — drop-in agent endpoint: graph, `/agent`, `/mcp` + framework adapters. |
+| `grapheway/probe` | **For agents** — convert ANY legacy site into a graph: crawl → graph → serve locally / export JSON. |
+| `grapheway/compat` | Optional legacy files (llms.txt, agents.txt, robots.txt, sitemap.xml). |
+| `grapheway/agent` | Typed `GraphewayClient` + skill for AI agents. |
+| `grapheway/cli` | CLI: gateway, probe, mcp-config, serve, audit, generate. |
 
 ```
 Your website/app
@@ -63,11 +69,11 @@ Your website/app
 │  /mcp                → MCP: graph tools · your actions ·        │
 │                         resources (markdown)                    │
 │  <head>              → JSON-LD + Open Graph (GEO)               │
-│  + @grapheway/compat → llms.txt · robots.txt · sitemap.xml      │
+│  + grapheway/compat → llms.txt · robots.txt · sitemap.xml      │
 └─────────────────────────────────────────────────────────────────┘
       ▲                                        ▲
   humans / search                     agents (Claude, Cursor, …)
-                                      via @grapheway/agent or MCP
+                                      via grapheway/agent or MCP
 ```
 
 ---
@@ -77,8 +83,8 @@ Your website/app
 **1. Install**
 
 ```bash
-bun add grapheway @grapheway/web
-# or: npm i grapheway @grapheway/web
+bun add grapheway
+# or: npm i grapheway
 ```
 
 **2. Describe your site in one config**
@@ -124,7 +130,7 @@ export const graphewayConfig: GraphewayConfig = {
 
 ```ts
 import { createServer } from "node:http";
-import { createGrapheway, toNodeHandler, injectHead } from "@grapheway/web";
+import { createGrapheway, toNodeHandler, injectHead } from "grapheway/web";
 import { graphewayConfig } from "./grapheway.config.ts";
 
 const agent = createGrapheway(graphewayConfig, {
@@ -166,7 +172,7 @@ GET  /agent/actions       declared actions   POST /agent/action     run an actio
 POST /mcp                 Model Context Protocol (streamable HTTP)
 GET  /mcp                 MCP SSE announcement
 
-# Optional (mount @grapheway/compat): llms.txt, agents.txt, agents.json,
+# Optional (mount grapheway/compat): llms.txt, agents.txt, agents.json,
 # robots.txt, sitemap.xml — served at runtime for agents that probe them.
 ```
 
@@ -175,7 +181,7 @@ GET  /mcp                 MCP SSE announcement
 
 ### Framework adapters
 
-`@grapheway/web` ships adapters for `node:http`, Express, and Hono:
+`grapheway/web` ships adapters for `node:http`, Express, and Hono:
 
 ```ts
 // Express
@@ -232,7 +238,7 @@ curl -X POST https://acme.example/agent/action \
 
 The webserver story above requires the site to opt in. But most of the web
 isn't grapheway-enabled — legacy docs, old frameworks, static sites. That's
-what **`@grapheway/probe`** is for: the *agent-side* tool that converts
+what **`grapheway/probe`** is for: the *agent-side* tool that converts
 **any** URL into the same native agent surface, with zero site involvement.
 
 It extracts the site's own **knowledge** (not its tech stack): title, meta
@@ -267,7 +273,7 @@ Serving "Express.js" as an agent surface:
 From code:
 
 ```ts
-import { probeSite, serveProbed, exportProbed } from "@grapheway/probe";
+import { probeSite, serveProbed, exportProbed } from "grapheway/probe";
 
 const result = await probeSite("https://legacy-docs.example", { maxPages: 50 });
 console.log(result.graph.nodes.length, "nodes"); // agents can walk, search, act
@@ -358,7 +364,7 @@ that speaks MCP.
 
 ---
 
-## The agent side — `@grapheway/agent`
+## The agent side — `grapheway/agent`
 
 Everything above makes **your site** agent-ready. This package is for the
 **agent** (or the tooling around it) that wants to consume it.
@@ -366,7 +372,7 @@ Everything above makes **your site** agent-ready. This package is for the
 ### 1. Typed client
 
 ```ts
-import { GraphewayClient } from "@grapheway/agent";
+import { GraphewayClient } from "grapheway/agent";
 
 const acme = new GraphewayClient("https://acme.example");
 
@@ -390,7 +396,7 @@ no paid crawler APIs, no scraping.**
 
 The primary way agents consume grapheway is over MCP, pointing straight at
 a server that holds the graph (`grapheway gateway`, a site running
-`@grapheway/web`, or a `serveProbed` surface):
+`grapheway/web`, or a `serveProbed` surface):
 
 ```bash
 bunx grapheway gateway --probe https://acme.example --refresh 24
@@ -505,7 +511,7 @@ data: {"version":1,"patches":[{"type":"add_node","node":{"id":"/products/neo","t
 : ping        (heartbeat every 15s)
 ```
 
-The `@grapheway/agent` client wraps it in a typed subscription that streams
+The `grapheway/agent` client wraps it in a typed subscription that streams
 patches straight into a local graph:
 
 ```ts
@@ -572,7 +578,7 @@ bunx grapheway audit https://acme.example
 #   ✓ open MCP endpoint (/mcp)       ✓ structured data (JSON-LD)
 #   …
 
-# Legacy static files for a plain static host (via @grapheway/compat)
+# Legacy static files for a plain static host (via grapheway/compat)
 bunx grapheway generate --config grapheway.config.ts --out public
 ```
 
@@ -596,58 +602,51 @@ bunx grapheway generate --config grapheway.config.ts --out public
 
 ```
 grapheway/
-├─ packages/
-│  ├─ core/        grapheway          — graph model + discovery + manifest (zero deps)
-│  ├─ web/         @grapheway/web   — universal endpoint + adapters + MCP (for webservers)
-│  ├─ probe/       @grapheway/probe   — convert ANY site into a graph (for agents)
-│  ├─ compat/      @grapheway/compat  — optional legacy files (llms.txt, robots, …)
-│  ├─ agent/       @grapheway/agent   — typed client + skill
-│  └─ cli/         @grapheway/cli     — gateway / probe / mcp-config / serve / audit / generate
+├─ packages/grapheway/                — single unified package
+│  ├─ src/core/       graphemodel, discovery, manifest, JSON-LD
+│  ├─ src/web/        runtime endpoint + adapters + MCP
+│  ├─ src/probe/      convert ANY site into a graph
+│  ├─ src/compat/     optional legacy files (llms.txt, robots, …)
+│  ├─ src/agent/      typed client + skill
+│  ├─ src/cli/        gateway / probe / mcp-config / serve / audit / generate
+│  └─ test/           111 tests across 6 subpath modules
 ├─ examples/simple-site/              — runnable demo (server + demo client)
+├─ docs/                               — landing page (GitHub Pages) + white paper
 └─ README.md
 ```
 
 ```bash
 bun install          # install workspace deps
-bun run build        # compile packages/* to dist/ (JS bundles + .d.ts)
-bun test             # 95+ tests across all packages
-npx tsc --noEmit     # typecheck (resolves packages via tsconfig paths)
+bun run build        # compile to dist/ (6 bundles + .d.ts)
+bun test             # 111 tests across all subpaths
+npx tsc --noEmit     # typecheck
 bun run example      # start the demo site on :4321
-bun run examples/simple-site/demo.ts  # run the agent client against it
 ```
 
 ---
 
 ## Publishing (npm)
 
-Every push to `main` runs the quality gate (typecheck + full test suite) and
-then publishes **every package whose version is not yet on npm** — bump the
-version, push, and it ships. See `.github/workflows/publish.yml`.
+One package, one publish:
 
-1. **Bump the version** — keep all six packages in lockstep (they depend on
-   each other via `workspace:*`): set the same new `"version"` (e.g. `0.2.0`)
-   in `packages/{core,web,compat,agent,probe,cli}/package.json`, commit, push to `main`.
-2. **Add the npm token** — create an npm *automation* token
-   (npmjs.com → Access Tokens → Generate new → *Automation*), then add it as a
-   repository secret named `NPM_TOKEN`:
-   GitHub → repo → **Settings → Secrets and variables → Actions**.
-   (A local `.env` is never read — GitHub Actions uses repository secrets.)
-3. Push to `main` — the workflow typechecks, runs the tests, then publishes
-   each unpublished version in dependency order:
-   `grapheway` → `@grapheway/compat` → `@grapheway/web` → `@grapheway/agent`
-   → `@grapheway/probe` → `@grapheway/cli`.
-   Versions already on npm are skipped, so docs-only pushes are safe.
+```bash
+npm login
+npm publish --access public
+```
 
-> Packages compile to `dist/` (JS bundles + type declarations) — works on **Node**,
-> **Bun**, **Deno**, and bundlers. In this monorepo, Bun resolves package imports
-> to `src` for dev, so `bun run build` is only needed when producing artifacts.
-> Binaries: `grapheway`.
+1. **Bump the version** in `packages/grapheway/package.json`, commit, push.
+2. **Build** — `bun run build` compiles all subpaths to `dist/`.
+3. **Publish** — `npm publish --access public` ships the single `grapheway` package.
+
+> The package compiles to `dist/` (6 JS bundles + type declarations) — works on
+> **Node**, **Bun**, **Deno**, and bundlers. Subpath exports let users import
+> only what they need. Binary: `grapheway`.
 
 ### Dev builds (artifacts)
 
-Every push to `dev` builds all five packages **on the GitHub runner** and commits
+Every push to `dev` builds the unified package **on the GitHub runner** and commits
 
-the tarballs back into the repo on `dev` under `artifacts/` — grab the latest
+the tarball back into the repo on `dev` under `artifacts/` — grab the latest
 
 build straight from the branch, no local build needed:
 

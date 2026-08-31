@@ -19,7 +19,7 @@ Initial release — the foundation.
 - Discovery manifest: agent card for `/.well-known/agent`
 - JSON-LD serialization: Schema.org `Organization`, `WebSite`, `WebPage`
 
-#### Web Runtime (`@grapheway/web`)
+#### Web Runtime (`grapheway/web`)
 - Drop-in agent endpoint: `createGrapheway(config, options)`
 - 11 HTTP routes: discovery, graph, node, edges, search, path, graph dump, SSE events, viewer, agent API, MCP
 - Framework adapters: `node:http`, Express, Hono
@@ -28,7 +28,7 @@ Initial release — the foundation.
 - Live graph updates: `patchGraph()` pushes diffs to SSE subscribers
 - GEO injection: `injectHead()` adds JSON-LD + semantic metadata
 
-#### Probe (`@grapheway/probe`)
+#### Probe (`grapheway/probe`)
 - Website crawling: robots.txt-respecting, same-origin, configurable depth/pages
 - Knowledge extraction: navigation, headings, links, content → typed graph nodes
 - OpenAPI detection: specs → typed `api` nodes with method, path, summary, tags
@@ -36,13 +36,13 @@ Initial release — the foundation.
 - Export: `graph.json` + `config.json` via `exportProbed`
 - Provenance: every edge tagged as `extracted` / `inferred` / `ambiguous`
 
-#### Agent SDK (`@grapheway/agent`)
+#### Agent SDK (`grapheway/agent`)
 - Typed `GraphewayClient`: discovery, graph traversal, search, pathfinding, actions, content
 - Realtime subscription: `subscribeGraph()` streams patches to local graph
 - Full graph fetch: `getGraph()`
 - Agent skill: `SKILL.md` teaches AI agents to use graph endpoints
 
-#### CLI (`@grapheway/cli`)
+#### CLI (`grapheway/cli`)
 - `grapheway gateway` — server-centric: holds a graph, answers agents over MCP
   - `--probe <url>` — crawl and hold
   - `--config <file>` — config-defined graph
@@ -54,7 +54,7 @@ Initial release — the foundation.
 - `grapheway audit <url>` — agent-readiness audit (0–100 score)
 - `grapheway generate` — legacy static files (llms.txt, robots.txt, sitemap.xml)
 
-#### Compat (`@grapheway/compat`)
+#### Compat (`grapheway/compat`)
 - Optional legacy files: `llms.txt`, `agents.txt`, `robots.txt`, `sitemap.xml`
 - Decoupled from core runtime
 
