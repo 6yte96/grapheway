@@ -1,6 +1,6 @@
 {
   "name": "grapheway",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Native agent access for your web app — knowledge graph runtime, probe, MCP, CLI",
   "type": "module",
   "private": false,
