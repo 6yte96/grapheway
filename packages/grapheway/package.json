@@ -1,6 +1,6 @@
 {
   "name": "grapheway",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Native agent access for your web app — knowledge graph runtime, probe, MCP, CLI",
   "type": "module",
   "private": false,
@@ -38,7 +38,8 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "SKILL.md"
   ],
   "scripts": {
     "build": "node ../../scripts/build-unified.mjs",
@@ -62,7 +63,7 @@
   "license": "GPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/6yte96/grapheway",
+    "url": "git+https://github.com/6yte96/grapheway.git",
     "directory": "packages/grapheway"
   },
   "homepage": "https://github.com/6yte96/grapheway#readme",

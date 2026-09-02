@@ -417,7 +417,7 @@ is the same surface as typed methods, for embedding in your own tooling.
 
 ### 3. Skill for agents
 
-[`packages/agent/skill/SKILL.md`](./packages/agent/skill/SKILL.md) teaches any
+[`packages/grapheway/SKILL.md`](https://github.com/6yte96/grapheway/blob/main/packages/grapheway/SKILL.md) teaches any
 AI agent how to discover and use agent-ready endpoints (probe
 `/.well-known/agent` → traverse the graph → call actions → MCP), so agents
 know to use your structured surface before scraping HTML.
@@ -660,10 +660,10 @@ npm i https://github.com/6yte96/grapheway/raw/dev/artifacts/grapheway-0.1.0.tgz
 
 ## Further reading
 
-- [**White paper**](./docs/whitepaper.md) — the architecture, why graphs beat static files, the provenance model
-- [**Contributing**](./CONTRIBUTING.md) — development workflow, project structure, code conventions
-- [**Changelog**](./CHANGELOG.md) — version history and what's new
-- [**Landing page**](./docs/index.html) — grapheway.dev (host via GitHub Pages)
+- [**White paper**](https://github.com/6yte96/grapheway/blob/main/docs/whitepaper.md) — the architecture, why graphs beat static files, the provenance model
+- [**Contributing**](https://github.com/6yte96/grapheway/blob/main/CONTRIBUTING.md) — development workflow, project structure, code conventions
+- [**Changelog**](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md) — version history and what's new
+- [**Landing page**](https://github.com/6yte96/grapheway/blob/main/docs/index.html) — grapheway.dev (host via GitHub Pages)
 
 ---
 
