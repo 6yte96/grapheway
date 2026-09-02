@@ -3,7 +3,7 @@
  * Build the unified grapheway package.
  * Uses Bun.build — bundles each subpath entry separately.
  */
-import { rm, readFile, writeFile } from "node:fs/promises";
+import { rm, readFile, writeFile, copyFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
@@ -64,6 +64,12 @@ async function main() {
     console.log(`  ✓ ${name}`);
     ok++;
   }
+
+  // Sync README.md and LICENSE to the package folder for npm publish
+  const rootDir = join(__dirname, "..");
+  await copyFile(join(rootDir, "README.md"), join(pkg, "README.md"));
+  await copyFile(join(rootDir, "LICENSE"), join(pkg, "LICENSE"));
+  console.log("  ✓ README.md & LICENSE synced to package");
 
   console.log(`\n  ${ok} bundles built ✓`);
 }
