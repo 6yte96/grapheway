@@ -1,10 +1,13 @@
 name: Publish to npm
 
 # Publishes the unified grapheway package to npm.
-# Bump the version in packages/grapheway/package.json, push to main, and it ships.
+# Triggers on push/merge to main, or PR to main (quality check only).
+# The dev branch stays within GitHub (artifacts only) and never publishes to npm.
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -32,6 +35,9 @@ jobs:
     name: Publish to npm
     needs: quality
     runs-on: ubuntu-latest
+    # NEVER publish on pull requests or from dev branch.
+    # Only publish on push/merge to main (or manual workflow_dispatch on main).
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     permissions:
       contents: read
     steps:

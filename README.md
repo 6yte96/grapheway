@@ -629,14 +629,10 @@ bun run example      # start the demo site on :4321
 
 One package, one publish:
 
-```bash
-npm login
-npm publish --access public
-```
-
-1. **Bump the version** in `packages/grapheway/package.json`, commit, push.
-2. **Build** — `bun run build` compiles all subpaths to `dist/`.
-3. **Publish** — `npm publish --access public` ships the single `grapheway` package.
+1. **Develop on `dev`** — pushes to `dev` trigger internal GitHub runner builds that commit the tarball to `artifacts/` (stays strictly within GitHub, no npm publishing).
+2. **Bump the version** in `packages/grapheway/package.json` when ready to release.
+3. **Open PR to `main`** — GitHub Actions runs typecheck and tests on the PR (no publishing).
+4. **Merge into `main`** — merging the pull request into `main` triggers the `Publish to npm` workflow to build and publish the release to the npm registry.
 
 > The package compiles to `dist/` (6 JS bundles + type declarations) — works on
 > **Node**, **Bun**, **Deno**, and bundlers. Subpath exports let users import
