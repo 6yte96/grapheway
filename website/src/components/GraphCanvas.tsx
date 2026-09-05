@@ -128,6 +128,12 @@ export function GraphCanvas() {
       const { p, link } = running || reduced ? step() : { p: palette(), link: linkDistance() };
       g.clearRect(0, 0, width, height);
 
+      // paper first: the canvas carries the page background itself so
+      // no element's background can ever paint over the graph
+      const isDark = document.documentElement.classList.contains("dark");
+      g.fillStyle = isDark ? "#24221f" : "#F2F8FC";
+      g.fillRect(0, 0, width, height);
+
       // edges
       g.lineWidth = 1;
       for (let i = 0; i < nodes.length; i++) {
