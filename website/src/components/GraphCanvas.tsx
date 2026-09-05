@@ -51,13 +51,13 @@ export function GraphCanvas() {
     // counts scale with area, capped so phones stay cheap
     function populate() {
       const area = width * height;
-      const count = Math.max(14, Math.min(46, Math.round(area / 26000)));
+      const count = Math.max(18, Math.min(56, Math.round(area / 22000)));
       nodes = Array.from({ length: count }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * 0.12,
         vy: (Math.random() - 0.5) * 0.12,
-        r: 1.2 + Math.random() * 1.8,
+        r: 1.6 + Math.random() * 2.2,
       }));
       pulses = [];
     }
@@ -78,14 +78,14 @@ export function GraphCanvas() {
       const isDark = document.documentElement.classList.contains("dark");
       return {
         ink: isDark ? "242, 248, 252" : "0, 0, 0",
-        edgeAlpha: isDark ? 0.09 : 0.08,
-        nodeAlpha: isDark ? 0.26 : 0.28,
-        pulseAlpha: isDark ? 0.5 : 0.45,
+        edgeAlpha: isDark ? 0.20 : 0.24,
+        nodeAlpha: isDark ? 0.42 : 0.48,
+        pulseAlpha: isDark ? 0.62 : 0.65,
       };
     }
 
     function linkDistance() {
-      return Math.min(190, Math.max(120, width / 8));
+      return Math.min(210, Math.max(150, width / 7));
     }
 
     function step() {
