@@ -34,6 +34,36 @@ export function Architecture() {
             </div>
           ))}
         </div>
+
+        {PROJECT_CONFIG.community && (
+          <div style={{ marginTop: "2.5rem", border: "1px solid var(--rule)", background: "var(--background)" }}>
+            <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid var(--rule)", background: "var(--surface)" }}>
+              <span className="postcard-tag boxed tilt-up" style={{ marginRight: "0.75rem" }}>
+                CONTRIBUTE
+              </span>
+              <span className="font-mono" style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
+                {PROJECT_CONFIG.community.contributingText}
+              </span>
+            </div>
+            <div>
+              {PROJECT_CONFIG.community.dispatches.map((dispatch, idx) => (
+                <a
+                  key={idx}
+                  href={dispatch.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="issue-card"
+                >
+                  <div>
+                    <div className="issue-card-title">{dispatch.title}</div>
+                    <div className="issue-card-meta">{dispatch.component}</div>
+                  </div>
+                  <span className="postcard-tag plain">{dispatch.tag}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

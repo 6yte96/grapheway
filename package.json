@@ -4,14 +4,17 @@
   "type": "module",
   "workspaces": [
     "packages/grapheway",
-    "examples/*"
+    "examples/*",
+    "website"
   ],
   "scripts": {
     "build": "bun scripts/build-unified.mjs",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "example": "bun run examples/simple-site/server.ts",
-    "cli": "bun run packages/grapheway/src/cli/cli.ts"
+    "cli": "bun run packages/grapheway/src/cli/cli.ts",
+    "website": "bun run --cwd website dev",
+    "website:build": "bun run --cwd website build"
   },
   "engines": {
     "bun": ">=1.0",

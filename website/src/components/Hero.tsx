@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PROJECT_CONFIG } from "@/config";
+import { HeroGraph } from "./HeroGraph";
 
 export function Hero() {
   const { hero, install, telemetry, links } = PROJECT_CONFIG;
@@ -107,6 +108,8 @@ export function Hero() {
       </div>
 
       <div className="hero-visual">
+        <HeroGraph />
+
         <div className="press-run-card">
           <div className="press-run-label">{telemetry.label}</div>
           {telemetry.stats.map((stat, idx) => (

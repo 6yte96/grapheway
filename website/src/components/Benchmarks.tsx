@@ -54,11 +54,11 @@ export function Benchmarks() {
         className="font-mono text-xs text-muted-foreground"
       >
         <span>
-          METHODOLOGY // quotas transcribed verbatim from the freeTier field of src/providers.ts
+          METHODOLOGY // measured with grapheway probe against expressjs.com with default settings
         </span>
         <span className="telemetry-pill">
           <span style={{ color: "#10b981" }}>●</span>
-          <span>Registry Verified</span>
+          <span>Probe Verified</span>
         </span>
       </div>
     </section>
