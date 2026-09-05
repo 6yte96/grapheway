@@ -4,7 +4,7 @@ Static site for Grapheway, built on the [Broadsheet editorial template](https://
 
 **Live at:** `https://6yte96.github.io/grapheway/`
 
-## Content sources (all real, v0.2.2)
+## Content sources (all real, v0.2.2 Beta)
 
 | Claim on page | Source |
 |---------------|--------|

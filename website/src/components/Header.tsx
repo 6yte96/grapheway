@@ -73,8 +73,9 @@ export function Header() {
           </button>
 
           <Link href="/" className="brand-link">
-            {brand.name}
-            <span>{brand.domainSuffix}</span>
+            <span className="brand-title">{brand.name}</span>
+            {brand.domainSuffix ? <span className="brand-domain">{brand.domainSuffix}</span> : null}
+            <span className="brand-badge-beta">BETA</span>
           </Link>
 
           <p className="masthead-tagline">{brand.tagline}</p>
@@ -117,8 +118,9 @@ export function Header() {
       <aside className={`drawer ${drawerOpen ? "is-open" : ""}`} aria-label="Sections">
         <div className="drawer-header">
           <Link href="/" className="drawer-brand" onClick={closeDrawer}>
-            {brand.name}
-            <span>{brand.domainSuffix}</span>
+            <span className="brand-title">{brand.name}</span>
+            {brand.domainSuffix ? <span className="brand-domain">{brand.domainSuffix}</span> : null}
+            <span className="brand-badge-beta">BETA</span>
           </Link>
           <button
             className="drawer-close"

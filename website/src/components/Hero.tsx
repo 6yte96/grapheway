@@ -27,6 +27,10 @@ export function Hero() {
       <div className="hero-content">
         <div className="issue-line">
           <span className="issue-badge">{hero.issueBadge}</span>
+          <span className="hero-beta-tag">
+            <span className="beta-pulse" />
+            Public Beta
+          </span>
         </div>
 
         <h1 className="hero-title">

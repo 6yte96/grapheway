@@ -115,11 +115,11 @@ export const PROJECT_CONFIG: ProjectConfig = {
     ],
     url: "https://6yte96.github.io/grapheway/",
     author: "6yte96",
-    version: "v0.2.2",
+    version: "v0.2.2 (Beta)",
   },
   brand: {
     name: "grapheway",
-    domainSuffix: ".io",
+    domainSuffix: "",
     tagline: "Your site opens its own door to AI agents",
     handle: "6yte96",
   },

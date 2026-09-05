@@ -9,8 +9,9 @@ export function Footer() {
       <div className="footer-content">
         <div className="footer-section">
           <h3>
-            {brand.name}
-            <span>{brand.domainSuffix}</span>
+            <span className="brand-title">{brand.name}</span>
+            {brand.domainSuffix ? <span className="brand-domain">{brand.domainSuffix}</span> : null}
+            <span className="brand-badge-beta">BETA</span>
           </h3>
           <p>{meta.description}</p>
         </div>
