@@ -61,14 +61,14 @@ interface ProjectedNode {
   scale: number;
 }
 
-// 31 typed nodes positioned across the 3D globe in 6 subsystem clusters
+// 31 typed nodes positioned across the 3D globe with clean, human-readable labels
 const RAW_NODES: GlobeNodeDef[] = [
   // Cluster 1: Discovery & Entry (Prime Meridian / Front-Center)
   {
     id: "root",
     uri: "/",
-    label: "/",
-    badge: "SITE ROOT",
+    label: "Site Overview",
+    badge: "Web Root",
     glyph: "◈",
     category: "discovery",
     isHub: true,
@@ -76,15 +76,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 14,
     lng: 0,
     module: "core/jsonld.ts",
-    protocol: "HTTP/2 GET",
-    description: "Root HTML page. Injects Schema.org JSON-LD & GEO graph metadata into <head>.",
-    log: "DISCOVERY // GET / -> Injected 3 JSON-LD graph objects (Organization, WebSite, WebPage)",
+    protocol: "HTTP/2 Web Page",
+    description: "Main site entrypoint with Schema.org JSON-LD and structured knowledge graph metadata.",
+    log: "Providing structured site knowledge directly to AI agents without scraping",
   },
   {
     id: "agent_card",
     uri: "/.well-known/agent",
-    label: "/.well-known/agent",
-    badge: "A2A CARD",
+    label: "Agent Discovery Card",
+    badge: "Discovery",
     glyph: "⚲",
     category: "discovery",
     isHub: true,
@@ -92,15 +92,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 30,
     lng: -18,
     module: "core/manifest.ts",
-    protocol: "A2A Standard",
-    description: "Machine discovery card telling any AI agent what the site exposes and where.",
-    log: "A2A DISCOVERY // GET /.well-known/agent -> 200 OK (capabilities: graph, mcp, search)",
+    protocol: "Agent-to-Agent Standard",
+    description: "Standardized machine-readable card that announces site capabilities, endpoints, and authentication.",
+    log: "AI agents discover supported protocols, search tools, and MCP gateway capabilities",
   },
   {
     id: "manifest",
     uri: "/agent",
-    label: "/agent",
-    badge: "MANIFEST",
+    label: "Agent Manifest",
+    badge: "Manifest",
     glyph: "▤",
     category: "discovery",
     isHub: true,
@@ -108,15 +108,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -4,
     lng: -24,
     module: "web/handler.ts",
-    protocol: "JSON API",
-    description: "Full site manifest listing 14 routes, sections, and declared action schemas.",
-    log: "MANIFEST // GET /agent -> 14 endpoints verified, 4 built-in actions declared",
+    protocol: "Agent JSON API",
+    description: "Complete catalog of all available routes, documentation sections, and declared action schemas.",
+    log: "Cataloging all verified routes and server actions for connected models",
   },
   {
     id: "agent_info",
     uri: "/agent/info",
-    label: "/agent/info",
-    badge: "METADATA",
+    label: "Site Metadata",
+    badge: "Info",
     glyph: "ⓘ",
     category: "discovery",
     isHub: false,
@@ -124,15 +124,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -20,
     lng: -38,
     module: "core/manifest.ts",
-    protocol: "JSON API",
-    description: "Machine-readable site summary: license, description, and subpath capabilities.",
-    log: "METADATA // GET /agent/info -> license: MIT, runtimeDependencies: 0",
+    protocol: "Agent JSON API",
+    description: "Provides site summary, software license, subpath capabilities, and zero-dependency runtime info.",
+    log: "Delivering clean site info and capabilities in a single fast JSON response",
   },
   {
     id: "agent_sections",
     uri: "/agent/sections",
-    label: "/agent/sections",
-    badge: "SECTIONS",
+    label: "Content Sections",
+    badge: "Sections",
     glyph: "§",
     category: "discovery",
     isHub: false,
@@ -140,17 +140,17 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -34,
     lng: -20,
     module: "core/graph.ts",
-    protocol: "JSON API",
-    description: "Top-level documentation and page hierarchy mapped to semantic section nodes.",
-    log: "SECTIONS // GET /agent/sections -> 8 content sections indexed with provenance",
+    protocol: "Agent JSON API",
+    description: "Hierarchical index of documentation, guides, and pages with provenance verification.",
+    log: "Serving indexed documentation sections with traceable source provenance",
   },
 
   // Cluster 2: Knowledge Graph Core (Equatorial East)
   {
     id: "graph_hub",
     uri: "/graph/v1",
-    label: "/graph/v1",
-    badge: "GRAPH CORE",
+    label: "Knowledge Graph Hub",
+    badge: "Graph Core",
     glyph: "⌬",
     category: "graph",
     isHub: true,
@@ -158,15 +158,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 10,
     lng: 42,
     module: "core/graph.ts",
-    protocol: "REST / JSON",
-    description: "Live knowledge graph router exposing summary, node lookup, edges, and search.",
-    log: "GRAPH CORE // GET /graph/v1 -> summary: 28 nodes, 44 edges, version: 1725576000",
+    protocol: "Graph REST API",
+    description: "Central knowledge graph engine providing entity lookups, relationship traversal, and search.",
+    log: "Graph engine active with typed entities, relationship edges, and instant lookups",
   },
   {
     id: "graph_node",
     uri: "/graph/v1/node",
-    label: "graph:node",
-    badge: "NODE LOOKUP",
+    label: "Node Details",
+    badge: "Lookup",
     glyph: "•",
     category: "graph",
     isHub: false,
@@ -174,15 +174,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 32,
     lng: 50,
     module: "core/graph.ts",
-    protocol: "GET /node",
-    description: "Retrieves typed node metadata by URI or ID (e.g. /docs/quickstart).",
-    log: "NODE LOOKUP // GET /graph/v1/node?id=doc_quickstart -> type: 'page', inDegree: 4",
+    protocol: "Graph Node Query",
+    description: "Retrieves rich entity metadata, markdown content, and incoming connections for any node.",
+    log: "Looking up structured entity metadata without loading heavyweight browser sessions",
   },
   {
     id: "graph_edges",
     uri: "/graph/v1/edges",
-    label: "graph:edges",
-    badge: "AUDITABLE EDGES",
+    label: "Auditable Edges",
+    badge: "Connections",
     glyph: "•",
     category: "graph",
     isHub: false,
@@ -190,15 +190,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 24,
     lng: 70,
     module: "core/graph.ts",
-    protocol: "GET /edges",
-    description: "Auditable edges connecting pages, actions, schemas with verification tags.",
-    log: "EDGES QUERY // GET /graph/v1/edges?node=graph_hub -> 8 outgoing directed links",
+    protocol: "Graph Edges Query",
+    description: "Exposes verifiable links between pages, actions, and schemas with source audit tags.",
+    log: "Traversing verified relationship edges with complete cryptographic provenance",
   },
   {
     id: "graph_search",
     uri: "/graph/v1/search",
-    label: "graph:search",
-    badge: "SEARCH",
+    label: "Graph Search",
+    badge: "Search",
     glyph: "⌕",
     category: "graph",
     isHub: false,
@@ -206,15 +206,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -8,
     lng: 65,
     module: "core/graph-query.ts",
-    protocol: "GET /search",
-    description: "Lexical & semantic search over node titles, descriptions, and page text.",
-    log: "GRAPH SEARCH // GET /graph/v1/search?q=mcp -> 5 matching nodes found (0 scraping)",
+    protocol: "Search Query",
+    description: "Instant lexical and semantic search over page titles, sections, and documentation.",
+    log: "Searching knowledge graph instantly with zero web scraping overhead",
   },
   {
     id: "graph_path",
     uri: "/graph/v1/path",
-    label: "graph:path",
-    badge: "SHORTEST PATH",
+    label: "Shortest Path Finder",
+    badge: "Pathfinder",
     glyph: "•",
     category: "graph",
     isHub: false,
@@ -222,15 +222,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -26,
     lng: 52,
     module: "core/graph-query.ts",
-    protocol: "GET /path",
-    description: "Computes the shortest auditable path between any two nodes across typed edges.",
-    log: "GRAPH PATH // GET /graph/v1/path?from=/&to=check_status -> 3 hops (auditable)",
+    protocol: "Graph Pathfinder",
+    description: "Calculates the most direct auditable sequence of hops between any two site entities.",
+    log: "Computing the shortest auditable path across verified relationship links",
   },
   {
     id: "graph_dump",
     uri: "/graph/v1/dump",
-    label: "graph:dump",
-    badge: "EXPORT",
+    label: "Full Graph Export",
+    badge: "Snapshot",
     glyph: "•",
     category: "graph",
     isHub: false,
@@ -238,15 +238,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 2,
     lng: 78,
     module: "core/graph.ts",
-    protocol: "GET /dump",
-    description: "Full JSON snapshot of nodes, edges, version timestamp, and checksums.",
-    log: "GRAPH DUMP // GET /graph/v1/dump -> exported 1,927 edges in 11ms",
+    protocol: "Graph Snapshot",
+    description: "Exports the full graph dataset with checksums, timestamps, and node attributes in milliseconds.",
+    log: "Exporting complete snapshot of site nodes and edges for offline reasoning",
   },
   {
     id: "graph_events",
     uri: "/graph/v1/events",
-    label: "SSE /events",
-    badge: "STREAM",
+    label: "Realtime Event Stream",
+    badge: "Live Events",
     glyph: "≈",
     category: "graph",
     isHub: true,
@@ -254,17 +254,17 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -38,
     lng: 34,
     module: "web/handler.ts",
-    protocol: "text/event-stream",
-    description: "Live Server-Sent Events stream delivering graph mutations (add_node, add_edge).",
-    log: "REALTIME SSE // GET /graph/v1/events -> connection active (subscribers: 1)",
+    protocol: "Server-Sent Events",
+    description: "Server-Sent Events channel streaming live graph updates and newly added nodes.",
+    log: "Streaming live graph mutations in real time to connected AI agents",
   },
 
   // Cluster 3: Model Context Protocol (Far East Hemisphere)
   {
     id: "mcp_hub",
     uri: "/mcp",
-    label: "/mcp",
-    badge: "MCP GATEWAY",
+    label: "MCP Gateway",
+    badge: "MCP Server",
     glyph: "⚡",
     category: "mcp",
     isHub: true,
@@ -273,14 +273,14 @@ const RAW_NODES: GlobeNodeDef[] = [
     lng: 106,
     module: "web/mcp.ts",
     protocol: "JSON-RPC 2.0",
-    description: "Model Context Protocol endpoint for Claude Desktop, Cursor, and VS Code.",
-    log: "MCP SERVER // POST /mcp initialize -> protocolVersion: '2024-11-05', tools: ready",
+    description: "Model Context Protocol gateway ready for Claude Desktop, Cursor, VS Code, and Claude Code.",
+    log: "Model Context Protocol gateway connected and ready for reasoning agents",
   },
   {
     id: "mcp_tools_list",
     uri: "/mcp#tools/list",
-    label: "tools/list",
-    badge: "TOOLS",
+    label: "Available Tools",
+    badge: "Tool Catalog",
     glyph: "•",
     category: "mcp",
     isHub: false,
@@ -288,15 +288,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 36,
     lng: 118,
     module: "web/mcp.ts",
-    protocol: "JSON-RPC 2.0",
-    description: "Lists all declared functions: search_content, check_status, graph_node, etc.",
-    log: "MCP TOOLS // tools/list -> 6 registered tools exposed to Claude / Cursor",
+    protocol: "MCP Tools API",
+    description: "Exposes declared server functions like search, status checks, and graph queries to agents.",
+    log: "Listing verified tools and schemas to connected AI coding assistants",
   },
   {
     id: "mcp_tools_call",
     uri: "/mcp#tools/call",
-    label: "tools/call",
-    badge: "RPC CALL",
+    label: "Tool Execution",
+    badge: "Tool Runner",
     glyph: "⚙",
     category: "mcp",
     isHub: false,
@@ -304,15 +304,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 20,
     lng: 136,
     module: "web/mcp.ts",
-    protocol: "JSON-RPC 2.0",
-    description: "Executes verified server tools directly without opening headless browsers.",
-    log: "MCP CALL // tools/call graph_node -> returned structured schema in 3ms",
+    protocol: "MCP Tools API",
+    description: "Executes verified site actions and functions directly with strict parameter validation.",
+    log: "Running verified server action directly without headless browser emulation",
   },
   {
     id: "mcp_res_list",
     uri: "/mcp#resources/list",
-    label: "resources/list",
-    badge: "RESOURCES",
+    label: "Resource Catalog",
+    badge: "Resources",
     glyph: "•",
     category: "mcp",
     isHub: false,
@@ -320,15 +320,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -6,
     lng: 114,
     module: "web/mcp.ts",
-    protocol: "JSON-RPC 2.0",
-    description: "Exposes graph nodes directly as MCP resources readable by reasoning models.",
-    log: "MCP RESOURCES // resources/list -> 12 documentation resources mapped",
+    protocol: "MCP Resources API",
+    description: "Indexes all site pages and documentation as first-class resources for LLM context windows.",
+    log: "Cataloging documentation resources for direct model context ingestion",
   },
   {
     id: "mcp_res_read",
     uri: "/mcp#resources/read",
-    label: "resources/read",
-    badge: "READ RESOURCE",
+    label: "Read Documentation",
+    badge: "Reader",
     glyph: "•",
     category: "mcp",
     isHub: false,
@@ -336,17 +336,17 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -22,
     lng: 128,
     module: "web/mcp.ts",
-    protocol: "JSON-RPC 2.0",
-    description: "Returns clean, navigation-stripped markdown for any graph URI.",
-    log: "MCP READ // resources/read grapheway://quickstart -> 1.8KB markdown returned",
+    protocol: "MCP Resources API",
+    description: "Provides clean, navigation-stripped markdown for any site page or section on demand.",
+    log: "Delivering clean markdown content directly into the model context window",
   },
 
   // Cluster 4: Callable Actions & OpenAPI (Back Hemisphere)
   {
     id: "action_hub",
     uri: "/agent/action",
-    label: "/agent/action",
-    badge: "ACTION BUS",
+    label: "Action Dispatcher",
+    badge: "Action Bus",
     glyph: "⚡",
     category: "actions",
     isHub: true,
@@ -354,15 +354,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -16,
     lng: 172,
     module: "web/handler.ts",
-    protocol: "POST /agent/action",
-    description: "RPC dispatch bus for declared actions (search_content, telemetry, status).",
-    log: "ACTION BUS // POST /agent/action -> payload verified with strict JSON Schema",
+    protocol: "Action RPC API",
+    description: "Safe execution bus for registered backend actions with JSON Schema verification.",
+    log: "Validating action payload against strict schema before execution",
   },
   {
     id: "act_status",
     uri: "/agent/action#check_status",
-    label: "check_status",
-    badge: "ACTION",
+    label: "System Health Check",
+    badge: "Action",
     glyph: "•",
     category: "actions",
     isHub: false,
@@ -370,15 +370,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -34,
     lng: 162,
     module: "examples/actions.ts",
-    protocol: "JSON Schema RPC",
-    description: "Health and readiness probe callable directly by autonomous agent systems.",
-    log: "ACTION EXEC // run check_status -> 200 OK (uptime: 99.98%, load: 0.12)",
+    protocol: "JSON Schema Action",
+    description: "Readiness and uptime health check callable directly by autonomous monitoring agents.",
+    log: "Executing system readiness probe and returning structured health metrics",
   },
   {
     id: "act_telemetry",
     uri: "/agent/action#query_telemetry",
-    label: "query_telemetry",
-    badge: "ACTION",
+    label: "Telemetry Query",
+    badge: "Action",
     glyph: "•",
     category: "actions",
     isHub: false,
@@ -386,15 +386,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -4,
     lng: -176,
     module: "examples/actions.ts",
-    protocol: "JSON Schema RPC",
-    description: "Query edge performance stats and crawl coverage without scraping pages.",
-    log: "ACTION EXEC // run query_telemetry -> returned memory & throughput metrics",
+    protocol: "JSON Schema Action",
+    description: "Queries runtime performance, coverage, and memory statistics without scraping.",
+    log: "Returning runtime edge performance and memory statistics to the agent",
   },
   {
     id: "endpoint_api",
     uri: "/api/v1/devices",
-    label: "GET /devices",
-    badge: "OPENAPI",
+    label: "Device Registry API",
+    badge: "REST API",
     glyph: "•",
     category: "actions",
     isHub: false,
@@ -403,14 +403,14 @@ const RAW_NODES: GlobeNodeDef[] = [
     lng: -168,
     module: "probe/crawler.ts",
     protocol: "OpenAPI 3.1",
-    description: "REST endpoint discovered automatically during probe crawler pass.",
-    log: "OPENAPI // discovered endpoint GET /api/v1/devices from /openapi.json",
+    description: "REST endpoint discovered automatically during the crawler extraction pass.",
+    log: "Accessing auto-discovered REST API endpoint with full schema validation",
   },
   {
     id: "endpoint_spec",
     uri: "/openapi.json",
-    label: "openapi.json",
-    badge: "SPEC",
+    label: "OpenAPI Specification",
+    badge: "API Spec",
     glyph: "•",
     category: "actions",
     isHub: false,
@@ -419,16 +419,16 @@ const RAW_NODES: GlobeNodeDef[] = [
     lng: -158,
     module: "probe/crawler.ts",
     protocol: "JSON Schema",
-    description: "OpenAPI specification converted into typed endpoints and edge schemas.",
-    log: "SCHEMA // parsed openapi.json: 12 endpoints, 6 schemas mapped to graph",
+    description: "OpenAPI specification converted into typed endpoints and actionable schemas.",
+    log: "Parsing OpenAPI contract into typed graph nodes and callable actions",
   },
 
   // Cluster 5: Content & Pages (North-West)
   {
     id: "doc_quickstart",
     uri: "/docs/quickstart",
-    label: "/quickstart",
-    badge: "DOC NODE",
+    label: "Quickstart Guide",
+    badge: "Guide",
     glyph: "§",
     category: "content",
     isHub: true,
@@ -436,15 +436,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 24,
     lng: -68,
     module: "probe/html.ts",
-    protocol: "Markdown Node",
-    description: "Quickstart guide. Headings & code snippets parsed into typed section nodes.",
-    log: "CONTENT // resolved /docs/quickstart (markdown: 1.4KB, headings: 6)",
+    protocol: "Markdown Document",
+    description: "Step-by-step developer tutorial parsed into structured headings and code examples.",
+    log: "Navigating developer quickstart guide with verified code examples",
   },
   {
     id: "doc_install",
     uri: "/docs/install",
-    label: "/install",
-    badge: "PAGE",
+    label: "Installation Guide",
+    badge: "Guide",
     glyph: "•",
     category: "content",
     isHub: false,
@@ -452,15 +452,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 44,
     lng: -84,
     module: "probe/html.ts",
-    protocol: "Markdown Node",
-    description: "Installation documentation: Bun, Node, Deno package manager instructions.",
-    log: "CONTENT // node /docs/install has 3 edges (contains: install-bun, install-npm)",
+    protocol: "Markdown Document",
+    description: "Package installation instructions for npm, Bun, pnpm, and yarn package managers.",
+    log: "Providing package installation commands across all supported runtimes",
   },
   {
     id: "doc_arch",
     uri: "/docs/architecture",
-    label: "/architecture",
-    badge: "PAGE",
+    label: "System Architecture",
+    badge: "Architecture",
     glyph: "•",
     category: "content",
     isHub: false,
@@ -468,15 +468,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 14,
     lng: -96,
     module: "probe/html.ts",
-    protocol: "Markdown Node",
-    description: "System architecture whitepaper detailing the 6 subpath modules.",
-    log: "CONTENT // node /docs/architecture linked from 8 other documentation nodes",
+    protocol: "Markdown Document",
+    description: "Deep dive into the 6 subpath modules, zero-dependency design, and security model.",
+    log: "Exploring modular architecture and zero-dependency core design",
   },
   {
     id: "doc_bench",
     uri: "/docs/benchmarks",
-    label: "/benchmarks",
-    badge: "PAGE",
+    label: "Benchmark Results",
+    badge: "Benchmarks",
     glyph: "•",
     category: "content",
     isHub: false,
@@ -484,17 +484,17 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: -12,
     lng: -80,
     module: "probe/html.ts",
-    protocol: "Markdown Node",
-    description: "Performance metrics: 4.8ms cold-start, 0-dependency runtime footprint.",
-    log: "CONTENT // node /docs/benchmarks parsed with latency comparison tables",
+    protocol: "Markdown Document",
+    description: "Verified performance numbers showing sub-5ms cold starts and minimal resource usage.",
+    log: "Reviewing performance benchmarks and latency comparisons across engines",
   },
 
   // Cluster 6: Compat & Legacy Fallbacks (North-West / Far West)
   {
     id: "compat_hub",
     uri: "/compat",
-    label: "/compat",
-    badge: "COMPAT HUB",
+    label: "Compatibility Fallbacks",
+    badge: "Compat Engine",
     glyph: "☷",
     category: "compat",
     isHub: true,
@@ -503,14 +503,14 @@ const RAW_NODES: GlobeNodeDef[] = [
     lng: -128,
     module: "compat/handler.ts",
     protocol: "Static Files",
-    description: "Backward-compatibility fallback engine generating llms.txt, robots.txt, sitemaps.",
-    log: "COMPAT ENGINE // generated 5 legacy artifacts from master knowledge graph",
+    description: "Automated fallback engine generating standard web crawler and bot instruction files.",
+    log: "Generating standard fallback artifacts directly from the live graph",
   },
   {
     id: "compat_llms",
     uri: "/llms.txt",
-    label: "llms.txt",
-    badge: "LLMS.TXT",
+    label: "LLM Summary Feed",
+    badge: "LLMs Text",
     glyph: "•",
     category: "compat",
     isHub: false,
@@ -518,15 +518,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 46,
     lng: -140,
     module: "compat/llms-txt.ts",
-    protocol: "Text / Markdown",
-    description: "Curated H1 summary and absolute link index for frontier LLM search scrapers.",
-    log: "COMPAT // GET /llms.txt -> generated valid index with 8 canonical links",
+    protocol: "Curated Markdown",
+    description: "Curated markdown summary and absolute link index for modern frontier LLMs.",
+    log: "Serving curated LLM summary index for frontier search assistants",
   },
   {
     id: "compat_llms_full",
     uri: "/llms-full.txt",
-    label: "llms-full.txt",
-    badge: "FULL CONTEXT",
+    label: "Full Context Document",
+    badge: "Full Text",
     glyph: "•",
     category: "compat",
     isHub: false,
@@ -534,15 +534,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 38,
     lng: -114,
     module: "compat/llms-txt.ts",
-    protocol: "Full Text Stream",
-    description: "Full site markdown concatenate for deep context window ingestion.",
-    log: "COMPAT // GET /llms-full.txt -> compiled 48KB markdown package in 4ms",
+    protocol: "Text Stream",
+    description: "Comprehensive concatenated documentation stream for deep context window ingestion.",
+    log: "Compiling full documentation package for deep reasoning models",
   },
   {
     id: "compat_agents_txt",
     uri: "/agents.txt",
-    label: "agents.txt",
-    badge: "AGENTS.TXT",
+    label: "Legacy Agent Index",
+    badge: "Agents Text",
     glyph: "•",
     category: "compat",
     isHub: false,
@@ -550,15 +550,15 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 10,
     lng: -134,
     module: "compat/agents-txt.ts",
-    protocol: "A2A Standard",
-    description: "Legacy text declaration of endpoints and parameters for earlier agent runtimes.",
-    log: "COMPAT // GET /agents.txt -> declared 6 endpoints with type annotations",
+    protocol: "Text Declaration",
+    description: "Legacy endpoint declarations and parameter specifications for earlier agent systems.",
+    log: "Exposing endpoint declarations formatted for earlier agent runtimes",
   },
   {
     id: "compat_robots",
     uri: "/robots.txt",
-    label: "robots.txt",
-    badge: "ROBOTS",
+    label: "Robots Directives",
+    badge: "Robots",
     glyph: "•",
     category: "compat",
     isHub: false,
@@ -566,9 +566,9 @@ const RAW_NODES: GlobeNodeDef[] = [
     lat: 8,
     lng: -154,
     module: "compat/robots.ts",
-    protocol: "Robots Protocol",
-    description: "Selective crawler governance: welcomes search bots, guides training scrapers.",
-    log: "COMPAT // GET /robots.txt -> verified sitemap line and crawler directives",
+    protocol: "Robots Directives",
+    description: "Crawler governance directives welcoming helpful search bots while managing scraper bandwidth.",
+    log: "Guiding web crawlers and protecting server resources with clean rules",
   },
 ];
 
@@ -733,7 +733,7 @@ export function HeroGraph() {
   const [activeCategory, setActiveCategory] = useState<"all" | NodeCategory>("all");
   const [selectedNode, setSelectedNode] = useState<GlobeNodeDef | null>(null);
   const [activeLog, setActiveLog] = useState<string>(
-    "KNOWLEDGE GLOBE // 31 typed nodes, 44 edges · drag with cursor to rotate"
+    "Explore the 3D knowledge graph by dragging with your cursor, or select any node to inspect details"
   );
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [zoom, setZoom] = useState<number>(1);
@@ -743,6 +743,15 @@ export function HeroGraph() {
     const map = new Map<string, Vec3>();
     RAW_NODES.forEach((n) => {
       map.set(n.id, toCartesian(n.lat, n.lng));
+    });
+    return map;
+  }, []);
+
+  // Quick lookup from node ID to human-readable label
+  const nodeLabelMap = useMemo(() => {
+    const map = new Map<string, string>();
+    RAW_NODES.forEach((n) => {
+      map.set(n.id, n.label);
     });
     return map;
   }, []);
@@ -798,8 +807,9 @@ export function HeroGraph() {
     const current = stateRef.current.agent.toNodeId;
     const path = findShortestPath(current, targetId);
     stateRef.current.agent.pathQueue = path.slice(1);
-    setActiveLog(`AGENT NAVIGATION // routing 3D orbit: ${path.join(" ➔ ")}`);
-  }, []);
+    const targetLabel = nodeLabelMap.get(targetId) || "Selected Target";
+    setActiveLog(`Agent traveling across knowledge graph toward ${targetLabel}`);
+  }, [nodeLabelMap]);
 
   // Smoothly rotate the globe to center on a specific node
   const rotateToNode = useCallback((node: GlobeNodeDef) => {
@@ -841,7 +851,7 @@ export function HeroGraph() {
     stateRef.current.vRotX = 0;
     stateRef.current.vRotY = 0;
     setSelectedNode(null);
-    setActiveLog("KNOWLEDGE GLOBE // orientation reset to prime meridian");
+    setActiveLog("Knowledge graph view centered at prime meridian");
   }, []);
 
   // Canvas Render Loop with 3D Globe Projection
@@ -1345,7 +1355,7 @@ export function HeroGraph() {
         }
       }
 
-      // 10. Draw Front-face Nodes (Concentric rings, radial halo, glyphs, and labels)
+      // 10. Draw Front-face Nodes (Concentric rings, radial halo, glyphs, and human labels)
       frontNodes.forEach((pn) => {
         const isHovered = hoveredNodeId === pn.def.id;
         const isSelected = selectedNode?.id === pn.def.id;
@@ -1419,12 +1429,12 @@ export function HeroGraph() {
           g.fill();
         }
 
-        // High-contrast monospace label
+        // High-contrast clean typography label
         if (pn.zNorm > -0.05) {
           const labelX = pn.sx + pn.drawRadius + 6;
           const labelY = pn.sy;
 
-          g.font = `${pn.def.isHub ? "bold 9px" : "8px"} 'Space Mono', monospace`;
+          g.font = `${pn.def.isHub ? "bold 9.5px" : "8.5px"} 'Space Mono', monospace`;
           g.fillStyle = isHovered || isSelected ? p.ink : pn.def.isHub ? p.ink : p.inkMuted;
           g.textAlign = "left";
           g.textBaseline = "middle";
@@ -1586,10 +1596,10 @@ export function HeroGraph() {
         <div className="hero-graph-status">
           <span className="hero-graph-pulse-dot" />
           <span className="hero-graph-title">
-            KNOWLEDGE GLOBE // LIVE OBSERVATORY
+            Interactive Knowledge Graph
           </span>
           <span className="hero-graph-count">
-            31 NODES · 44 EDGES
+            31 Nodes · 44 Connections
           </span>
         </div>
         <div className="hero-graph-actions">
@@ -1693,35 +1703,35 @@ export function HeroGraph() {
               </h4>
               <div className="hero-graph-inspector-meta">
                 <span>
-                  URI: <code>{selectedNode.uri}</code>
-                </span>
-                <span>
                   INTERFACE: <strong>{selectedNode.protocol}</strong>
                 </span>
                 <span>
-                  MODULE: <code>{selectedNode.module}</code>
+                  SUBSYSTEM: <strong>{selectedNode.category.toUpperCase()}</strong>
                 </span>
                 <span>
-                  COORDINATES: <code>{selectedNode.lat}°N, {selectedNode.lng}°E</code>
+                  SOURCE: <code>{selectedNode.module}</code>
                 </span>
               </div>
               <p className="hero-graph-inspector-desc">{selectedNode.description}</p>
 
               <div className="hero-graph-inspector-edges">
                 <span className="hero-graph-inspector-edge-heading">
-                  CONNECTED EDGES ({selectedNodeEdges.length})
+                  CONNECTED NODES ({selectedNodeEdges.length})
                 </span>
                 <div className="hero-graph-inspector-edge-list">
-                  {selectedNodeEdges.map((e, idx) => (
-                    <div key={idx} className="hero-graph-inspector-edge-item">
-                      <span className="hero-graph-inspector-edge-tag">{e.label}</span>
-                      <span>
-                        {e.from === selectedNode.id
-                          ? `➔ ${e.to}`
-                          : `⬅ from ${e.from}`}
-                      </span>
-                    </div>
-                  ))}
+                  {selectedNodeEdges.map((e, idx) => {
+                    const targetName = nodeLabelMap.get(e.to) || e.to;
+                    const sourceName = nodeLabelMap.get(e.from) || e.from;
+                    const isSource = e.from === selectedNode.id;
+                    return (
+                      <div key={idx} className="hero-graph-inspector-edge-item">
+                        <span className="hero-graph-inspector-edge-tag">{e.label}</span>
+                        <span>
+                          {isSource ? `➔ ${targetName}` : `⬅ from ${sourceName}`}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1736,16 +1746,16 @@ export function HeroGraph() {
                   fontSize: "9px",
                 }}
               >
-                DISPATCH AGENT HERE
+                DISPATCH AGENT TO THIS NODE
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Subtle Bottom Ticker */}
+      {/* Clean Human Status Ticker */}
       <div className="hero-graph-hud-bottom">
-        <span className="hero-graph-prompt">$</span>
+        <span className="hero-graph-status-tag">ACTIVE AGENT</span>
         <span className="hero-graph-log" title={activeLog}>
           {activeLog}
         </span>
