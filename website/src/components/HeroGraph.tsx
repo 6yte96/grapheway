@@ -707,11 +707,12 @@ export function HeroGraph() {
     let raf = 0;
     let running = true;
 
+    const wrap = canvas.parentElement || container;
     function resize() {
-      if (!container || !canvas) return;
-      const rect = container.getBoundingClientRect();
+      if (!wrap || !canvas) return;
+      const rect = wrap.getBoundingClientRect();
       const w = Math.max(300, Math.floor(rect.width));
-      const h = Math.max(380, Math.min(520, Math.floor(w * 0.88)));
+      const h = Math.max(360, Math.floor(rect.height || (w < 600 ? 380 : 500)));
 
       stateRef.current.width = w;
       stateRef.current.height = h;
@@ -726,7 +727,7 @@ export function HeroGraph() {
     }
 
     const ro = new ResizeObserver(resize);
-    ro.observe(container);
+    ro.observe(wrap);
     resize();
 
     // Color tokens
@@ -1172,20 +1173,23 @@ export function HeroGraph() {
   }, [selectedNode]);
 
   return (
-    <div className="hero-graph-card" ref={containerRef}>
-      {/* Top Observatory Header */}
-      <div className="hero-graph-header">
-        <div className="hero-graph-header-left">
+    <div className="hero-graph-direct" ref={containerRef}>
+      {/* Top Floating Observatory Bar */}
+      <div className="hero-graph-hud-top">
+        <div className="hero-graph-status">
           <span className="hero-graph-pulse-dot" />
-          <span className="hero-graph-header-title">
+          <span className="hero-graph-title">
             KNOWLEDGE GRAPH // LIVE OBSERVATORY
           </span>
+          <span className="hero-graph-count">
+            28 NODES · 44 EDGES
+          </span>
         </div>
-        <div className="hero-graph-header-actions">
+        <div className="hero-graph-actions">
           <button
             type="button"
             onClick={() => setIsPaused((p) => !p)}
-            className="hero-graph-btn secondary"
+            className="hero-graph-pill-btn"
             title={isPaused ? "Resume agent patrol" : "Pause agent traversal"}
           >
             {isPaused ? "RESUME ▶" : "PAUSE ⏸"}
@@ -1193,28 +1197,46 @@ export function HeroGraph() {
           <button
             type="button"
             onClick={walkAgent}
-            className="hero-graph-btn"
+            className="hero-graph-pill-btn primary"
             title="Dispatch simulated AI agent along graph edges"
           >
-            WALK GRAPH
+            WALK
           </button>
           <button
             type="button"
             onClick={resetView}
-            className="hero-graph-btn secondary"
+            className="hero-graph-pill-btn"
             title="Reset zoom, pan, and node positions"
           >
             RESET
           </button>
+          <div className="hero-graph-zoom-group">
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.min(1.75, z * 1.15))}
+              className="hero-graph-pill-btn"
+              title="Zoom in"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.max(0.75, z * 0.85))}
+              className="hero-graph-pill-btn"
+              title="Zoom out"
+            >
+              &minus;
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Layer Filter Pills Bar */}
-      <div className="hero-graph-filter-bar">
+      {/* Layer Filter Chips */}
+      <div className="hero-graph-hud-filters">
         <span className="hero-graph-filter-label">LAYER:</span>
         {(
           [
-            ["all", "ALL (28)"],
+            ["all", "ALL"],
             ["mcp", "MCP"],
             ["graph", "GRAPH"],
             ["actions", "ACTIONS"],
@@ -1227,47 +1249,16 @@ export function HeroGraph() {
             key={cat}
             type="button"
             onClick={() => setActiveCategory(cat)}
-            className={`hero-graph-filter-btn ${activeCategory === cat ? "active" : ""}`}
+            className={`hero-graph-filter-chip ${activeCategory === cat ? "active" : ""}`}
           >
             {label}
           </button>
         ))}
       </div>
 
-      {/* Main Canvas Frame */}
-      <div className="hero-graph-canvas-wrap">
+      {/* Main Canvas Area */}
+      <div className="hero-graph-direct-canvas-wrap">
         <canvas ref={canvasRef} className="hero-graph-canvas" />
-
-        {/* Zoom Controls Overlay */}
-        <div className="hero-graph-zoom-controls">
-          <button
-            type="button"
-            onClick={() => setZoom((z) => Math.min(1.75, z * 1.15))}
-            className="hero-graph-zoom-btn"
-            title="Zoom in"
-          >
-            +
-          </button>
-          <button
-            type="button"
-            onClick={() => setZoom((z) => Math.max(0.75, z * 0.85))}
-            className="hero-graph-zoom-btn"
-            title="Zoom out"
-          >
-            &minus;
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setZoom(1);
-              setPan({ x: 0, y: 0 });
-            }}
-            className="hero-graph-zoom-btn"
-            title="Fit to center"
-          >
-            ⛶
-          </button>
-        </div>
 
         {/* Node Detail Inspector Drawer */}
         {selectedNode && (
@@ -1324,14 +1315,11 @@ export function HeroGraph() {
         )}
       </div>
 
-      {/* Terminal Telemetry Log Footer */}
-      <div className="hero-graph-footer">
+      {/* Subtle Bottom Ticker */}
+      <div className="hero-graph-hud-bottom">
         <span className="hero-graph-prompt">$</span>
         <span className="hero-graph-log" title={activeLog}>
           {activeLog}
-        </span>
-        <span className="hero-graph-hops">
-          28 NODES · 44 EDGES
         </span>
       </div>
     </div>

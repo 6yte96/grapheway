@@ -5,7 +5,7 @@ import { PROJECT_CONFIG } from "@/config";
 import { HeroGraph } from "./HeroGraph";
 
 export function Hero() {
-  const { hero, install, links } = PROJECT_CONFIG;
+  const { hero, install } = PROJECT_CONFIG;
   const [selectedManager, setSelectedManager] = useState(
     install.defaultManager || "npm"
   );
@@ -109,33 +109,6 @@ export function Hero() {
 
       <div className="hero-visual">
         <HeroGraph />
-
-        {/* Quiet support icons: borderless until hover, same muted
-            register. The labeled support card lives at the bottom of the page. */}
-        {links.github && (
-          <div className="hero-quiet-support" role="group" aria-label="Support this project">
-            <a
-              href={links.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hero-support-icon"
-              title="Star on GitHub"
-              aria-label="Star on GitHub"
-            >
-              <i className="far fa-star"></i>
-            </a>
-            <a
-              href={`${links.github}/sponsorships`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hero-support-icon"
-              title="Sponsor"
-              aria-label="Sponsor"
-            >
-              <i className="fas fa-heart"></i>
-            </a>
-          </div>
-        )}
       </div>
     </section>
   );
