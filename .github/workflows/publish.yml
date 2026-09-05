@@ -54,7 +54,7 @@ jobs:
       - name: Authenticate with npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
 
       - name: Publish
         env:
@@ -73,5 +73,14 @@ jobs:
         run: |
           cd packages/grapheway
           version="$(node -p "require('./package.json').version")"
-          published=$(npm view "grapheway@$version" version 2>/dev/null || echo "not published")
-          echo "  grapheway@$published"
+          echo "Verifying grapheway@$version on npm..."
+          for i in {1..10}; do
+            published=$(npm view "grapheway@$version" version 2>/dev/null || echo "")
+            if [ "$published" = "$version" ]; then
+              echo "✓ grapheway@$published verified on npm registry"
+              exit 0
+            fi
+            echo "Waiting for npm registry to index grapheway@$version ($i/10)..."
+            sleep 3
+          done
+          echo "⚠ grapheway@$version published, but registry index is still updating"
