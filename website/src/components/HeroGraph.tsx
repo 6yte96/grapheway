@@ -10,7 +10,7 @@ export type NodeCategory =
   | "content"
   | "compat";
 
-export interface GraphNode {
+export interface GlobeNodeDef {
   id: string;
   uri: string;
   label: string;
@@ -19,13 +19,8 @@ export interface GraphNode {
   category: NodeCategory;
   isHub: boolean;
   radius: number;
-  nx: number; // 0..1 normalized base coordinate
-  ny: number;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  phase: number;
+  lat: number; // degrees -90 to +90 (north is positive)
+  lng: number; // degrees -180 to +180
   module: string;
   protocol: string;
   description: string;
@@ -36,11 +31,39 @@ export interface GraphEdge {
   from: string;
   to: string;
   label: string;
-  type: "declares" | "exposes" | "streams" | "calls" | "contains" | "serves" | "references" | "method" | "links_to";
+  type:
+    | "declares"
+    | "exposes"
+    | "streams"
+    | "calls"
+    | "contains"
+    | "serves"
+    | "references"
+    | "method"
+    | "links_to";
 }
 
-const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
-  // Cluster 1: Discovery & Entrypoint (Top-Center)
+interface Vec3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+interface ProjectedNode {
+  def: GlobeNodeDef;
+  unit: Vec3;
+  rot: Vec3;
+  sx: number;
+  sy: number;
+  zNorm: number; // [-1, 1], > 0 is front hemisphere
+  drawRadius: number;
+  alpha: number;
+  scale: number;
+}
+
+// 31 typed nodes positioned across the 3D globe in 6 subsystem clusters
+const RAW_NODES: GlobeNodeDef[] = [
+  // Cluster 1: Discovery & Entry (Prime Meridian / Front-Center)
   {
     id: "root",
     uri: "/",
@@ -50,8 +73,8 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "discovery",
     isHub: true,
     radius: 15,
-    nx: 0.28,
-    ny: 0.20,
+    lat: 14,
+    lng: 0,
     module: "core/jsonld.ts",
     protocol: "HTTP/2 GET",
     description: "Root HTML page. Injects Schema.org JSON-LD & GEO graph metadata into <head>.",
@@ -65,9 +88,9 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     glyph: "⚲",
     category: "discovery",
     isHub: true,
-    radius: 15,
-    nx: 0.50,
-    ny: 0.16,
+    radius: 14,
+    lat: 30,
+    lng: -18,
     module: "core/manifest.ts",
     protocol: "A2A Standard",
     description: "Machine discovery card telling any AI agent what the site exposes and where.",
@@ -80,10 +103,10 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     badge: "MANIFEST",
     glyph: "▤",
     category: "discovery",
-    isHub: false,
-    radius: 7,
-    nx: 0.68,
-    ny: 0.14,
+    isHub: true,
+    radius: 12,
+    lat: -4,
+    lng: -24,
     module: "web/handler.ts",
     protocol: "JSON API",
     description: "Full site manifest listing 14 routes, sections, and declared action schemas.",
@@ -98,78 +121,94 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "discovery",
     isHub: false,
     radius: 7,
-    nx: 0.82,
-    ny: 0.13,
-    module: "web/handler.ts",
+    lat: -20,
+    lng: -38,
+    module: "core/manifest.ts",
     protocol: "JSON API",
-    description: "Site metadata: name, tagline, author handle, and version telemetry.",
-    log: "AGENT API // GET /agent/info -> { name: 'grapheway', version: 'v0.2.2' }",
+    description: "Machine-readable site summary: license, description, and subpath capabilities.",
+    log: "METADATA // GET /agent/info -> license: MIT, runtimeDependencies: 0",
+  },
+  {
+    id: "agent_sections",
+    uri: "/agent/sections",
+    label: "/agent/sections",
+    badge: "SECTIONS",
+    glyph: "§",
+    category: "discovery",
+    isHub: false,
+    radius: 7,
+    lat: -34,
+    lng: -20,
+    module: "core/graph.ts",
+    protocol: "JSON API",
+    description: "Top-level documentation and page hierarchy mapped to semantic section nodes.",
+    log: "SECTIONS // GET /agent/sections -> 8 content sections indexed with provenance",
   },
 
-  // Cluster 2: Knowledge Graph (Core Center)
+  // Cluster 2: Knowledge Graph Core (Equatorial East)
   {
     id: "graph_hub",
     uri: "/graph/v1",
     label: "/graph/v1",
-    badge: "GRAPH ENGINE",
+    badge: "GRAPH CORE",
     glyph: "⌬",
     category: "graph",
     isHub: true,
-    radius: 17,
-    nx: 0.50,
-    ny: 0.46,
+    radius: 16,
+    lat: 10,
+    lng: 42,
     module: "core/graph.ts",
-    protocol: "Directed Graph",
-    description: "In-memory typed directed graph engine with provenance tracking and diffing.",
-    log: "GRAPH ENGINE // GET /graph/v1 -> summary: 25 pages, 521 headings, 1,927 edges",
+    protocol: "REST / JSON",
+    description: "Live knowledge graph router exposing summary, node lookup, edges, and search.",
+    log: "GRAPH CORE // GET /graph/v1 -> summary: 28 nodes, 44 edges, version: 1725576000",
   },
   {
     id: "graph_node",
     uri: "/graph/v1/node",
-    label: "node:lookup",
-    badge: "NODE",
+    label: "graph:node",
+    badge: "NODE LOOKUP",
     glyph: "•",
     category: "graph",
     isHub: false,
     radius: 7,
-    nx: 0.36,
-    ny: 0.38,
+    lat: 32,
+    lng: 50,
     module: "core/graph.ts",
     protocol: "GET /node",
-    description: "Look up any node by URI/ID. Returns properties, labels, and provenance tags.",
-    log: "GRAPH QUERY // GET /graph/v1/node?id=/docs/quickstart -> 200 OK (node_type: page)",
+    description: "Retrieves typed node metadata by URI or ID (e.g. /docs/quickstart).",
+    log: "NODE LOOKUP // GET /graph/v1/node?id=doc_quickstart -> type: 'page', inDegree: 4",
   },
   {
     id: "graph_edges",
     uri: "/graph/v1/edges",
-    label: "graph:neighbors",
-    badge: "NEIGHBORS",
+    label: "graph:edges",
+    badge: "AUDITABLE EDGES",
     glyph: "•",
     category: "graph",
     isHub: false,
     radius: 7,
-    nx: 0.35,
-    ny: 0.56,
-    module: "core/graph-query.ts",
+    lat: 24,
+    lng: 70,
+    module: "core/graph.ts",
     protocol: "GET /edges",
-    description: "Traverse incoming and outgoing edges with auditable provenance metadata.",
-    log: "GRAPH TRAVERSAL // GET /graph/v1/edges?id=root -> 12 outbound typed edges",
+    description: "Auditable edges connecting pages, actions, schemas with verification tags.",
+    log: "EDGES QUERY // GET /graph/v1/edges?node=graph_hub -> 8 outgoing directed links",
   },
   {
     id: "graph_search",
     uri: "/graph/v1/search",
     label: "graph:search",
     badge: "SEARCH",
-    glyph: "•",
+    glyph: "⌕",
     category: "graph",
     isHub: false,
-    radius: 7,
-    nx: 0.45,
-    ny: 0.62,
+    radius: 8,
+    lat: -8,
+    lng: 65,
     module: "core/graph-query.ts",
     protocol: "GET /search",
     description: "Lexical & semantic search over node titles, descriptions, and page text.",
-    log: "GRAPH SEARCH // GET /graph/v1/search?q=mcp -> 4 matching nodes found (0 scraping)",
+    log: "GRAPH SEARCH // GET /graph/v1/search?q=mcp -> 5 matching nodes found (0 scraping)",
   },
   {
     id: "graph_path",
@@ -180,8 +219,8 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "graph",
     isHub: false,
     radius: 7,
-    nx: 0.60,
-    ny: 0.59,
+    lat: -26,
+    lng: 52,
     module: "core/graph-query.ts",
     protocol: "GET /path",
     description: "Computes the shortest auditable path between any two nodes across typed edges.",
@@ -196,12 +235,12 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "graph",
     isHub: false,
     radius: 7,
-    nx: 0.65,
-    ny: 0.46,
+    lat: 2,
+    lng: 78,
     module: "core/graph.ts",
     protocol: "GET /dump",
     description: "Full JSON snapshot of nodes, edges, version timestamp, and checksums.",
-    log: "GRAPH DUMP // GET /graph/v1/dump -> exported 1,927 edges in 12ms",
+    log: "GRAPH DUMP // GET /graph/v1/dump -> exported 1,927 edges in 11ms",
   },
   {
     id: "graph_events",
@@ -211,16 +250,16 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     glyph: "≈",
     category: "graph",
     isHub: true,
-    radius: 12,
-    nx: 0.48,
-    ny: 0.76,
+    radius: 13,
+    lat: -38,
+    lng: 34,
     module: "web/handler.ts",
     protocol: "text/event-stream",
     description: "Live Server-Sent Events stream delivering graph mutations (add_node, add_edge).",
     log: "REALTIME SSE // GET /graph/v1/events -> connection active (subscribers: 1)",
   },
 
-  // Cluster 3: Model Context Protocol (Right)
+  // Cluster 3: Model Context Protocol (Far East Hemisphere)
   {
     id: "mcp_hub",
     uri: "/mcp",
@@ -230,8 +269,8 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "mcp",
     isHub: true,
     radius: 16,
-    nx: 0.76,
-    ny: 0.34,
+    lat: 16,
+    lng: 106,
     module: "web/mcp.ts",
     protocol: "JSON-RPC 2.0",
     description: "Model Context Protocol endpoint for Claude Desktop, Cursor, and VS Code.",
@@ -246,106 +285,122 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "mcp",
     isHub: false,
     radius: 7,
-    nx: 0.90,
-    ny: 0.28,
+    lat: 36,
+    lng: 118,
     module: "web/mcp.ts",
-    protocol: "JSON-RPC",
-    description: "Publishes all site actions and graph queries as native MCP tools.",
-    log: "MCP DISCOVERY // POST /mcp tools/list -> graph_node, graph_search, check_status",
+    protocol: "JSON-RPC 2.0",
+    description: "Lists all declared functions: search_content, check_status, graph_node, etc.",
+    log: "MCP TOOLS // tools/list -> 6 registered tools exposed to Claude / Cursor",
   },
   {
     id: "mcp_tools_call",
     uri: "/mcp#tools/call",
     label: "tools/call",
-    badge: "EXECUTE",
-    glyph: "•",
+    badge: "RPC CALL",
+    glyph: "⚙",
     category: "mcp",
     isHub: false,
-    radius: 7,
-    nx: 0.91,
-    ny: 0.42,
+    radius: 8,
+    lat: 20,
+    lng: 136,
     module: "web/mcp.ts",
-    protocol: "JSON-RPC",
-    description: "Executes tools with JSON schema validation. Bridges HTTP & MCP surfaces.",
-    log: "MCP EXECUTE // POST /mcp tools/call { name: 'graph_node' } -> 200 OK",
+    protocol: "JSON-RPC 2.0",
+    description: "Executes verified server tools directly without opening headless browsers.",
+    log: "MCP CALL // tools/call graph_node -> returned structured schema in 3ms",
   },
   {
-    id: "mcp_resources",
+    id: "mcp_res_list",
     uri: "/mcp#resources/list",
-    label: "res/list",
+    label: "resources/list",
     badge: "RESOURCES",
     glyph: "•",
     category: "mcp",
     isHub: false,
     radius: 7,
-    nx: 0.90,
-    ny: 0.56,
+    lat: -6,
+    lng: 114,
     module: "web/mcp.ts",
-    protocol: "JSON-RPC",
-    description: "Registers site pages and markdown documentation as native MCP resources.",
-    log: "MCP RESOURCES // POST /mcp resources/list -> 25 page resources available",
+    protocol: "JSON-RPC 2.0",
+    description: "Exposes graph nodes directly as MCP resources readable by reasoning models.",
+    log: "MCP RESOURCES // resources/list -> 12 documentation resources mapped",
   },
   {
-    id: "mcp_read",
+    id: "mcp_res_read",
     uri: "/mcp#resources/read",
-    label: "res/read",
-    badge: "STREAM",
+    label: "resources/read",
+    badge: "READ RESOURCE",
     glyph: "•",
     category: "mcp",
     isHub: false,
     radius: 7,
-    nx: 0.77,
-    ny: 0.60,
+    lat: -22,
+    lng: 128,
     module: "web/mcp.ts",
-    protocol: "JSON-RPC",
-    description: "Fetches clean, markdown-converted content for any graph page node.",
-    log: "MCP READ // POST /mcp resources/read grapheway://docs/quickstart -> 1.4KB md",
+    protocol: "JSON-RPC 2.0",
+    description: "Returns clean, navigation-stripped markdown for any graph URI.",
+    log: "MCP READ // resources/read grapheway://quickstart -> 1.8KB markdown returned",
   },
 
-  // Cluster 4: Actions & Endpoints (Bottom-Right)
+  // Cluster 4: Callable Actions & OpenAPI (Back Hemisphere)
   {
-    id: "act_status",
-    uri: "action:check_status",
-    label: "check_status",
-    badge: "TOOL ACTION",
-    glyph: "⚙",
+    id: "action_hub",
+    uri: "/agent/action",
+    label: "/agent/action",
+    badge: "ACTION BUS",
+    glyph: "⚡",
     category: "actions",
     isHub: true,
-    radius: 14,
-    nx: 0.82,
-    ny: 0.76,
-    module: "web/actions.ts",
-    protocol: "Typed Action",
-    description: "Executable site action: probes online status of hardware device by serial.",
-    log: "ACTION CALL // check_status({ serial: 'DEV-884' }) -> { online: true, latency: 14ms }",
+    radius: 15,
+    lat: -16,
+    lng: 172,
+    module: "web/handler.ts",
+    protocol: "POST /agent/action",
+    description: "RPC dispatch bus for declared actions (search_content, telemetry, status).",
+    log: "ACTION BUS // POST /agent/action -> payload verified with strict JSON Schema",
   },
   {
-    id: "act_query",
-    uri: "action:query_inventory",
-    label: "query_inventory",
-    badge: "ACTION TOOL",
+    id: "act_status",
+    uri: "/agent/action#check_status",
+    label: "check_status",
+    badge: "ACTION",
+    glyph: "•",
+    category: "actions",
+    isHub: false,
+    radius: 8,
+    lat: -34,
+    lng: 162,
+    module: "examples/actions.ts",
+    protocol: "JSON Schema RPC",
+    description: "Health and readiness probe callable directly by autonomous agent systems.",
+    log: "ACTION EXEC // run check_status -> 200 OK (uptime: 99.98%, load: 0.12)",
+  },
+  {
+    id: "act_telemetry",
+    uri: "/agent/action#query_telemetry",
+    label: "query_telemetry",
+    badge: "ACTION",
     glyph: "•",
     category: "actions",
     isHub: false,
     radius: 7,
-    nx: 0.68,
-    ny: 0.82,
-    module: "web/actions.ts",
-    protocol: "Typed Action",
-    description: "Executes structured query against inventory with price and category filters.",
-    log: "ACTION CALL // query_inventory({ category: 'sensors' }) -> 8 items returned",
+    lat: -4,
+    lng: -176,
+    module: "examples/actions.ts",
+    protocol: "JSON Schema RPC",
+    description: "Query edge performance stats and crawl coverage without scraping pages.",
+    log: "ACTION EXEC // run query_telemetry -> returned memory & throughput metrics",
   },
   {
     id: "endpoint_api",
     uri: "/api/v1/devices",
-    label: "/api/devices",
-    badge: "REST API",
+    label: "GET /devices",
+    badge: "OPENAPI",
     glyph: "•",
     category: "actions",
     isHub: false,
-    radius: 7,
-    nx: 0.85,
-    ny: 0.90,
+    radius: 8,
+    lat: 14,
+    lng: -168,
     module: "probe/crawler.ts",
     protocol: "OpenAPI 3.1",
     description: "REST endpoint discovered automatically during probe crawler pass.",
@@ -360,15 +415,15 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "actions",
     isHub: false,
     radius: 7,
-    nx: 0.70,
-    ny: 0.94,
+    lat: -24,
+    lng: -158,
     module: "probe/crawler.ts",
     protocol: "JSON Schema",
     description: "OpenAPI specification converted into typed endpoints and edge schemas.",
     log: "SCHEMA // parsed openapi.json: 12 endpoints, 6 schemas mapped to graph",
   },
 
-  // Cluster 5: Pages & Content (Left / Bottom-Left)
+  // Cluster 5: Content & Pages (North-West)
   {
     id: "doc_quickstart",
     uri: "/docs/quickstart",
@@ -378,8 +433,8 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "content",
     isHub: true,
     radius: 13,
-    nx: 0.17,
-    ny: 0.44,
+    lat: 24,
+    lng: -68,
     module: "probe/html.ts",
     protocol: "Markdown Node",
     description: "Quickstart guide. Headings & code snippets parsed into typed section nodes.",
@@ -394,8 +449,8 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "content",
     isHub: false,
     radius: 7,
-    nx: 0.13,
-    ny: 0.60,
+    lat: 44,
+    lng: -84,
     module: "probe/html.ts",
     protocol: "Markdown Node",
     description: "Installation documentation: Bun, Node, Deno package manager instructions.",
@@ -410,49 +465,65 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "content",
     isHub: false,
     radius: 7,
-    nx: 0.18,
-    ny: 0.75,
+    lat: 14,
+    lng: -96,
     module: "probe/html.ts",
     protocol: "Markdown Node",
     description: "System architecture whitepaper detailing the 6 subpath modules.",
     log: "CONTENT // node /docs/architecture linked from 8 other documentation nodes",
   },
   {
-    id: "doc_adapters",
-    uri: "/docs/adapters",
-    label: "/adapters",
+    id: "doc_bench",
+    uri: "/docs/benchmarks",
+    label: "/benchmarks",
     badge: "PAGE",
     glyph: "•",
     category: "content",
     isHub: false,
     radius: 7,
-    nx: 0.32,
-    ny: 0.74,
-    module: "web/adapters.ts",
+    lat: -12,
+    lng: -80,
+    module: "probe/html.ts",
     protocol: "Markdown Node",
-    description: "Guide on framework adapters for Node http, Express, and Hono.",
-    log: "CONTENT // node /docs/adapters defines toExpressHandler & toHonoHandler",
+    description: "Performance metrics: 4.8ms cold-start, 0-dependency runtime footprint.",
+    log: "CONTENT // node /docs/benchmarks parsed with latency comparison tables",
   },
 
-  // Cluster 6: Compat (Top-Left)
+  // Cluster 6: Compat & Legacy Fallbacks (North-West / Far West)
+  {
+    id: "compat_hub",
+    uri: "/compat",
+    label: "/compat",
+    badge: "COMPAT HUB",
+    glyph: "☷",
+    category: "compat",
+    isHub: true,
+    radius: 14,
+    lat: 26,
+    lng: -128,
+    module: "compat/handler.ts",
+    protocol: "Static Files",
+    description: "Backward-compatibility fallback engine generating llms.txt, robots.txt, sitemaps.",
+    log: "COMPAT ENGINE // generated 5 legacy artifacts from master knowledge graph",
+  },
   {
     id: "compat_llms",
     uri: "/llms.txt",
     label: "llms.txt",
     badge: "LLMS.TXT",
-    glyph: "☷",
+    glyph: "•",
     category: "compat",
-    isHub: true,
-    radius: 13,
-    nx: 0.12,
-    ny: 0.16,
+    isHub: false,
+    radius: 8,
+    lat: 46,
+    lng: -140,
     module: "compat/llms-txt.ts",
-    protocol: "RFC Draft",
-    description: "Curated markdown table of contents for LLM retrieval bots.",
-    log: "COMPAT // GET /llms.txt -> 200 OK (25 curated documentation links)",
+    protocol: "Text / Markdown",
+    description: "Curated H1 summary and absolute link index for frontier LLM search scrapers.",
+    log: "COMPAT // GET /llms.txt -> generated valid index with 8 canonical links",
   },
   {
-    id: "compat_full",
+    id: "compat_llms_full",
     uri: "/llms-full.txt",
     label: "llms-full.txt",
     badge: "FULL CONTEXT",
@@ -460,12 +531,28 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "compat",
     isHub: false,
     radius: 7,
-    nx: 0.10,
-    ny: 0.29,
+    lat: 38,
+    lng: -114,
     module: "compat/llms-txt.ts",
-    protocol: "Text Bundle",
-    description: "All site pages inlined into one continuous context text bundle.",
-    log: "COMPAT // GET /llms-full.txt -> generated 48KB markdown context bundle",
+    protocol: "Full Text Stream",
+    description: "Full site markdown concatenate for deep context window ingestion.",
+    log: "COMPAT // GET /llms-full.txt -> compiled 48KB markdown package in 4ms",
+  },
+  {
+    id: "compat_agents_txt",
+    uri: "/agents.txt",
+    label: "agents.txt",
+    badge: "AGENTS.TXT",
+    glyph: "•",
+    category: "compat",
+    isHub: false,
+    radius: 7,
+    lat: 10,
+    lng: -134,
+    module: "compat/agents-txt.ts",
+    protocol: "A2A Standard",
+    description: "Legacy text declaration of endpoints and parameters for earlier agent runtimes.",
+    log: "COMPAT // GET /agents.txt -> declared 6 endpoints with type annotations",
   },
   {
     id: "compat_robots",
@@ -476,84 +563,140 @@ const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
     category: "compat",
     isHub: false,
     radius: 7,
-    nx: 0.22,
-    ny: 0.08,
+    lat: 8,
+    lng: -154,
     module: "compat/robots.ts",
     protocol: "Robots Protocol",
-    description: "Granular permissions: allows search & retrieval bots, blocks AI training scrapers.",
-    log: "COMPAT // GET /robots.txt -> blocks GPTBot, allows Claude-Web & Google-Extended",
-  },
-  {
-    id: "compat_sitemap",
-    uri: "/sitemap.xml",
-    label: "sitemap.xml",
-    badge: "SITEMAP",
-    glyph: "•",
-    category: "compat",
-    isHub: false,
-    radius: 7,
-    nx: 0.36,
-    ny: 0.06,
-    module: "compat/sitemap.ts",
-    protocol: "XML Sitemap",
-    description: "URL index generated at runtime from the live knowledge graph nodes.",
-    log: "COMPAT // GET /sitemap.xml -> 25 URLs indexed with priority scores",
+    description: "Selective crawler governance: welcomes search bots, guides training scrapers.",
+    log: "COMPAT // GET /robots.txt -> verified sitemap line and crawler directives",
   },
 ];
 
+// Directed typed edges connecting the knowledge graph
 const RAW_EDGES: GraphEdge[] = [
   // Discovery links
-  { from: "root", to: "agent_card", label: "exposes", type: "exposes" },
-  { from: "root", to: "doc_quickstart", label: "links_to", type: "links_to" },
-  { from: "root", to: "compat_llms", label: "serves", type: "serves" },
-  { from: "root", to: "compat_robots", label: "serves", type: "serves" },
-  { from: "agent_card", to: "manifest", label: "resolves", type: "declares" },
-  { from: "agent_card", to: "mcp_hub", label: "declares", type: "declares" },
-  { from: "agent_card", to: "graph_hub", label: "declares", type: "declares" },
+  { from: "root", to: "agent_card", label: "declares", type: "declares" },
+  { from: "root", to: "manifest", label: "exposes", type: "exposes" },
+  { from: "agent_card", to: "manifest", label: "references", type: "references" },
   { from: "manifest", to: "agent_info", label: "contains", type: "contains" },
+  { from: "manifest", to: "agent_sections", label: "contains", type: "contains" },
 
-  // Graph Core links
-  { from: "graph_hub", to: "graph_node", label: "queries", type: "contains" },
-  { from: "graph_hub", to: "graph_edges", label: "queries", type: "contains" },
-  { from: "graph_hub", to: "graph_search", label: "queries", type: "contains" },
-  { from: "graph_hub", to: "graph_path", label: "queries", type: "contains" },
-  { from: "graph_hub", to: "graph_dump", label: "exports", type: "contains" },
+  // Graph Core Links
+  { from: "root", to: "graph_hub", label: "serves", type: "serves" },
+  { from: "graph_hub", to: "graph_node", label: "exposes", type: "exposes" },
+  { from: "graph_hub", to: "graph_edges", label: "exposes", type: "exposes" },
+  { from: "graph_hub", to: "graph_search", label: "exposes", type: "exposes" },
+  { from: "graph_hub", to: "graph_path", label: "exposes", type: "exposes" },
+  { from: "graph_hub", to: "graph_dump", label: "exposes", type: "exposes" },
   { from: "graph_hub", to: "graph_events", label: "streams", type: "streams" },
-  { from: "graph_hub", to: "doc_quickstart", label: "indexes", type: "references" },
-  { from: "graph_hub", to: "doc_install", label: "indexes", type: "references" },
-  { from: "graph_hub", to: "doc_arch", label: "indexes", type: "references" },
-  { from: "graph_hub", to: "doc_adapters", label: "indexes", type: "references" },
 
-  // MCP links
+  // MCP Gateway Links
+  { from: "root", to: "mcp_hub", label: "exposes", type: "exposes" },
   { from: "mcp_hub", to: "mcp_tools_list", label: "method", type: "method" },
   { from: "mcp_hub", to: "mcp_tools_call", label: "method", type: "method" },
-  { from: "mcp_hub", to: "mcp_resources", label: "method", type: "method" },
-  { from: "mcp_hub", to: "mcp_read", label: "method", type: "method" },
-  { from: "mcp_tools_call", to: "act_status", label: "dispatches", type: "calls" },
-  { from: "mcp_tools_call", to: "act_query", label: "dispatches", type: "calls" },
-  { from: "mcp_tools_call", to: "graph_node", label: "bridges", type: "calls" },
-  { from: "mcp_tools_call", to: "graph_path", label: "bridges", type: "calls" },
-  { from: "mcp_resources", to: "doc_quickstart", label: "exposes", type: "references" },
-  { from: "mcp_resources", to: "doc_install", label: "exposes", type: "references" },
-  { from: "mcp_resources", to: "doc_arch", label: "exposes", type: "references" },
-  { from: "mcp_read", to: "doc_quickstart", label: "resolves", type: "streams" },
+  { from: "mcp_hub", to: "mcp_res_list", label: "method", type: "method" },
+  { from: "mcp_hub", to: "mcp_res_read", label: "method", type: "method" },
+  { from: "mcp_tools_call", to: "graph_hub", label: "calls", type: "calls" },
+  { from: "mcp_tools_call", to: "action_hub", label: "calls", type: "calls" },
+  { from: "mcp_res_read", to: "doc_quickstart", label: "serves", type: "serves" },
 
-  // Action & API links
-  { from: "act_status", to: "endpoint_api", label: "executes", type: "calls" },
-  { from: "endpoint_api", to: "endpoint_spec", label: "defines", type: "declares" },
-  { from: "doc_quickstart", to: "act_status", label: "references", type: "references" },
+  // Actions & OpenAPI
+  { from: "manifest", to: "action_hub", label: "declares", type: "declares" },
+  { from: "action_hub", to: "act_status", label: "exposes", type: "exposes" },
+  { from: "action_hub", to: "act_telemetry", label: "exposes", type: "exposes" },
+  { from: "action_hub", to: "endpoint_api", label: "calls", type: "calls" },
+  { from: "endpoint_api", to: "endpoint_spec", label: "declares", type: "declares" },
+  { from: "graph_hub", to: "endpoint_api", label: "references", type: "references" },
 
-  // Documentation links
+  // Content Pages
+  { from: "root", to: "doc_quickstart", label: "links_to", type: "links_to" },
   { from: "doc_quickstart", to: "doc_install", label: "links_to", type: "links_to" },
-  { from: "doc_install", to: "doc_adapters", label: "links_to", type: "links_to" },
-  { from: "doc_adapters", to: "doc_arch", label: "links_to", type: "links_to" },
+  { from: "doc_quickstart", to: "doc_arch", label: "links_to", type: "links_to" },
+  { from: "doc_arch", to: "doc_bench", label: "links_to", type: "links_to" },
+  { from: "graph_hub", to: "doc_quickstart", label: "contains", type: "contains" },
+  { from: "graph_hub", to: "doc_install", label: "contains", type: "contains" },
+  { from: "graph_hub", to: "doc_arch", label: "contains", type: "contains" },
+  { from: "graph_hub", to: "doc_bench", label: "contains", type: "contains" },
 
-  // Compat links
-  { from: "compat_llms", to: "compat_full", label: "extends", type: "references" },
-  { from: "compat_llms", to: "compat_sitemap", label: "references", type: "references" },
-  { from: "compat_robots", to: "compat_sitemap", label: "references", type: "references" },
+  // Compat Protocols
+  { from: "root", to: "compat_hub", label: "serves", type: "serves" },
+  { from: "compat_hub", to: "compat_llms", label: "exposes", type: "exposes" },
+  { from: "compat_hub", to: "compat_llms_full", label: "exposes", type: "exposes" },
+  { from: "compat_hub", to: "compat_agents_txt", label: "exposes", type: "exposes" },
+  { from: "compat_hub", to: "compat_robots", label: "exposes", type: "exposes" },
+  { from: "compat_llms", to: "doc_quickstart", label: "references", type: "references" },
+  { from: "compat_llms", to: "doc_install", label: "references", type: "references" },
+  { from: "compat_llms", to: "doc_arch", label: "references", type: "references" },
+  { from: "compat_agents_txt", to: "action_hub", label: "references", type: "references" },
+  { from: "compat_robots", to: "compat_llms", label: "references", type: "references" },
 ];
 
+// Spherical & 3D Vector Math Helpers
+function toCartesian(latDeg: number, lngDeg: number): Vec3 {
+  const lat = (latDeg * Math.PI) / 180;
+  const lng = (lngDeg * Math.PI) / 180;
+  return {
+    x: Math.cos(lat) * Math.sin(lng),
+    y: -Math.sin(lat), // Canvas +y is down, so positive latitude goes up
+    z: Math.cos(lat) * Math.cos(lng),
+  };
+}
+
+function rotatePoint(p: Vec3, rotX: number, rotY: number): Vec3 {
+  // 1. Yaw around Y axis
+  const cosY = Math.cos(rotY);
+  const sinY = Math.sin(rotY);
+  const x1 = p.x * cosY + p.z * sinY;
+  const z1 = -p.x * sinY + p.z * cosY;
+
+  // 2. Pitch around X axis
+  const cosX = Math.cos(rotX);
+  const sinX = Math.sin(rotX);
+  const y2 = p.y * cosX - z1 * sinX;
+  const z2 = p.y * sinX + z1 * cosX;
+
+  return { x: x1, y: y2, z: z2 };
+}
+
+function project(
+  p: Vec3,
+  cx: number,
+  cy: number,
+  R: number,
+  D = 650
+): { sx: number; sy: number; zNorm: number; fov: number } {
+  const px = p.x * R;
+  const py = p.y * R;
+  const pz = p.z * R;
+
+  const fov = D / (D - pz);
+  return {
+    sx: cx + px * fov,
+    sy: cy + py * fov,
+    zNorm: p.z, // [-1, 1], > 0 is front hemisphere
+    fov,
+  };
+}
+
+// Spherical linear interpolation along shortest great-circle arc
+function slerp(a: Vec3, b: Vec3, t: number): Vec3 {
+  let dot = a.x * b.x + a.y * b.y + a.z * b.z;
+  dot = Math.max(-1, Math.min(1, dot));
+  const theta = Math.acos(dot);
+  if (Math.abs(theta) < 0.001) {
+    return { x: a.x, y: a.y, z: a.z };
+  }
+  const sinTheta = Math.sin(theta);
+  const wA = Math.sin((1 - t) * theta) / sinTheta;
+  const wB = Math.sin(t * theta) / sinTheta;
+  return {
+    x: a.x * wA + b.x * wB,
+    y: a.y * wA + b.y * wB,
+    z: a.z * wA + b.z * wB,
+  };
+}
+
+// Graph BFS Shortest Path
 function findShortestPath(fromId: string, toId: string): string[] {
   if (fromId === toId) return [fromId];
   const adj = new Map<string, Set<string>>();
@@ -588,33 +731,47 @@ export function HeroGraph() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [activeCategory, setActiveCategory] = useState<"all" | NodeCategory>("all");
-  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [selectedNode, setSelectedNode] = useState<GlobeNodeDef | null>(null);
   const [activeLog, setActiveLog] = useState<string>(
-    "OBSERVATORY // 28 typed nodes, 44 edges · full agent surface active"
+    "KNOWLEDGE GLOBE // 31 typed nodes, 44 edges · drag with cursor to rotate"
   );
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [zoom, setZoom] = useState<number>(1);
-  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // Mutable animation state
+  // Precomputed unit Cartesian coordinates for all nodes
+  const nodeUnitMap = useMemo(() => {
+    const map = new Map<string, Vec3>();
+    RAW_NODES.forEach((n) => {
+      map.set(n.id, toCartesian(n.lat, n.lng));
+    });
+    return map;
+  }, []);
+
+  // Mutable animation and 3D globe state
   const stateRef = useRef({
-    nodes: [] as GraphNode[],
     width: 520,
-    height: 460,
+    height: 500,
     dpr: 1,
     zoom: 1,
-    pan: { x: 0, y: 0 },
+    rotX: 0.16, // slight natural tilt down
+    rotY: 0,    // yaw heading
+    vRotX: 0,   // angular momentum
+    vRotY: 0,
+    isDragging: false,
+    dragStartX: 0,
+    dragStartY: 0,
+    lastMoveX: 0,
+    lastMoveY: 0,
+    dragDist: 0,
     hoveredNodeId: null as string | null,
-    draggedNodeId: null as string | null,
-    dragStart: { x: 0, y: 0 },
-    isPanning: false,
-    panStart: { x: 0, y: 0 },
     isPaused: false,
+    targetRotX: null as number | null,
+    targetRotY: null as number | null,
+    projectedNodes: [] as ProjectedNode[],
     agent: {
       fromNodeId: "root",
       toNodeId: "agent_card",
       progress: 0,
-      // Calm, stately speed: ~4-5 seconds per edge transition
       speed: 0.0034,
       pathQueue: [
         "agent_card",
@@ -629,36 +786,27 @@ export function HeroGraph() {
         "root",
       ],
       ring: 0,
-      tailHistory: [] as { x: number; y: number }[],
+      tailHistory: [] as Vec3[],
     },
     time: 0,
-    lastInteraction: Date.now(),
   });
 
   stateRef.current.zoom = zoom;
-  stateRef.current.pan = pan;
   stateRef.current.isPaused = isPaused;
-
-  const initNodes = useCallback((w: number, h: number) => {
-    stateRef.current.nodes = RAW_NODES.map((rn, idx) => {
-      const existing = stateRef.current.nodes.find((n) => n.id === rn.id);
-      return {
-        ...rn,
-        x: existing ? existing.x : rn.nx * w,
-        y: existing ? existing.y : rn.ny * h,
-        vx: existing ? existing.vx : 0,
-        vy: existing ? existing.vy : 0,
-        phase: idx * 0.45,
-      };
-    });
-  }, []);
 
   const dispatchAgentTo = useCallback((targetId: string) => {
     const current = stateRef.current.agent.toNodeId;
     const path = findShortestPath(current, targetId);
     stateRef.current.agent.pathQueue = path.slice(1);
-    setActiveLog(`AGENT TRAVERSAL // routing: ${path.join(" ➔ ")}`);
-    stateRef.current.lastInteraction = Date.now();
+    setActiveLog(`AGENT NAVIGATION // routing 3D orbit: ${path.join(" ➔ ")}`);
+  }, []);
+
+  // Smoothly rotate the globe to center on a specific node
+  const rotateToNode = useCallback((node: GlobeNodeDef) => {
+    const targetY = -((node.lng * Math.PI) / 180);
+    const targetX = (node.lat * Math.PI) / 180;
+    stateRef.current.targetRotX = Math.max(-1.4, Math.min(1.4, targetX));
+    stateRef.current.targetRotY = targetY;
   }, []);
 
   const walkAgent = useCallback(() => {
@@ -667,6 +815,7 @@ export function HeroGraph() {
       "mcp_hub",
       "mcp_tools_call",
       "act_status",
+      "endpoint_api",
       "graph_hub",
       "graph_search",
       "doc_quickstart",
@@ -676,24 +825,26 @@ export function HeroGraph() {
     ];
     const curr = stateRef.current.agent.toNodeId;
     const nextIdx = (patrol.indexOf(curr) + 1) % patrol.length;
-    dispatchAgentTo(patrol[nextIdx] || "agent_card");
-  }, [dispatchAgentTo]);
+    const nextTarget = patrol[nextIdx] || "agent_card";
+    dispatchAgentTo(nextTarget);
+
+    const targetDef = RAW_NODES.find((n) => n.id === nextTarget);
+    if (targetDef) {
+      rotateToNode(targetDef);
+    }
+  }, [dispatchAgentTo, rotateToNode]);
 
   const resetView = useCallback(() => {
     setZoom(1);
-    setPan({ x: 0, y: 0 });
-    const { width, height } = stateRef.current;
-    stateRef.current.nodes.forEach((n) => {
-      n.x = n.nx * width;
-      n.y = n.ny * height;
-      n.vx = 0;
-      n.vy = 0;
-    });
+    stateRef.current.targetRotX = 0.16;
+    stateRef.current.targetRotY = 0;
+    stateRef.current.vRotX = 0;
+    stateRef.current.vRotY = 0;
     setSelectedNode(null);
-    setActiveLog("OBSERVATORY RESET // canvas centered, equilibrium restored");
+    setActiveLog("KNOWLEDGE GLOBE // orientation reset to prime meridian");
   }, []);
 
-  // Main Canvas Render Loop
+  // Canvas Render Loop with 3D Globe Projection
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -722,81 +873,50 @@ export function HeroGraph() {
       canvas.height = Math.round(h * stateRef.current.dpr);
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
-
-      initNodes(w, h);
     }
 
     const ro = new ResizeObserver(resize);
     ro.observe(wrap);
     resize();
 
-    // Color tokens
+    // Paper & Ink Broadsheet Color Palette
     function getPalette() {
       const isDark = document.documentElement.classList.contains("dark");
       return {
         isDark,
-        bg: isDark ? "#1b1916" : "#F2F8FC",
-        surface: isDark ? "#282420" : "#ffffff",
         rule: isDark ? "#F2F8FC" : "#000000",
         ruleSoft: isDark ? "rgba(242, 248, 252, 0.16)" : "rgba(0, 0, 0, 0.14)",
-        gridLine: isDark ? "rgba(242, 248, 252, 0.035)" : "rgba(0, 0, 0, 0.038)",
-        gridAccent: isDark ? "rgba(242, 248, 252, 0.07)" : "rgba(0, 0, 0, 0.07)",
+        ruleFaint: isDark ? "rgba(242, 248, 252, 0.06)" : "rgba(0, 0, 0, 0.05)",
         ink: isDark ? "#F2F8FC" : "#000000",
         inkMuted: isDark ? "rgba(242, 248, 252, 0.65)" : "rgba(0, 0, 0, 0.62)",
         highlightBg: isDark ? "#F2F8FC" : "#000000",
         highlightText: isDark ? "#24221f" : "#F2F8FC",
+        surface: isDark ? "#282420" : "#ffffff",
         amber: isDark ? "#f5b942" : "#b45309",
         amberRgb: isDark ? "245, 185, 66" : "0, 0, 0",
-        cyan: isDark ? "#38bdf8" : "#0284c7",
-        violet: isDark ? "#a78bfa" : "#7c3aed",
-        emerald: isDark ? "#34d399" : "#059669",
+        wireBack: isDark ? "rgba(245, 185, 66, 0.04)" : "rgba(0, 0, 0, 0.035)",
+        wireFront: isDark ? "rgba(245, 185, 66, 0.12)" : "rgba(0, 0, 0, 0.11)",
+        wireEquator: isDark ? "rgba(245, 185, 66, 0.24)" : "rgba(0, 0, 0, 0.22)",
       };
     }
 
-    // Gentle organic floating drift (zero harsh vibration)
-    function updatePhysics() {
-      const { nodes, width, height, draggedNodeId, time } = stateRef.current;
-      const k = 0.025;
-      const damping = 0.88;
-
-      for (const n of nodes) {
-        if (n.id === draggedNodeId) continue;
-
-        // Base target plus calm harmonic breathing
-        const floatX = Math.cos(time * 0.0012 + n.phase) * 1.5;
-        const floatY = Math.sin(time * 0.0014 + n.phase) * 1.5;
-
-        const targetX = n.nx * width + floatX;
-        const targetY = n.ny * height + floatY;
-
-        let fx = (targetX - n.x) * k;
-        let fy = (targetY - n.y) * k;
-
-        n.vx = (n.vx + fx) * damping;
-        n.vy = (n.vy + fy) * damping;
-        n.x += n.vx;
-        n.y += n.vy;
-
-        // Clamping
-        n.x = Math.max(n.radius + 6, Math.min(width - n.radius - 6, n.x));
-        n.y = Math.max(n.radius + 6, Math.min(height - n.radius - 6, n.y));
-      }
-    }
-
-    // Calm agent traversal
     function updateAgent() {
-      const { agent, nodes } = stateRef.current;
+      const { agent, isPaused } = stateRef.current;
+      if (isPaused) return;
 
-      if (agent.pathQueue.length === 0) {
-        // Idle patrol: wait 4.5 seconds before next stately hop
-        if (Date.now() - stateRef.current.lastInteraction > 4500) {
-          walkAgent();
-        }
-        return;
-      }
-
+      agent.ring = (agent.ring + 0.015) % 1;
       agent.progress += agent.speed;
-      agent.ring = (agent.ring + 0.008) % 1;
+
+      // Track agent unit position for comet tail
+      const fromUnit = nodeUnitMap.get(agent.fromNodeId);
+      const toUnit = nodeUnitMap.get(agent.toNodeId);
+      if (fromUnit && toUnit) {
+        const curUnit = slerp(fromUnit, toUnit, Math.min(1, agent.progress));
+        agent.tailHistory.unshift(curUnit);
+        if (agent.tailHistory.length > 7) {
+          agent.tailHistory.pop();
+        }
+      }
 
       if (agent.progress >= 1) {
         agent.progress = 0;
@@ -804,333 +924,623 @@ export function HeroGraph() {
         const next = agent.pathQueue.shift();
         if (next) {
           agent.toNodeId = next;
-          const n = nodes.find((node) => node.id === next);
-          if (n) {
-            setActiveLog(n.log);
+          const def = RAW_NODES.find((node) => node.id === next);
+          if (def) {
+            setActiveLog(def.log);
           }
         }
       }
     }
 
-    // Render Canvas
+    function updatePhysics() {
+      const state = stateRef.current;
+
+      // Handle animated smooth rotation to target
+      if (state.targetRotX !== null && state.targetRotY !== null) {
+        const dy = state.targetRotY - state.rotY;
+        const shortestDy = Math.atan2(Math.sin(dy), Math.cos(dy));
+        state.rotY += shortestDy * 0.07;
+        state.rotX += (state.targetRotX - state.rotX) * 0.07;
+
+        if (
+          Math.abs(shortestDy) < 0.003 &&
+          Math.abs(state.targetRotX - state.rotX) < 0.003
+        ) {
+          state.targetRotX = null;
+          state.targetRotY = null;
+        }
+      } else if (!state.isDragging) {
+        // Inertia momentum
+        state.rotY += state.vRotY;
+        state.rotX += state.vRotX;
+        state.vRotY *= 0.93;
+        state.vRotX *= 0.93;
+
+        // Serene auto-rotation when idle
+        if (!state.isPaused && !reduced) {
+          state.rotY += 0.0018;
+        }
+      }
+    }
+
+    // Main 3D Render
     function draw() {
-      const { nodes, width, height, dpr, hoveredNodeId, agent, zoom: z, pan: pPos } = stateRef.current;
+      const {
+        width,
+        height,
+        dpr,
+        rotX,
+        rotY,
+        zoom: zScale,
+        hoveredNodeId,
+        agent,
+      } = stateRef.current;
       const p = getPalette();
 
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, width, height);
 
-      // Save for zoom/pan
-      g.save();
-      g.translate(width / 2 + pPos.x, height / 2 + pPos.y);
-      g.scale(z, z);
-      g.translate(-width / 2, -height / 2);
+      const cx = width / 2;
+      const cy = height / 2;
+      const baseR = Math.min(width, height) * 0.36;
+      const R = Math.max(120, baseR * zScale);
+      const D = 650;
 
-      // 1. Engineering grid paper
-      const grid = 28;
+      // 1. Precalculate 3D Rotated & Projected Coordinates for all nodes
+      const projectedNodes: ProjectedNode[] = RAW_NODES.map((def) => {
+        const unit = nodeUnitMap.get(def.id) || { x: 0, y: 0, z: 1 };
+        const rot = rotatePoint(unit, rotX, rotY);
+        const { sx, sy, zNorm, fov } = project(rot, cx, cy, R, D);
+
+        const isDimmed =
+          activeCategory !== "all" && def.category !== activeCategory;
+        const baseAlpha = zNorm >= 0 ? 0.82 + 0.18 * zNorm : 0.22 + 0.2 * (1 + zNorm);
+        const alpha = isDimmed ? baseAlpha * 0.16 : baseAlpha;
+        const scale = fov * (zNorm >= 0 ? 0.85 + 0.3 * zNorm : 0.65 + 0.25 * (1 + zNorm));
+        const drawRadius = Math.max(4, def.radius * scale * 0.9);
+
+        return {
+          def,
+          unit,
+          rot,
+          sx,
+          sy,
+          zNorm,
+          drawRadius,
+          alpha,
+          scale,
+        };
+      });
+
+      stateRef.current.projectedNodes = projectedNodes;
+
+      const nodeProjMap = new Map<string, ProjectedNode>();
+      projectedNodes.forEach((pn) => nodeProjMap.set(pn.def.id, pn));
+
+      // Separate into back-facing and front-facing
+      const backNodes = projectedNodes
+        .filter((n) => n.zNorm < 0)
+        .sort((a, b) => a.zNorm - b.zNorm);
+      const frontNodes = projectedNodes
+        .filter((n) => n.zNorm >= 0)
+        .sort((a, b) => a.zNorm - b.zNorm);
+
+      // 2. Spherical Ambient Shading & Silhouette
+      g.save();
       g.beginPath();
-      for (let x = -width; x <= width * 2; x += grid) {
-        g.strokeStyle = x % 112 === 0 ? p.gridAccent : p.gridLine;
-        g.lineWidth = x % 112 === 0 ? 1 : 0.6;
-        g.moveTo(x, -height);
-        g.lineTo(x, height * 2);
+      g.arc(cx, cy, R, 0, Math.PI * 2);
+      const sphereGrad = g.createRadialGradient(
+        cx - R * 0.25,
+        cy - R * 0.25,
+        R * 0.05,
+        cx,
+        cy,
+        R
+      );
+      if (p.isDark) {
+        sphereGrad.addColorStop(0, "rgba(245, 185, 66, 0.06)");
+        sphereGrad.addColorStop(0.65, "rgba(255, 255, 255, 0.015)");
+        sphereGrad.addColorStop(1, "rgba(245, 185, 66, 0.035)");
+      } else {
+        sphereGrad.addColorStop(0, "rgba(0, 0, 0, 0.03)");
+        sphereGrad.addColorStop(0.65, "rgba(0, 0, 0, 0.01)");
+        sphereGrad.addColorStop(1, "rgba(0, 0, 0, 0.045)");
       }
-      for (let y = -height; y <= height * 2; y += grid) {
-        g.strokeStyle = y % 112 === 0 ? p.gridAccent : p.gridLine;
-        g.lineWidth = y % 112 === 0 ? 1 : 0.6;
-        g.moveTo(-width, y);
-        g.lineTo(width * 2, y);
-      }
+      g.fillStyle = sphereGrad;
+      g.fill();
+      g.strokeStyle = p.ruleSoft;
+      g.lineWidth = 1;
+      g.stroke();
+      g.restore();
+
+      // 3. Draw Back-face Armillary Parallels & Meridians
+      g.save();
+      const latitudes = [-60, -30, 0, 30, 60];
+      latitudes.forEach((latDeg) => {
+        g.beginPath();
+        g.strokeStyle = p.wireBack;
+        g.lineWidth = 0.7;
+        g.setLineDash([2, 4]);
+
+        let hasMoved = false;
+        for (let lng = -180; lng <= 180; lng += 8) {
+          const pt = toCartesian(latDeg, lng);
+          const rot = rotatePoint(pt, rotX, rotY);
+          if (rot.z < 0) {
+            const { sx, sy } = project(rot, cx, cy, R, D);
+            if (!hasMoved) {
+              g.moveTo(sx, sy);
+              hasMoved = true;
+            } else {
+              g.lineTo(sx, sy);
+            }
+          } else {
+            hasMoved = false;
+          }
+        }
+        g.stroke();
+      });
+
+      const longitudes = [-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180];
+      longitudes.forEach((lngDeg) => {
+        g.beginPath();
+        g.strokeStyle = p.wireBack;
+        g.lineWidth = 0.6;
+        g.setLineDash([2, 4]);
+
+        let hasMoved = false;
+        for (let lat = -85; lat <= 85; lat += 7) {
+          const pt = toCartesian(lat, lngDeg);
+          const rot = rotatePoint(pt, rotX, rotY);
+          if (rot.z < 0) {
+            const { sx, sy } = project(rot, cx, cy, R, D);
+            if (!hasMoved) {
+              g.moveTo(sx, sy);
+              hasMoved = true;
+            } else {
+              g.lineTo(sx, sy);
+            }
+          } else {
+            hasMoved = false;
+          }
+        }
+        g.stroke();
+      });
+      g.restore();
+
+      // 4. Draw Back-face Great-Circle Edges (Faint dashed lines behind sphere)
+      g.save();
+      RAW_EDGES.forEach((edge) => {
+        const fromPn = nodeProjMap.get(edge.from);
+        const toPn = nodeProjMap.get(edge.to);
+        if (!fromPn || !toPn) return;
+
+        // If both endpoints are back-facing
+        if (fromPn.zNorm < 0 && toPn.zNorm < 0) {
+          g.beginPath();
+          g.strokeStyle = p.wireBack;
+          g.lineWidth = 0.8;
+          g.setLineDash([1, 4]);
+          const N = 10;
+          for (let i = 0; i <= N; i++) {
+            const pt = slerp(fromPn.unit, toPn.unit, i / N);
+            const rot = rotatePoint(pt, rotX, rotY);
+            const { sx, sy } = project(rot, cx, cy, R, D);
+            if (i === 0) g.moveTo(sx, sy);
+            else g.lineTo(sx, sy);
+          }
+          g.stroke();
+        }
+      });
+      g.restore();
+
+      // 5. Draw Back-face Nodes (Muted, smaller dots on far hemisphere)
+      backNodes.forEach((pn) => {
+        g.save();
+        g.globalAlpha = pn.alpha;
+        g.beginPath();
+        g.arc(pn.sx, pn.sy, Math.max(2, pn.drawRadius * 0.65), 0, Math.PI * 2);
+        g.fillStyle = p.isDark ? "rgba(242, 248, 252, 0.45)" : "rgba(0, 0, 0, 0.35)";
+        g.fill();
+        g.restore();
+      });
+
+      // 6. Draw Front-face Armillary Parallels & Meridians
+      g.save();
+      latitudes.forEach((latDeg) => {
+        g.beginPath();
+        const isEquator = latDeg === 0;
+        g.strokeStyle = isEquator ? p.wireEquator : p.wireFront;
+        g.lineWidth = isEquator ? 1.2 : 0.8;
+        g.setLineDash([]);
+
+        let hasMoved = false;
+        for (let lng = -180; lng <= 180; lng += 6) {
+          const pt = toCartesian(latDeg, lng);
+          const rot = rotatePoint(pt, rotX, rotY);
+          if (rot.z >= -0.05) {
+            const { sx, sy } = project(rot, cx, cy, R, D);
+            if (!hasMoved) {
+              g.moveTo(sx, sy);
+              hasMoved = true;
+            } else {
+              g.lineTo(sx, sy);
+            }
+          } else {
+            hasMoved = false;
+          }
+        }
+        g.stroke();
+      });
+
+      longitudes.forEach((lngDeg) => {
+        g.beginPath();
+        g.strokeStyle = p.wireFront;
+        g.lineWidth = 0.75;
+        g.setLineDash([]);
+
+        let hasMoved = false;
+        for (let lat = -85; lat <= 85; lat += 5) {
+          const pt = toCartesian(lat, lngDeg);
+          const rot = rotatePoint(pt, rotX, rotY);
+          if (rot.z >= -0.05) {
+            const { sx, sy } = project(rot, cx, cy, R, D);
+            if (!hasMoved) {
+              g.moveTo(sx, sy);
+              hasMoved = true;
+            } else {
+              g.lineTo(sx, sy);
+            }
+          } else {
+            hasMoved = false;
+          }
+        }
+        g.stroke();
+      });
+
+      // 7. Celestial Astrolabe Outer Rim Graduation Ticks
+      const rimR = R * 1.05;
+      g.beginPath();
+      g.strokeStyle = p.ruleSoft;
+      g.lineWidth = 0.75;
+      g.arc(cx, cy, rimR, 0, Math.PI * 2);
       g.stroke();
 
-      const nodeMap = new Map<string, GraphNode>();
-      nodes.forEach((n) => nodeMap.set(n.id, n));
+      for (let deg = 0; deg < 360; deg += 15) {
+        const rad = (deg * Math.PI) / 180;
+        const isMajor = deg % 45 === 0;
+        const tickLen = isMajor ? 6 : 3;
+        const xA = cx + Math.cos(rad) * rimR;
+        const yA = cy + Math.sin(rad) * rimR;
+        const xB = cx + Math.cos(rad) * (rimR + tickLen);
+        const yB = cy + Math.sin(rad) * (rimR + tickLen);
 
-      // 2. Draw Edges
+        g.beginPath();
+        g.strokeStyle = isMajor ? p.rule : p.ruleSoft;
+        g.lineWidth = isMajor ? 1.1 : 0.6;
+        g.moveTo(xA, yA);
+        g.lineTo(xB, yB);
+        g.stroke();
+      }
+      g.restore();
+
+      // 8. Draw Front-face Great-Circle Edges
       RAW_EDGES.forEach((edge) => {
-        const from = nodeMap.get(edge.from);
-        const to = nodeMap.get(edge.to);
-        if (!from || !to) return;
+        const fromPn = nodeProjMap.get(edge.from);
+        const toPn = nodeProjMap.get(edge.to);
+        if (!fromPn || !toPn) return;
+
+        // Skip if entirely back-facing
+        if (fromPn.zNorm < 0 && toPn.zNorm < 0) return;
 
         const isTraversing =
           (agent.fromNodeId === edge.from && agent.toNodeId === edge.to) ||
           (agent.fromNodeId === edge.to && agent.toNodeId === edge.from);
 
+        const isHovered =
+          hoveredNodeId === edge.from || hoveredNodeId === edge.to;
+        const isSelected =
+          selectedNode?.id === edge.from || selectedNode?.id === edge.to;
+
         const isDimmed =
           activeCategory !== "all" &&
-          from.category !== activeCategory &&
-          to.category !== activeCategory;
+          fromPn.def.category !== activeCategory &&
+          toPn.def.category !== activeCategory;
 
-        const isHovered = hoveredNodeId === edge.from || hoveredNodeId === edge.to;
+        const N = 14;
+        const points: { sx: number; sy: number; zNorm: number }[] = [];
+        for (let i = 0; i <= N; i++) {
+          const pt = slerp(fromPn.unit, toPn.unit, i / N);
+          const rot = rotatePoint(pt, rotX, rotY);
+          points.push(project(rot, cx, cy, R, D));
+        }
 
-        // Vector calculations
-        const dx = to.x - from.x;
-        const dy = to.y - from.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 0.1) return;
-
-        const startX = from.x + (dx / dist) * from.radius;
-        const startY = from.y + (dy / dist) * from.radius;
-        const endX = to.x - (dx / dist) * to.radius;
-        const endY = to.y - (dy / dist) * to.radius;
+        g.save();
+        if (isDimmed) g.globalAlpha = 0.12;
 
         g.beginPath();
-        g.moveTo(startX, startY);
-        g.lineTo(endX, endY);
+        let active = false;
+        points.forEach((pt) => {
+          if (pt.zNorm >= -0.15) {
+            if (!active) {
+              g.moveTo(pt.sx, pt.sy);
+              active = true;
+            } else {
+              g.lineTo(pt.sx, pt.sy);
+            }
+          } else {
+            active = false;
+          }
+        });
 
         if (isTraversing) {
-          g.strokeStyle = p.isDark ? "#f5b942" : "#000000";
-          g.lineWidth = 2.2;
-        } else if (isHovered) {
+          g.strokeStyle = p.amber;
+          g.lineWidth = 2.4;
+        } else if (isHovered || isSelected) {
           g.strokeStyle = p.rule;
-          g.lineWidth = 1.5;
-        } else if (isDimmed) {
-          g.strokeStyle = p.isDark ? "rgba(242, 248, 252, 0.04)" : "rgba(0, 0, 0, 0.04)";
-          g.lineWidth = 0.6;
+          g.lineWidth = 1.6;
         } else {
-          g.strokeStyle = p.ruleSoft;
+          g.strokeStyle = p.isDark ? "rgba(242, 248, 252, 0.45)" : "rgba(0, 0, 0, 0.4)";
           g.lineWidth = 0.9;
         }
         g.stroke();
-
-        // Arrowhead
-        if (!isDimmed) {
-          const angle = Math.atan2(dy, dx);
-          const arrowLen = 4;
-          g.fillStyle = isTraversing ? (p.isDark ? "#f5b942" : "#000000") : isHovered ? p.rule : p.ruleSoft;
-          g.beginPath();
-          g.moveTo(endX, endY);
-          g.lineTo(endX - arrowLen * Math.cos(angle - Math.PI / 6), endY - arrowLen * Math.sin(angle - Math.PI / 6));
-          g.lineTo(endX - arrowLen * Math.cos(angle + Math.PI / 6), endY - arrowLen * Math.sin(angle + Math.PI / 6));
-          g.closePath();
-          g.fill();
-        }
+        g.restore();
       });
 
-      // 3. Draw Agent Traversal Comet (Gliding Luminous Trail)
-      if (!reduced) {
-        const from = nodeMap.get(agent.fromNodeId);
-        const to = nodeMap.get(agent.toNodeId);
-        if (from && to) {
-          const dx = to.x - from.x;
-          const dy = to.y - from.y;
-          const dist = Math.hypot(dx, dy);
+      // 9. Draw Simulated Agent Orbiting along Great-Circle Edges
+      const fromUnit = nodeUnitMap.get(agent.fromNodeId);
+      const toUnit = nodeUnitMap.get(agent.toNodeId);
+      if (fromUnit && toUnit) {
+        const curUnit = slerp(fromUnit, toUnit, Math.min(1, agent.progress));
+        // Altitude offset so the agent flies slightly above surface
+        const curPos = {
+          x: curUnit.x * 1.025,
+          y: curUnit.y * 1.025,
+          z: curUnit.z * 1.025,
+        };
+        const rotCur = rotatePoint(curPos, rotX, rotY);
+        const { sx: curX, sy: curY, zNorm: agentZ } = project(rotCur, cx, cy, R, D);
 
-          const startX = from.x + (dx / dist) * from.radius;
-          const startY = from.y + (dy / dist) * from.radius;
-          const endX = to.x - (dx / dist) * to.radius;
-          const endY = to.y - (dy / dist) * to.radius;
+        // Only draw prominent particle if near or in front
+        if (agentZ >= -0.2) {
+          g.save();
 
-          // Luminous comet head position
-          const curX = startX + (endX - startX) * agent.progress;
-          const curY = startY + (endY - startY) * agent.progress;
+          // Luminous comet tail
+          agent.tailHistory.forEach((histUnit, idx) => {
+            const histPos = {
+              x: histUnit.x * 1.02,
+              y: histUnit.y * 1.02,
+              z: histUnit.z * 1.02,
+            };
+            const rotHist = rotatePoint(histPos, rotX, rotY);
+            if (rotHist.z >= -0.2) {
+              const { sx: hx, sy: hy } = project(rotHist, cx, cy, R, D);
+              const alpha = (1 - idx / agent.tailHistory.length) * 0.45;
+              const rTail = 3.5 * (1 - idx / agent.tailHistory.length);
+              g.beginPath();
+              g.arc(hx, hy, Math.max(1, rTail), 0, Math.PI * 2);
+              g.fillStyle = `rgba(${p.amberRgb}, ${alpha})`;
+              g.fill();
+            }
+          });
 
-          // Fading trailing comet tail
-          for (let t = 1; t <= 6; t++) {
-            const tailP = Math.max(0, agent.progress - t * 0.025);
-            const tx = startX + (endX - startX) * tailP;
-            const ty = startY + (endY - startY) * tailP;
-            const alpha = (1 - t / 7) * 0.75;
-            g.beginPath();
-            g.arc(tx, ty, Math.max(1, 3.4 - t * 0.45), 0, Math.PI * 2);
-            g.fillStyle = `rgba(${p.amberRgb}, ${alpha})`;
-            g.fill();
-          }
-
-          // Gentle expanding sonar ping
-          const ringR = 3 + 12 * agent.ring;
+          // Expanding sonar arrival ping
+          const ringR = 4 + 14 * agent.ring;
           g.beginPath();
           g.arc(curX, curY, ringR, 0, Math.PI * 2);
           g.strokeStyle = `rgba(${p.amberRgb}, ${1 - agent.ring})`;
           g.lineWidth = 1.1;
           g.stroke();
 
-          // Main comet particle
+          // Main agent satellite particle
           g.beginPath();
-          g.arc(curX, curY, 3.8, 0, Math.PI * 2);
-          g.fillStyle = p.isDark ? "#f5b942" : "#000000";
+          g.arc(curX, curY, 4, 0, Math.PI * 2);
+          g.fillStyle = p.amber;
           g.fill();
-          g.strokeStyle = p.isDark ? "#ffffff" : "#ffffff";
-          g.lineWidth = 1;
+          g.strokeStyle = p.isDark ? "#ffffff" : "#000000";
+          g.lineWidth = 1.2;
           g.stroke();
+
+          g.restore();
         }
       }
 
-      // 4. Draw Constellation Nodes (Spheres, Rings & Glyphs)
-      nodes.forEach((n) => {
-        const isHovered = hoveredNodeId === n.id;
-        const isSelected = selectedNode?.id === n.id;
-        const isAgentHere = agent.toNodeId === n.id;
-        const isDimmed = activeCategory !== "all" && n.category !== activeCategory;
+      // 10. Draw Front-face Nodes (Concentric rings, radial halo, glyphs, and labels)
+      frontNodes.forEach((pn) => {
+        const isHovered = hoveredNodeId === pn.def.id;
+        const isSelected = selectedNode?.id === pn.def.id;
+        const isAgentHere = agent.toNodeId === pn.def.id;
 
         g.save();
-        if (isDimmed) g.globalAlpha = 0.14;
+        g.globalAlpha = pn.alpha;
 
-        // Ambient radial halo behind hubs
-        if (n.isHub || isHovered || isSelected) {
-          const haloR = n.radius + (isHovered || isSelected ? 14 : 9);
-          const haloGrad = g.createRadialGradient(n.x, n.y, n.radius * 0.5, n.x, n.y, haloR);
+        // Radial ambient glow behind hubs
+        if (pn.def.isHub || isHovered || isSelected) {
+          const haloR = pn.drawRadius + (isHovered || isSelected ? 12 : 7);
+          const haloGrad = g.createRadialGradient(
+            pn.sx,
+            pn.sy,
+            pn.drawRadius * 0.4,
+            pn.sx,
+            pn.sy,
+            haloR
+          );
           haloGrad.addColorStop(
             0,
-            p.isDark ? "rgba(245, 185, 66, 0.22)" : "rgba(0, 0, 0, 0.12)"
+            p.isDark ? "rgba(245, 185, 66, 0.25)" : "rgba(0, 0, 0, 0.15)"
           );
           haloGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
           g.beginPath();
-          g.arc(n.x, n.y, haloR, 0, Math.PI * 2);
+          g.arc(pn.sx, pn.sy, haloR, 0, Math.PI * 2);
           g.fillStyle = haloGrad;
           g.fill();
         }
 
-        // Outer concentric ring for hubs
-        if (n.isHub) {
+        // Concentric outer ring for hubs
+        if (pn.def.isHub) {
           g.beginPath();
-          g.arc(n.x, n.y, n.radius + 3, 0, Math.PI * 2);
+          g.arc(pn.sx, pn.sy, pn.drawRadius + 3, 0, Math.PI * 2);
           g.strokeStyle = isHovered || isSelected ? p.highlightBg : p.ruleSoft;
           g.lineWidth = 0.8;
           g.stroke();
         }
 
-        // Node core circle
+        // Primary node sphere
         g.beginPath();
-        g.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
-        g.fillStyle = isHovered || isSelected ? p.highlightBg : p.surface;
+        g.arc(pn.sx, pn.sy, pn.drawRadius, 0, Math.PI * 2);
+        g.fillStyle =
+          isHovered || isSelected
+            ? p.highlightBg
+            : isAgentHere
+            ? p.amber
+            : p.surface;
         g.fill();
-        g.strokeStyle = isHovered || isSelected ? p.highlightBg : isAgentHere ? (p.isDark ? "#f5b942" : "#000000") : p.rule;
+        g.strokeStyle =
+          isHovered || isSelected
+            ? p.highlightBg
+            : isAgentHere
+            ? p.rule
+            : p.rule;
         g.lineWidth = isAgentHere || isSelected ? 2 : 1.2;
         g.stroke();
 
         // Center glyph
-        if (n.isHub) {
-          g.font = `bold ${n.radius >= 15 ? 11 : 9}px 'Space Mono', monospace`;
+        if (pn.def.isHub) {
+          g.font = `bold ${pn.drawRadius >= 13 ? 11 : 9}px 'Space Mono', monospace`;
           g.fillStyle = isHovered || isSelected ? p.highlightText : p.ink;
           g.textAlign = "center";
           g.textBaseline = "middle";
-          g.fillText(n.glyph, n.x, n.y);
+          g.fillText(pn.def.glyph, pn.sx, pn.sy);
         } else {
           // Small inner pip for satellite nodes
           g.beginPath();
-          g.arc(n.x, n.y, 2.2, 0, Math.PI * 2);
+          g.arc(pn.sx, pn.sy, 2.2, 0, Math.PI * 2);
           g.fillStyle = isHovered || isSelected ? p.highlightText : p.ink;
           g.fill();
         }
 
-        // Monospace label sitting beside the node
-        const labelX = n.x + n.radius + 5;
-        const labelY = n.y;
+        // High-contrast monospace label
+        if (pn.zNorm > -0.05) {
+          const labelX = pn.sx + pn.drawRadius + 6;
+          const labelY = pn.sy;
 
-        g.font = `${n.isHub ? "bold 9px" : "8px"} 'Space Mono', monospace`;
-        g.fillStyle = isHovered || isSelected ? p.ink : n.isHub ? p.ink : p.inkMuted;
-        g.textAlign = "left";
-        g.textBaseline = "middle";
-        g.fillText(n.label, labelX, labelY);
+          g.font = `${pn.def.isHub ? "bold 9px" : "8px"} 'Space Mono', monospace`;
+          g.fillStyle = isHovered || isSelected ? p.ink : pn.def.isHub ? p.ink : p.inkMuted;
+          g.textAlign = "left";
+          g.textBaseline = "middle";
+          g.fillText(pn.def.label, labelX, labelY);
+        }
 
         g.restore();
       });
-
-      g.restore(); // restore zoom/pan transform
     }
 
     function frame(timestamp: number) {
       if (running) {
         stateRef.current.time = timestamp;
-        if (!reduced && !stateRef.current.isPaused) {
-          updatePhysics();
-          updateAgent();
-        }
+        updatePhysics();
+        updateAgent();
         draw();
+        raf = requestAnimationFrame(frame);
       }
-      raf = requestAnimationFrame(frame);
     }
 
     raf = requestAnimationFrame(frame);
 
-    // Zoom/pan coordinate translation
-    function toWorld(e: PointerEvent) {
+    // Interactive Cursor & Touch Drag Handlers
+    function getCanvasCoords(e: PointerEvent) {
       const rect = canvas!.getBoundingClientRect();
-      const rawX = e.clientX - rect.left;
-      const rawY = e.clientY - rect.top;
-      const { width, height, zoom: z, pan: pPos } = stateRef.current;
-      const worldX = (rawX - (width / 2 + pPos.x)) / z + width / 2;
-      const worldY = (rawY - (height / 2 + pPos.y)) / z + height / 2;
-      return { x: worldX, y: worldY, rawX, rawY };
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
     }
 
-    const onPointerMove = (e: PointerEvent) => {
-      const { x, y, rawX, rawY } = toWorld(e);
+    const onPointerDown = (e: PointerEvent) => {
       const state = stateRef.current;
+      state.isDragging = true;
+      state.dragStartX = e.clientX;
+      state.dragStartY = e.clientY;
+      state.lastMoveX = e.clientX;
+      state.lastMoveY = e.clientY;
+      state.dragDist = 0;
+      state.vRotX = 0;
+      state.vRotY = 0;
+      state.targetRotX = null;
+      state.targetRotY = null;
 
-      if (state.isPanning) {
-        setPan({
-          x: state.pan.x + (rawX - state.panStart.x),
-          y: state.pan.y + (rawY - state.panStart.y),
-        });
-        state.panStart = { x: rawX, y: rawY };
-        return;
-      }
-
-      if (state.draggedNodeId) {
-        const n = state.nodes.find((node) => node.id === state.draggedNodeId);
-        if (n) {
-          n.x = x;
-          n.y = y;
-          n.vx = 0;
-          n.vy = 0;
-        }
-        return;
-      }
-
-      let hovered: GraphNode | null = null;
-      for (const n of state.nodes) {
-        if (Math.hypot(x - n.x, y - n.y) <= n.radius + 6) {
-          hovered = n;
-          break;
-        }
-      }
-
-      state.hoveredNodeId = hovered ? hovered.id : null;
-      canvas!.style.cursor = hovered ? "pointer" : "grab";
-      if (hovered) {
-        setActiveLog(hovered.log);
-      }
+      canvas!.setPointerCapture(e.pointerId);
+      canvas!.style.cursor = "grabbing";
     };
 
-    const onPointerDown = (e: PointerEvent) => {
-      const { x, y, rawX, rawY } = toWorld(e);
+    const onPointerMove = (e: PointerEvent) => {
       const state = stateRef.current;
+      const { x, y } = getCanvasCoords(e);
 
-      for (const n of state.nodes) {
-        if (Math.hypot(x - n.x, y - n.y) <= n.radius + 6) {
-          state.draggedNodeId = n.id;
-          state.dragStart = { x: rawX, y: rawY };
-          canvas!.setPointerCapture(e.pointerId);
-          state.lastInteraction = Date.now();
-          return;
+      if (state.isDragging) {
+        const dx = e.clientX - state.lastMoveX;
+        const dy = e.clientY - state.lastMoveY;
+        state.dragDist += Math.hypot(dx, dy);
+
+        // Natural trackball drag sensitivity
+        state.rotY += dx * 0.0055;
+        state.rotX += dy * 0.0055;
+
+        // Clamp pitch so globe does not invert upside down
+        const maxPitch = Math.PI / 2 - 0.1;
+        state.rotX = Math.max(-maxPitch, Math.min(maxPitch, state.rotX));
+
+        state.vRotY = dx * 0.0055;
+        state.vRotX = dy * 0.0055;
+
+        state.lastMoveX = e.clientX;
+        state.lastMoveY = e.clientY;
+        return;
+      }
+
+      // Hit testing front-facing nodes on hover
+      let hovered: ProjectedNode | null = null;
+      for (const pn of state.projectedNodes) {
+        if (pn.zNorm >= -0.15) {
+          const d = Math.hypot(x - pn.sx, y - pn.sy);
+          if (d <= pn.drawRadius + 7) {
+            hovered = pn;
+            break;
+          }
         }
       }
 
-      state.isPanning = true;
-      state.panStart = { x: rawX, y: rawY };
-      canvas!.style.cursor = "grabbing";
-      canvas!.setPointerCapture(e.pointerId);
+      state.hoveredNodeId = hovered ? hovered.def.id : null;
+      canvas!.style.cursor = hovered ? "pointer" : "grab";
+      if (hovered) {
+        setActiveLog(hovered.def.log);
+      }
     };
 
     const onPointerUp = (e: PointerEvent) => {
       const state = stateRef.current;
-      const { rawX, rawY } = toWorld(e);
+      state.isDragging = false;
+      canvas!.style.cursor = "grab";
 
-      if (state.draggedNodeId) {
-        const dist = Math.hypot(rawX - state.dragStart.x, rawY - state.dragStart.y);
-        const node = state.nodes.find((n) => n.id === state.draggedNodeId);
-        if (dist < 6 && node) {
-          setSelectedNode(node);
-          dispatchAgentTo(node.id);
+      // If released after a clean click without significant drag
+      if (state.dragDist < 6) {
+        const { x, y } = getCanvasCoords(e);
+        let clicked: ProjectedNode | null = null;
+        for (const pn of state.projectedNodes) {
+          if (pn.zNorm >= -0.15) {
+            const d = Math.hypot(x - pn.sx, y - pn.sy);
+            if (d <= pn.drawRadius + 8) {
+              clicked = pn;
+              break;
+            }
+          }
         }
-        state.draggedNodeId = null;
-      }
 
-      if (state.isPanning) {
-        state.isPanning = false;
-        canvas!.style.cursor = "grab";
+        if (clicked) {
+          setSelectedNode(clicked.def);
+          dispatchAgentTo(clicked.def.id);
+          rotateToNode(clicked.def);
+        }
       }
 
       try {
@@ -1140,36 +1550,33 @@ export function HeroGraph() {
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const factor = e.deltaY < 0 ? 1.08 : 0.92;
-      setZoom((z) => Math.max(0.75, Math.min(1.75, z * factor)));
+      setZoom((z) => Math.max(0.75, Math.min(1.65, z - e.deltaY * 0.0012)));
     };
 
-    canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerup", onPointerUp);
     canvas.addEventListener("pointercancel", onPointerUp);
     canvas.addEventListener("wheel", onWheel, { passive: false });
 
-    const onVis = () => {
-      running = document.visibilityState === "visible";
-    };
-    document.addEventListener("visibilitychange", onVis);
-
     return () => {
+      running = false;
       cancelAnimationFrame(raf);
       ro.disconnect();
-      canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerup", onPointerUp);
       canvas.removeEventListener("pointercancel", onPointerUp);
       canvas.removeEventListener("wheel", onWheel);
-      document.removeEventListener("visibilitychange", onVis);
     };
-  }, [initNodes, dispatchAgentTo, activeCategory, selectedNode]);
+  }, [nodeUnitMap, dispatchAgentTo, rotateToNode, activeCategory, selectedNode]);
 
+  // Edges connected to selected node for inspector drawer
   const selectedNodeEdges = useMemo(() => {
     if (!selectedNode) return [];
-    return RAW_EDGES.filter((e) => e.from === selectedNode.id || e.to === selectedNode.id);
+    return RAW_EDGES.filter(
+      (e) => e.from === selectedNode.id || e.to === selectedNode.id
+    );
   }, [selectedNode]);
 
   return (
@@ -1179,10 +1586,10 @@ export function HeroGraph() {
         <div className="hero-graph-status">
           <span className="hero-graph-pulse-dot" />
           <span className="hero-graph-title">
-            KNOWLEDGE GRAPH // LIVE OBSERVATORY
+            KNOWLEDGE GLOBE // LIVE OBSERVATORY
           </span>
           <span className="hero-graph-count">
-            28 NODES · 44 EDGES
+            31 NODES · 44 EDGES
           </span>
         </div>
         <div className="hero-graph-actions">
@@ -1190,7 +1597,7 @@ export function HeroGraph() {
             type="button"
             onClick={() => setIsPaused((p) => !p)}
             className="hero-graph-pill-btn"
-            title={isPaused ? "Resume agent patrol" : "Pause agent traversal"}
+            title={isPaused ? "Resume auto-rotation and agent" : "Pause auto-rotation and agent"}
           >
             {isPaused ? "RESUME ▶" : "PAUSE ⏸"}
           </button>
@@ -1198,7 +1605,7 @@ export function HeroGraph() {
             type="button"
             onClick={walkAgent}
             className="hero-graph-pill-btn primary"
-            title="Dispatch simulated AI agent along graph edges"
+            title="Dispatch simulated AI agent along 3D orbits"
           >
             WALK
           </button>
@@ -1206,14 +1613,14 @@ export function HeroGraph() {
             type="button"
             onClick={resetView}
             className="hero-graph-pill-btn"
-            title="Reset zoom, pan, and node positions"
+            title="Reset rotation to prime meridian"
           >
-            RESET
+            RESET ⊙
           </button>
           <div className="hero-graph-zoom-group">
             <button
               type="button"
-              onClick={() => setZoom((z) => Math.min(1.75, z * 1.15))}
+              onClick={() => setZoom((z) => Math.min(1.65, z * 1.15))}
               className="hero-graph-pill-btn"
               title="Zoom in"
             >
@@ -1236,7 +1643,7 @@ export function HeroGraph() {
         <span className="hero-graph-filter-label">LAYER:</span>
         {(
           [
-            ["all", "ALL"],
+            ["all", "ALL (31)"],
             ["mcp", "MCP"],
             ["graph", "GRAPH"],
             ["actions", "ACTIONS"],
@@ -1256,15 +1663,18 @@ export function HeroGraph() {
         ))}
       </div>
 
-      {/* Main Canvas Area */}
+      {/* Main 3D Globe Canvas Area */}
       <div className="hero-graph-direct-canvas-wrap">
         <canvas ref={canvasRef} className="hero-graph-canvas" />
 
-        {/* Node Detail Inspector Drawer */}
+        {/* Node Detail Inspector Floating Drawer */}
         {selectedNode && (
           <div className="hero-graph-inspector">
             <div className="hero-graph-inspector-header">
-              <span className="postcard-tag boxed tilt-up" style={{ fontSize: "8.5px", padding: "1px 5px" }}>
+              <span
+                className="postcard-tag boxed tilt-up"
+                style={{ fontSize: "8.5px", padding: "1px 5px" }}
+              >
                 {selectedNode.badge}
               </span>
               <button
@@ -1282,9 +1692,18 @@ export function HeroGraph() {
                 <span>{selectedNode.glyph}</span> {selectedNode.label}
               </h4>
               <div className="hero-graph-inspector-meta">
-                <span>URI: <code>{selectedNode.uri}</code></span>
-                <span>INTERFACE: <strong>{selectedNode.protocol}</strong></span>
-                <span>MODULE: <code>{selectedNode.module}</code></span>
+                <span>
+                  URI: <code>{selectedNode.uri}</code>
+                </span>
+                <span>
+                  INTERFACE: <strong>{selectedNode.protocol}</strong>
+                </span>
+                <span>
+                  MODULE: <code>{selectedNode.module}</code>
+                </span>
+                <span>
+                  COORDINATES: <code>{selectedNode.lat}°N, {selectedNode.lng}°E</code>
+                </span>
               </div>
               <p className="hero-graph-inspector-desc">{selectedNode.description}</p>
 
@@ -1296,7 +1715,11 @@ export function HeroGraph() {
                   {selectedNodeEdges.map((e, idx) => (
                     <div key={idx} className="hero-graph-inspector-edge-item">
                       <span className="hero-graph-inspector-edge-tag">{e.label}</span>
-                      <span>{e.from === selectedNode.id ? `➔ ${e.to}` : `⬅ from ${e.from}`}</span>
+                      <span>
+                        {e.from === selectedNode.id
+                          ? `➔ ${e.to}`
+                          : `⬅ from ${e.from}`}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -1306,7 +1729,12 @@ export function HeroGraph() {
                 type="button"
                 onClick={() => dispatchAgentTo(selectedNode.id)}
                 className="btn-broadsheet-primary"
-                style={{ width: "100%", marginTop: "0.65rem", padding: "0.45rem 0.8rem", fontSize: "9px" }}
+                style={{
+                  width: "100%",
+                  marginTop: "0.65rem",
+                  padding: "0.45rem 0.8rem",
+                  fontSize: "9px",
+                }}
               >
                 DISPATCH AGENT HERE
               </button>
