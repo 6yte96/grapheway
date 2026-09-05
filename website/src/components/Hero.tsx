@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PROJECT_CONFIG } from "@/config";
+import { GraphCanvas } from "./GraphCanvas";
 
 export function Hero() {
   const { hero, install, telemetry, links } = PROJECT_CONFIG;
@@ -23,6 +24,7 @@ export function Hero() {
 
   return (
     <section className="hero">
+      <GraphCanvas />
       <div className="hero-content">
         <div className="issue-line">
           <span className="issue-badge">{hero.issueBadge}</span>
