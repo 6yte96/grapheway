@@ -659,7 +659,7 @@ npm i https://github.com/6yte96/grapheway/raw/dev/artifacts/grapheway-0.1.0.tgz
 - [**White paper**](https://github.com/6yte96/grapheway/blob/main/docs/whitepaper.md) — the architecture, why graphs beat static files, the provenance model
 - [**Contributing**](https://github.com/6yte96/grapheway/blob/main/CONTRIBUTING.md) — development workflow, project structure, code conventions
 - [**Changelog**](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md) — version history and what's new
-- [**Landing page**](https://github.com/6yte96/grapheway/blob/main/docs/index.html) — grapheway.dev (host via GitHub Pages)
+- [**Landing page**](https://6yte96.github.io/grapheway/) — broadsheet site built from `website/` (GitHub Pages)
 
 ---
 
