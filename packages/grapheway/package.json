@@ -33,7 +33,7 @@
     }
   },
   "bin": {
-    "grapheway": "./dist/cli/cli.js"
+    "grapheway": "dist/cli/cli.js"
   },
   "files": [
     "dist",
