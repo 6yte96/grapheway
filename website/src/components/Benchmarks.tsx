@@ -45,17 +45,12 @@ export function Benchmarks() {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
           alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1rem",
           marginTop: "0.75rem",
         }}
         className="font-mono text-xs text-muted-foreground"
       >
-        <span>
-          METHODOLOGY // measured with grapheway probe against expressjs.com with default settings
-        </span>
         <span className="telemetry-pill">
           <span style={{ color: "#10b981" }}>●</span>
           <span>Probe Verified</span>
