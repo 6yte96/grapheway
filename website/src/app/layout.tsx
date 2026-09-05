@@ -3,6 +3,7 @@ import { Space_Mono, Rubik } from "next/font/google";
 import { PROJECT_CONFIG } from "@/config";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { GraphCanvas } from "@/components/GraphCanvas";
 
 const spaceMono = Space_Mono({
   weight: ["400", "700"],
@@ -90,6 +91,7 @@ export default function RootLayout({
       </head>
       <body>
         <div className="grain-overlay" aria-hidden="true" />
+        <GraphCanvas />
         <Header />
         <main className="main">{children}</main>
         <Footer />

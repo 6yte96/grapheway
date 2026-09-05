@@ -7015,37 +7015,21 @@ div[id].projects-section {
   }
 }
 
-/* ---- Hero background graph canvas: ink nodes and edges drifting
-      behind the hero content. Purely decorative, aria-hidden,
-      static for reduced-motion users, paper ink on both editions. ---- */
+/* ---- Page-wide background graph canvas: ink nodes and edges drifting
+      behind the entire page. Purely decorative, aria-hidden, static
+      for reduced-motion users, paper ink on both editions. ---- */
 
-.hero {
-  position: relative;
-}
-
-.hero-graph-canvas {
-  position: absolute;
+.page-graph-canvas {
+  position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
   pointer-events: none;
 }
 
-/* content and visual sit above the canvas */
-.hero > .hero-content,
-.hero > .hero-visual {
-  position: relative;
-  z-index: 1;
-}
-
-/* keep the canvas quieter where text density is highest */
-.hero-graph-canvas {
-  opacity: 0.85;
-}
-
 @media print {
-  .hero-graph-canvas {
+  .page-graph-canvas {
     display: none;
   }
 }

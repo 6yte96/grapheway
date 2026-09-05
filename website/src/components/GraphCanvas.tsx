@@ -4,14 +4,19 @@ import { useEffect, useRef } from "react";
 
 /**
  * GraphCanvas: a quiet, slowly drifting knowledge graph painted on the
- * hero background. Ink lines on paper, nodes and edges with occasional
- * traversal pulses, in the spirit of the project itself.
+ * page-wide background, behind everything. Ink lines on paper, nodes and
+ * edges with occasional traversal pulses, in the spirit of the project
+ * itself.
+ *
+ * Mounted once in the root layout. The canvas is fixed to the viewport;
+ * the graph scrolls subtly with the document (parallax) so the page
+ * feels like it moves over a larger graph.
  *
  * Behavior:
  * - Nodes drift gently; edges connect nearby nodes (proximity graph)
  * - A pulse occasionally travels along an edge, like an agent walking the graph
  * - Respects prefers-reduced-motion: static render, no drift, no pulses
- * - DPR-aware, resizes with the section, pauses when offscreen
+ * - DPR-aware, resizes with the viewport, pauses when the tab is hidden
  */
 export function GraphCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -22,15 +27,10 @@ export function GraphCanvas() {
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const g = ctx;
-
+    const g: CanvasRenderingContext2D = ctx;
     const canvasEl = canvas;
-    const parent = canvas.parentElement;
-    if (!parent) return;
-    const sectionEl: HTMLElement = parent;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const dark = document.documentElement.classList.contains("dark");
 
     let raf = 0;
     let running = true;
@@ -51,7 +51,7 @@ export function GraphCanvas() {
     // counts scale with area, capped so phones stay cheap
     function populate() {
       const area = width * height;
-      const count = Math.max(14, Math.min(42, Math.round(area / 26000)));
+      const count = Math.max(14, Math.min(46, Math.round(area / 26000)));
       nodes = Array.from({ length: count }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -63,9 +63,8 @@ export function GraphCanvas() {
     }
 
     function resize() {
-      const rect = sectionEl.getBoundingClientRect();
-      width = rect.width;
-      height = rect.height;
+      width = window.innerWidth;
+      height = window.innerHeight;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvasEl.width = Math.round(width * dpr);
       canvasEl.height = Math.round(height * dpr);
@@ -79,9 +78,9 @@ export function GraphCanvas() {
       const isDark = document.documentElement.classList.contains("dark");
       return {
         ink: isDark ? "242, 248, 252" : "0, 0, 0",
-        edgeAlpha: isDark ? 0.10 : 0.10,
-        nodeAlpha: isDark ? 0.30 : 0.34,
-        pulseAlpha: isDark ? 0.55 : 0.5,
+        edgeAlpha: isDark ? 0.09 : 0.08,
+        nodeAlpha: isDark ? 0.26 : 0.28,
+        pulseAlpha: isDark ? 0.5 : 0.45,
       };
     }
 
@@ -196,27 +195,23 @@ export function GraphCanvas() {
     };
     window.addEventListener("resize", onResize);
 
-    // pause when the hero is offscreen (cheap and polite)
-    const io = new IntersectionObserver(
-      (entries) => {
-        running = entries[0]?.isIntersecting ?? true;
-        if (reduced) draw();
-      },
-      { threshold: 0 }
-    );
-    io.observe(sectionEl);
+    // pause when the tab is hidden
+    const onVisibility = () => {
+      running = document.visibilityState === "visible";
+    };
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
-      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="hero-graph-canvas"
+      className="page-graph-canvas"
       aria-hidden="true"
     />
   );
