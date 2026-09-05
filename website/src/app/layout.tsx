@@ -37,6 +37,14 @@ export const metadata = {
     description: PROJECT_CONFIG.meta.description,
     creator: `@${PROJECT_CONFIG.brand.handle}`,
   },
+  icons: {
+    icon: [
+      {
+        url: `${process.env.NEXT_PUBLIC_BASE_PATH ?? "/grapheway"}/favicon.svg`,
+        type: "image/svg+xml",
+      },
+    ],
+  },
 };
 
 export const viewport = {
@@ -73,6 +81,11 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <link
+          rel="icon"
+          type="image/svg+xml"
+          href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? "/grapheway"}/favicon.svg`}
+        />
         {/* Font Awesome 6.5.1 Kit */}
         <link
           rel="stylesheet"

@@ -140,7 +140,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
       "Grapheway turns your website into a live, typed knowledge graph that AI agents discover, traverse, search, and act on. One package, zero dependencies, no paid crawlers. Your site opens its own door.",
     primaryCta: {
       text: "See a Probe Run",
-      href: "#session",
+      href: "#playground",
     },
     secondaryCta: {
       text: "View GitHub Repo",
@@ -232,7 +232,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
       description:
         "Your basic actions, like check status or query, become callable tools over HTTP and MCP. Same implementation, both surfaces.",
       repoLinkText: "src/web/actions.ts",
-      repoHref: "httpsgithub.com/6yte96/grapheway/tree/main/packages/grapheway/src/web",
+      repoHref: "https://github.com/6yte96/grapheway/tree/main/packages/grapheway/src/web",
       stamp: { label: "BUILT-IN", value: "4" },
       meta: "get_site_info, get_page, search",
       tilt: "tilt-up",

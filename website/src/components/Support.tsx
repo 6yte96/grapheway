@@ -64,11 +64,7 @@ export function Support() {
               </a>
 
               <div className="postcard-meta-line">
-                <span>@{brand.handle}</span>
-                <span>·</span>
-                <span>{support.license}</span>
-                <span>·</span>
-                <time dateTime={support.year}>{support.year}</time>
+                <span>@{brand.handle}, {support.license}, {support.year}</span>
               </div>
             </div>
 

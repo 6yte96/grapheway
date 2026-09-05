@@ -29,10 +29,10 @@ export function FeatureBento() {
     <section id={PROJECT_CONFIG.nav.find((n) => n.id === "features") ? "features" : undefined} className="projects-section">
       <div className="section-header">
         <div className="section-header-left">
-          <h2 className="section-title">{features.length ? "The Menu" : "Features"}</h2>
+          <h2 className="section-title">Surface</h2>
           <p className="section-description">
             Every capability between <code>install</code> and a working setup.
-            Search by keyword, filter by course.
+            Search by keyword, filter by category.
           </p>
         </div>
       </div>
@@ -54,7 +54,7 @@ export function FeatureBento() {
         </div>
 
         <div className="filter-bar-right">
-          <span className="label-mono filter-bar-label">course</span>
+          <span className="label-mono filter-bar-label">category</span>
           <div className="editorial-sort-buttons">
             {categories.map((cat) => (
               <button

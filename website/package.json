@@ -1,8 +1,8 @@
 {
-  "name": "broadsheet-project-template",
+  "name": "grapheway-website",
   "version": "1.0.0",
   "private": true,
-  "description": "Paper & Ink Editorial Broadsheet landing page template for open-source projects",
+  "description": "Paper & Ink editorial landing page for Grapheway",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

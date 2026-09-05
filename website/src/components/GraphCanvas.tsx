@@ -38,10 +38,13 @@ export function GraphCanvas() {
     let height = 0;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+    const TAGS = ["page", "mcp", "graph", "action", "node", "edge", "a2a", "stream", "jsonld"];
+
     type Node = {
       x: number; y: number;
       vx: number; vy: number;
       r: number;
+      tag?: string;
     };
     type Pulse = { a: Node; b: Node; t: number; speed: number };
 
@@ -52,12 +55,13 @@ export function GraphCanvas() {
     function populate() {
       const area = width * height;
       const count = Math.max(18, Math.min(56, Math.round(area / 22000)));
-      nodes = Array.from({ length: count }, () => ({
+      nodes = Array.from({ length: count }, (_, i) => ({
         x: Math.random() * width,
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * 0.12,
         vy: (Math.random() - 0.5) * 0.12,
         r: 1.6 + Math.random() * 2.2,
+        tag: i % 3 === 0 ? TAGS[i % TAGS.length] : undefined,
       }));
       pulses = [];
     }
@@ -134,6 +138,21 @@ export function GraphCanvas() {
       g.fillStyle = isDark ? "#24221f" : "#F2F8FC";
       g.fillRect(0, 0, width, height);
 
+      // faint engineering graph blueprint grid
+      const grid = 44;
+      g.strokeStyle = isDark ? "rgba(242, 248, 252, 0.022)" : "rgba(0, 0, 0, 0.026)";
+      g.lineWidth = 1;
+      g.beginPath();
+      for (let x = 0; x <= width; x += grid) {
+        g.moveTo(x, 0);
+        g.lineTo(x, height);
+      }
+      for (let y = 0; y <= height; y += grid) {
+        g.moveTo(0, y);
+        g.lineTo(width, y);
+      }
+      g.stroke();
+
       // edges
       g.lineWidth = 1;
       for (let i = 0; i < nodes.length; i++) {
@@ -153,12 +172,18 @@ export function GraphCanvas() {
         }
       }
 
-      // nodes
+      // nodes with subtle semantic labels
+      g.font = "8px 'Space Mono', monospace";
       for (const n of nodes) {
         g.fillStyle = `rgba(${p.ink}, ${p.nodeAlpha})`;
         g.beginPath();
         g.arc(n.x, n.y, n.r, 0, Math.PI * 2);
         g.fill();
+
+        if (n.tag) {
+          g.fillStyle = `rgba(${p.ink}, ${p.nodeAlpha * 0.45})`;
+          g.fillText(n.tag, n.x + n.r + 3, n.y + 3);
+        }
       }
 
       // pulses: a dot traveling along an edge, with a fading tail
