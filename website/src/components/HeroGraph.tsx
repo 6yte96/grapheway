@@ -10,45 +10,48 @@ export type NodeCategory =
   | "content"
   | "compat";
 
-export interface DetailedNode {
+export interface GraphNode {
   id: string;
   uri: string;
   label: string;
   badge: string;
+  glyph: string;
   category: NodeCategory;
-  isHub?: boolean;
+  isHub: boolean;
+  radius: number;
   nx: number; // 0..1 normalized base coordinate
   ny: number;
   x: number;
   y: number;
   vx: number;
   vy: number;
-  width: number;
-  height: number;
+  phase: number;
   module: string;
   protocol: string;
   description: string;
   log: string;
 }
 
-export interface DetailedEdge {
+export interface GraphEdge {
   from: string;
   to: string;
   label: string;
   type: "declares" | "exposes" | "streams" | "calls" | "contains" | "serves" | "references" | "method" | "links_to";
 }
 
-const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height">[] = [
-  // Cluster 1: Discovery & Entrypoint
+const RAW_NODES: Omit<GraphNode, "x" | "y" | "vx" | "vy" | "phase">[] = [
+  // Cluster 1: Discovery & Entrypoint (Top-Center)
   {
     id: "root",
     uri: "/",
-    label: "/ (Site Root)",
-    badge: "ENTRYPOINT",
+    label: "/",
+    badge: "SITE ROOT",
+    glyph: "◈",
     category: "discovery",
     isHub: true,
+    radius: 15,
     nx: 0.28,
-    ny: 0.18,
+    ny: 0.20,
     module: "core/jsonld.ts",
     protocol: "HTTP/2 GET",
     description: "Root HTML page. Injects Schema.org JSON-LD & GEO graph metadata into <head>.",
@@ -57,10 +60,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
   {
     id: "agent_card",
     uri: "/.well-known/agent",
-    label: "agent.json",
+    label: "/.well-known/agent",
     badge: "A2A CARD",
+    glyph: "⚲",
     category: "discovery",
     isHub: true,
+    radius: 15,
     nx: 0.50,
     ny: 0.16,
     module: "core/manifest.ts",
@@ -73,9 +78,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/agent",
     label: "/agent",
     badge: "MANIFEST",
+    glyph: "▤",
     category: "discovery",
+    isHub: false,
+    radius: 7,
     nx: 0.68,
-    ny: 0.15,
+    ny: 0.14,
     module: "web/handler.ts",
     protocol: "JSON API",
     description: "Full site manifest listing 14 routes, sections, and declared action schemas.",
@@ -86,25 +94,30 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/agent/info",
     label: "/agent/info",
     badge: "METADATA",
+    glyph: "ⓘ",
     category: "discovery",
+    isHub: false,
+    radius: 7,
     nx: 0.82,
-    ny: 0.14,
+    ny: 0.13,
     module: "web/handler.ts",
     protocol: "JSON API",
     description: "Site metadata: name, tagline, author handle, and version telemetry.",
     log: "AGENT API // GET /agent/info -> { name: 'grapheway', version: 'v0.2.2' }",
   },
 
-  // Cluster 2: Knowledge Graph (Core)
+  // Cluster 2: Knowledge Graph (Core Center)
   {
     id: "graph_hub",
     uri: "/graph/v1",
     label: "/graph/v1",
-    badge: "GRAPH HUB",
+    badge: "GRAPH ENGINE",
+    glyph: "⌬",
     category: "graph",
     isHub: true,
+    radius: 17,
     nx: 0.50,
-    ny: 0.44,
+    ny: 0.46,
     module: "core/graph.ts",
     protocol: "Directed Graph",
     description: "In-memory typed directed graph engine with provenance tracking and diffing.",
@@ -115,9 +128,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/graph/v1/node",
     label: "node:lookup",
     badge: "NODE",
+    glyph: "•",
     category: "graph",
-    nx: 0.34,
-    ny: 0.40,
+    isHub: false,
+    radius: 7,
+    nx: 0.36,
+    ny: 0.38,
     module: "core/graph.ts",
     protocol: "GET /node",
     description: "Look up any node by URI/ID. Returns properties, labels, and provenance tags.",
@@ -128,9 +144,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/graph/v1/edges",
     label: "graph:neighbors",
     badge: "NEIGHBORS",
+    glyph: "•",
     category: "graph",
-    nx: 0.32,
-    ny: 0.54,
+    isHub: false,
+    radius: 7,
+    nx: 0.35,
+    ny: 0.56,
     module: "core/graph-query.ts",
     protocol: "GET /edges",
     description: "Traverse incoming and outgoing edges with auditable provenance metadata.",
@@ -141,9 +160,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/graph/v1/search",
     label: "graph:search",
     badge: "SEARCH",
+    glyph: "•",
     category: "graph",
-    nx: 0.44,
-    ny: 0.60,
+    isHub: false,
+    radius: 7,
+    nx: 0.45,
+    ny: 0.62,
     module: "core/graph-query.ts",
     protocol: "GET /search",
     description: "Lexical & semantic search over node titles, descriptions, and page text.",
@@ -154,9 +176,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/graph/v1/path",
     label: "graph:path",
     badge: "SHORTEST PATH",
+    glyph: "•",
     category: "graph",
-    nx: 0.58,
-    ny: 0.58,
+    isHub: false,
+    radius: 7,
+    nx: 0.60,
+    ny: 0.59,
     module: "core/graph-query.ts",
     protocol: "GET /path",
     description: "Computes the shortest auditable path between any two nodes across typed edges.",
@@ -167,9 +192,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/graph/v1/dump",
     label: "graph:dump",
     badge: "EXPORT",
+    glyph: "•",
     category: "graph",
-    nx: 0.66,
-    ny: 0.48,
+    isHub: false,
+    radius: 7,
+    nx: 0.65,
+    ny: 0.46,
     module: "core/graph.ts",
     protocol: "GET /dump",
     description: "Full JSON snapshot of nodes, edges, version timestamp, and checksums.",
@@ -179,27 +207,31 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     id: "graph_events",
     uri: "/graph/v1/events",
     label: "SSE /events",
-    badge: "REALTIME",
+    badge: "STREAM",
+    glyph: "≈",
     category: "graph",
     isHub: true,
+    radius: 12,
     nx: 0.48,
-    ny: 0.74,
+    ny: 0.76,
     module: "web/handler.ts",
     protocol: "text/event-stream",
     description: "Live Server-Sent Events stream delivering graph mutations (add_node, add_edge).",
     log: "REALTIME SSE // GET /graph/v1/events -> connection active (subscribers: 1)",
   },
 
-  // Cluster 3: Model Context Protocol (MCP)
+  // Cluster 3: Model Context Protocol (Right)
   {
     id: "mcp_hub",
     uri: "/mcp",
     label: "/mcp",
-    badge: "MCP SERVER",
+    badge: "MCP GATEWAY",
+    glyph: "⚡",
     category: "mcp",
     isHub: true,
+    radius: 16,
     nx: 0.76,
-    ny: 0.32,
+    ny: 0.34,
     module: "web/mcp.ts",
     protocol: "JSON-RPC 2.0",
     description: "Model Context Protocol endpoint for Claude Desktop, Cursor, and VS Code.",
@@ -209,9 +241,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     id: "mcp_tools_list",
     uri: "/mcp#tools/list",
     label: "tools/list",
-    badge: "TOOL DEF",
+    badge: "TOOLS",
+    glyph: "•",
     category: "mcp",
-    nx: 0.88,
+    isHub: false,
+    radius: 7,
+    nx: 0.90,
     ny: 0.28,
     module: "web/mcp.ts",
     protocol: "JSON-RPC",
@@ -222,9 +257,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     id: "mcp_tools_call",
     uri: "/mcp#tools/call",
     label: "tools/call",
-    badge: "DISPATCH",
+    badge: "EXECUTE",
+    glyph: "•",
     category: "mcp",
-    nx: 0.88,
+    isHub: false,
+    radius: 7,
+    nx: 0.91,
     ny: 0.42,
     module: "web/mcp.ts",
     protocol: "JSON-RPC",
@@ -236,8 +274,11 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/mcp#resources/list",
     label: "res/list",
     badge: "RESOURCES",
+    glyph: "•",
     category: "mcp",
-    nx: 0.88,
+    isHub: false,
+    radius: 7,
+    nx: 0.90,
     ny: 0.56,
     module: "web/mcp.ts",
     protocol: "JSON-RPC",
@@ -249,24 +290,29 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/mcp#resources/read",
     label: "res/read",
     badge: "STREAM",
+    glyph: "•",
     category: "mcp",
-    nx: 0.76,
-    ny: 0.62,
+    isHub: false,
+    radius: 7,
+    nx: 0.77,
+    ny: 0.60,
     module: "web/mcp.ts",
     protocol: "JSON-RPC",
     description: "Fetches clean, markdown-converted content for any graph page node.",
     log: "MCP READ // POST /mcp resources/read grapheway://docs/quickstart -> 1.4KB md",
   },
 
-  // Cluster 4: Actions & Endpoints
+  // Cluster 4: Actions & Endpoints (Bottom-Right)
   {
     id: "act_status",
     uri: "action:check_status",
     label: "check_status",
-    badge: "ACTION TOOL",
+    badge: "TOOL ACTION",
+    glyph: "⚙",
     category: "actions",
     isHub: true,
-    nx: 0.84,
+    radius: 14,
+    nx: 0.82,
     ny: 0.76,
     module: "web/actions.ts",
     protocol: "Typed Action",
@@ -278,8 +324,11 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "action:query_inventory",
     label: "query_inventory",
     badge: "ACTION TOOL",
+    glyph: "•",
     category: "actions",
-    nx: 0.70,
+    isHub: false,
+    radius: 7,
+    nx: 0.68,
     ny: 0.82,
     module: "web/actions.ts",
     protocol: "Typed Action",
@@ -291,8 +340,11 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/api/v1/devices",
     label: "/api/devices",
     badge: "REST API",
+    glyph: "•",
     category: "actions",
-    nx: 0.86,
+    isHub: false,
+    radius: 7,
+    nx: 0.85,
     ny: 0.90,
     module: "probe/crawler.ts",
     protocol: "OpenAPI 3.1",
@@ -304,7 +356,10 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/openapi.json",
     label: "openapi.json",
     badge: "SPEC",
+    glyph: "•",
     category: "actions",
+    isHub: false,
+    radius: 7,
     nx: 0.70,
     ny: 0.94,
     module: "probe/crawler.ts",
@@ -313,16 +368,18 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     log: "SCHEMA // parsed openapi.json: 12 endpoints, 6 schemas mapped to graph",
   },
 
-  // Cluster 5: Pages & Content
+  // Cluster 5: Pages & Content (Left / Bottom-Left)
   {
     id: "doc_quickstart",
     uri: "/docs/quickstart",
     label: "/quickstart",
-    badge: "DOC PAGE",
+    badge: "DOC NODE",
+    glyph: "§",
     category: "content",
     isHub: true,
-    nx: 0.16,
-    ny: 0.42,
+    radius: 13,
+    nx: 0.17,
+    ny: 0.44,
     module: "probe/html.ts",
     protocol: "Markdown Node",
     description: "Quickstart guide. Headings & code snippets parsed into typed section nodes.",
@@ -332,10 +389,13 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     id: "doc_install",
     uri: "/docs/install",
     label: "/install",
-    badge: "DOC PAGE",
+    badge: "PAGE",
+    glyph: "•",
     category: "content",
-    nx: 0.14,
-    ny: 0.58,
+    isHub: false,
+    radius: 7,
+    nx: 0.13,
+    ny: 0.60,
     module: "probe/html.ts",
     protocol: "Markdown Node",
     description: "Installation documentation: Bun, Node, Deno package manager instructions.",
@@ -345,10 +405,13 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     id: "doc_arch",
     uri: "/docs/architecture",
     label: "/architecture",
-    badge: "DOC PAGE",
+    badge: "PAGE",
+    glyph: "•",
     category: "content",
+    isHub: false,
+    radius: 7,
     nx: 0.18,
-    ny: 0.74,
+    ny: 0.75,
     module: "probe/html.ts",
     protocol: "Markdown Node",
     description: "System architecture whitepaper detailing the 6 subpath modules.",
@@ -358,24 +421,29 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     id: "doc_adapters",
     uri: "/docs/adapters",
     label: "/adapters",
-    badge: "DOC PAGE",
+    badge: "PAGE",
+    glyph: "•",
     category: "content",
+    isHub: false,
+    radius: 7,
     nx: 0.32,
-    ny: 0.72,
+    ny: 0.74,
     module: "web/adapters.ts",
     protocol: "Markdown Node",
     description: "Guide on framework adapters for Node http, Express, and Hono.",
     log: "CONTENT // node /docs/adapters defines toExpressHandler & toHonoHandler",
   },
 
-  // Cluster 6: Compat (Static Fallbacks)
+  // Cluster 6: Compat (Top-Left)
   {
     id: "compat_llms",
     uri: "/llms.txt",
     label: "llms.txt",
     badge: "LLMS.TXT",
+    glyph: "☷",
     category: "compat",
     isHub: true,
+    radius: 13,
     nx: 0.12,
     ny: 0.16,
     module: "compat/llms-txt.ts",
@@ -388,9 +456,12 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/llms-full.txt",
     label: "llms-full.txt",
     badge: "FULL CONTEXT",
+    glyph: "•",
     category: "compat",
+    isHub: false,
+    radius: 7,
     nx: 0.10,
-    ny: 0.28,
+    ny: 0.29,
     module: "compat/llms-txt.ts",
     protocol: "Text Bundle",
     description: "All site pages inlined into one continuous context text bundle.",
@@ -401,8 +472,11 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/robots.txt",
     label: "robots.txt",
     badge: "ROBOTS",
+    glyph: "•",
     category: "compat",
-    nx: 0.24,
+    isHub: false,
+    radius: 7,
+    nx: 0.22,
     ny: 0.08,
     module: "compat/robots.ts",
     protocol: "Robots Protocol",
@@ -414,8 +488,11 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
     uri: "/sitemap.xml",
     label: "sitemap.xml",
     badge: "SITEMAP",
+    glyph: "•",
     category: "compat",
-    nx: 0.38,
+    isHub: false,
+    radius: 7,
+    nx: 0.36,
     ny: 0.06,
     module: "compat/sitemap.ts",
     protocol: "XML Sitemap",
@@ -424,7 +501,7 @@ const RAW_NODES: Omit<DetailedNode, "x" | "y" | "vx" | "vy" | "width" | "height"
   },
 ];
 
-const RAW_EDGES: DetailedEdge[] = [
+const RAW_EDGES: GraphEdge[] = [
   // Discovery links
   { from: "root", to: "agent_card", label: "exposes", type: "exposes" },
   { from: "root", to: "doc_quickstart", label: "links_to", type: "links_to" },
@@ -477,7 +554,6 @@ const RAW_EDGES: DetailedEdge[] = [
   { from: "compat_robots", to: "compat_sitemap", label: "references", type: "references" },
 ];
 
-// BFS shortest path across all edges
 function findShortestPath(fromId: string, toId: string): string[] {
   if (fromId === toId) return [fromId];
   const adj = new Map<string, Set<string>>();
@@ -512,16 +588,17 @@ export function HeroGraph() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [activeCategory, setActiveCategory] = useState<"all" | NodeCategory>("all");
-  const [selectedNode, setSelectedNode] = useState<DetailedNode | null>(null);
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [activeLog, setActiveLog] = useState<string>(
     "OBSERVATORY // 28 typed nodes, 44 edges · full agent surface active"
   );
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const [zoom, setZoom] = useState<number>(1);
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // Animation and physics state
+  // Mutable animation state
   const stateRef = useRef({
-    nodes: [] as DetailedNode[],
+    nodes: [] as GraphNode[],
     width: 520,
     height: 460,
     dpr: 1,
@@ -532,11 +609,13 @@ export function HeroGraph() {
     dragStart: { x: 0, y: 0 },
     isPanning: false,
     panStart: { x: 0, y: 0 },
+    isPaused: false,
     agent: {
       fromNodeId: "root",
       toNodeId: "agent_card",
       progress: 0,
-      speed: 0.016,
+      // Calm, stately speed: ~4-5 seconds per edge transition
+      speed: 0.0034,
       pathQueue: [
         "agent_card",
         "mcp_hub",
@@ -550,44 +629,38 @@ export function HeroGraph() {
         "root",
       ],
       ring: 0,
+      tailHistory: [] as { x: number; y: number }[],
     },
+    time: 0,
     lastInteraction: Date.now(),
   });
 
-  // Sync zoom/pan state into mutable ref
   stateRef.current.zoom = zoom;
   stateRef.current.pan = pan;
+  stateRef.current.isPaused = isPaused;
 
-  // Initialize node positions
   const initNodes = useCallback((w: number, h: number) => {
-    stateRef.current.nodes = RAW_NODES.map((rn) => {
+    stateRef.current.nodes = RAW_NODES.map((rn, idx) => {
       const existing = stateRef.current.nodes.find((n) => n.id === rn.id);
-      const isHub = rn.isHub;
-      const cardW = isHub ? 96 : 80;
-      const cardH = isHub ? 32 : 26;
-
       return {
         ...rn,
-        width: cardW,
-        height: cardH,
         x: existing ? existing.x : rn.nx * w,
         y: existing ? existing.y : rn.ny * h,
         vx: existing ? existing.vx : 0,
         vy: existing ? existing.vy : 0,
+        phase: idx * 0.45,
       };
     });
   }, []);
 
-  // Dispatch agent to a specific target node
   const dispatchAgentTo = useCallback((targetId: string) => {
     const current = stateRef.current.agent.toNodeId;
     const path = findShortestPath(current, targetId);
     stateRef.current.agent.pathQueue = path.slice(1);
-    setActiveLog(`AGENT DISPATCH // calculated shortest path: ${path.join(" ➔ ")}`);
+    setActiveLog(`AGENT TRAVERSAL // routing: ${path.join(" ➔ ")}`);
     stateRef.current.lastInteraction = Date.now();
   }, []);
 
-  // Automated autonomous cycle walk
   const walkAgent = useCallback(() => {
     const patrol = [
       "agent_card",
@@ -606,7 +679,6 @@ export function HeroGraph() {
     dispatchAgentTo(patrol[nextIdx] || "agent_card");
   }, [dispatchAgentTo]);
 
-  // Center / reset view
   const resetView = useCallback(() => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
@@ -621,7 +693,7 @@ export function HeroGraph() {
     setActiveLog("OBSERVATORY RESET // canvas centered, equilibrium restored");
   }, []);
 
-  // Main Canvas Animation Loop
+  // Main Canvas Render Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -662,75 +734,68 @@ export function HeroGraph() {
       const isDark = document.documentElement.classList.contains("dark");
       return {
         isDark,
-        bg: isDark ? "#1e1c19" : "#F2F8FC",
-        surface: isDark ? "#2a2723" : "#ffffff",
-        hubSurface: isDark ? "#38332c" : "#e8f2f9",
+        bg: isDark ? "#1b1916" : "#F2F8FC",
+        surface: isDark ? "#282420" : "#ffffff",
         rule: isDark ? "#F2F8FC" : "#000000",
-        ruleSoft: isDark ? "rgba(242, 248, 252, 0.22)" : "rgba(0, 0, 0, 0.18)",
-        gridLine: isDark ? "rgba(242, 248, 252, 0.04)" : "rgba(0, 0, 0, 0.045)",
-        gridAccent: isDark ? "rgba(242, 248, 252, 0.08)" : "rgba(0, 0, 0, 0.08)",
+        ruleSoft: isDark ? "rgba(242, 248, 252, 0.16)" : "rgba(0, 0, 0, 0.14)",
+        gridLine: isDark ? "rgba(242, 248, 252, 0.035)" : "rgba(0, 0, 0, 0.038)",
+        gridAccent: isDark ? "rgba(242, 248, 252, 0.07)" : "rgba(0, 0, 0, 0.07)",
         ink: isDark ? "#F2F8FC" : "#000000",
-        inkMuted: isDark ? "rgba(242, 248, 252, 0.65)" : "rgba(0, 0, 0, 0.60)",
+        inkMuted: isDark ? "rgba(242, 248, 252, 0.65)" : "rgba(0, 0, 0, 0.62)",
         highlightBg: isDark ? "#F2F8FC" : "#000000",
         highlightText: isDark ? "#24221f" : "#F2F8FC",
         amber: isDark ? "#f5b942" : "#b45309",
-        emerald: isDark ? "#34d399" : "#059669",
+        amberRgb: isDark ? "245, 185, 66" : "0, 0, 0",
         cyan: isDark ? "#38bdf8" : "#0284c7",
+        violet: isDark ? "#a78bfa" : "#7c3aed",
+        emerald: isDark ? "#34d399" : "#059669",
       };
     }
 
-    // Physics step
+    // Gentle organic floating drift (zero harsh vibration)
     function updatePhysics() {
-      const { nodes, width, height, draggedNodeId } = stateRef.current;
-      const k = 0.038;
-      const damping = 0.76;
+      const { nodes, width, height, draggedNodeId, time } = stateRef.current;
+      const k = 0.025;
+      const damping = 0.88;
 
       for (const n of nodes) {
         if (n.id === draggedNodeId) continue;
 
-        const targetX = n.nx * width;
-        const targetY = n.ny * height;
+        // Base target plus calm harmonic breathing
+        const floatX = Math.cos(time * 0.0012 + n.phase) * 1.5;
+        const floatY = Math.sin(time * 0.0014 + n.phase) * 1.5;
+
+        const targetX = n.nx * width + floatX;
+        const targetY = n.ny * height + floatY;
 
         let fx = (targetX - n.x) * k;
         let fy = (targetY - n.y) * k;
-
-        // Node-to-node collision avoidance
-        for (const o of nodes) {
-          if (o.id === n.id) continue;
-          const dx = n.x - o.x;
-          const dy = n.y - o.y;
-          const dist = Math.hypot(dx, dy);
-          const minDist = (n.width + o.width) * 0.54;
-          if (dist < minDist && dist > 0.01) {
-            const push = ((minDist - dist) / dist) * 0.85;
-            fx += dx * push;
-            fy += dy * push;
-          }
-        }
 
         n.vx = (n.vx + fx) * damping;
         n.vy = (n.vy + fy) * damping;
         n.x += n.vx;
         n.y += n.vy;
 
-        // Bounds clamping
-        n.x = Math.max(n.width / 2 + 6, Math.min(width - n.width / 2 - 6, n.x));
-        n.y = Math.max(n.height / 2 + 6, Math.min(height - n.height / 2 - 6, n.y));
+        // Clamping
+        n.x = Math.max(n.radius + 6, Math.min(width - n.radius - 6, n.x));
+        n.y = Math.max(n.radius + 6, Math.min(height - n.radius - 6, n.y));
       }
     }
 
-    // Agent traversal step
+    // Calm agent traversal
     function updateAgent() {
       const { agent, nodes } = stateRef.current;
+
       if (agent.pathQueue.length === 0) {
-        if (Date.now() - stateRef.current.lastInteraction > 3500) {
+        // Idle patrol: wait 4.5 seconds before next stately hop
+        if (Date.now() - stateRef.current.lastInteraction > 4500) {
           walkAgent();
         }
         return;
       }
 
       agent.progress += agent.speed;
-      agent.ring = (agent.ring + 0.05) % 1;
+      agent.ring = (agent.ring + 0.008) % 1;
 
       if (agent.progress >= 1) {
         agent.progress = 0;
@@ -746,19 +811,6 @@ export function HeroGraph() {
       }
     }
 
-    // Geometry: intersect ray with rectangle
-    function intersectRect(cx: number, cy: number, hw: number, hh: number, tx: number, ty: number) {
-      const dx = tx - cx;
-      const dy = ty - cy;
-      if (Math.abs(dx) < 0.001 && Math.abs(dy) < 0.001) return { x: cx, y: cy };
-      const cos = Math.cos(Math.atan2(dy, dx));
-      const sin = Math.sin(Math.atan2(dy, dx));
-      const tX = Math.abs(cos) > 0.0001 ? hw / Math.abs(cos) : Infinity;
-      const tY = Math.abs(sin) > 0.0001 ? hh / Math.abs(sin) : Infinity;
-      const t = Math.min(tX, tY);
-      return { x: cx + t * cos, y: cy + t * sin };
-    }
-
     // Render Canvas
     function draw() {
       const { nodes, width, height, dpr, hoveredNodeId, agent, zoom: z, pan: pPos } = stateRef.current;
@@ -767,30 +819,30 @@ export function HeroGraph() {
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, width, height);
 
-      // Save state for zoom/pan transform
+      // Save for zoom/pan
       g.save();
       g.translate(width / 2 + pPos.x, height / 2 + pPos.y);
       g.scale(z, z);
       g.translate(-width / 2, -height / 2);
 
-      // 1. Engineering grid paper background
-      const grid = 24;
+      // 1. Engineering grid paper
+      const grid = 28;
       g.beginPath();
       for (let x = -width; x <= width * 2; x += grid) {
-        g.strokeStyle = x % 96 === 0 ? p.gridAccent : p.gridLine;
-        g.lineWidth = x % 96 === 0 ? 1 : 0.6;
+        g.strokeStyle = x % 112 === 0 ? p.gridAccent : p.gridLine;
+        g.lineWidth = x % 112 === 0 ? 1 : 0.6;
         g.moveTo(x, -height);
         g.lineTo(x, height * 2);
       }
       for (let y = -height; y <= height * 2; y += grid) {
-        g.strokeStyle = y % 96 === 0 ? p.gridAccent : p.gridLine;
-        g.lineWidth = y % 96 === 0 ? 1 : 0.6;
+        g.strokeStyle = y % 112 === 0 ? p.gridAccent : p.gridLine;
+        g.lineWidth = y % 112 === 0 ? 1 : 0.6;
         g.moveTo(-width, y);
         g.lineTo(width * 2, y);
       }
       g.stroke();
 
-      const nodeMap = new Map<string, DetailedNode>();
+      const nodeMap = new Map<string, GraphNode>();
       nodes.forEach((n) => nodeMap.set(n.id, n));
 
       // 2. Draw Edges
@@ -810,131 +862,177 @@ export function HeroGraph() {
 
         const isHovered = hoveredNodeId === edge.from || hoveredNodeId === edge.to;
 
-        const start = intersectRect(from.x, from.y, from.width / 2 + 1, from.height / 2 + 1, to.x, to.y);
-        const end = intersectRect(to.x, to.y, to.width / 2 + 1, to.height / 2 + 1, from.x, from.y);
+        // Vector calculations
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 0.1) return;
+
+        const startX = from.x + (dx / dist) * from.radius;
+        const startY = from.y + (dy / dist) * from.radius;
+        const endX = to.x - (dx / dist) * to.radius;
+        const endY = to.y - (dy / dist) * to.radius;
 
         g.beginPath();
-        g.moveTo(start.x, start.y);
-        g.lineTo(end.x, end.y);
+        g.moveTo(startX, startY);
+        g.lineTo(endX, endY);
 
         if (isTraversing) {
           g.strokeStyle = p.isDark ? "#f5b942" : "#000000";
-          g.lineWidth = 2.4;
+          g.lineWidth = 2.2;
         } else if (isHovered) {
           g.strokeStyle = p.rule;
-          g.lineWidth = 1.6;
+          g.lineWidth = 1.5;
         } else if (isDimmed) {
-          g.strokeStyle = p.isDark ? "rgba(242, 248, 252, 0.05)" : "rgba(0, 0, 0, 0.05)";
-          g.lineWidth = 0.8;
+          g.strokeStyle = p.isDark ? "rgba(242, 248, 252, 0.04)" : "rgba(0, 0, 0, 0.04)";
+          g.lineWidth = 0.6;
         } else {
           g.strokeStyle = p.ruleSoft;
-          g.lineWidth = 1;
+          g.lineWidth = 0.9;
         }
         g.stroke();
 
         // Arrowhead
         if (!isDimmed) {
-          const angle = Math.atan2(end.y - start.y, end.x - start.x);
-          const arrowLen = 5;
+          const angle = Math.atan2(dy, dx);
+          const arrowLen = 4;
           g.fillStyle = isTraversing ? (p.isDark ? "#f5b942" : "#000000") : isHovered ? p.rule : p.ruleSoft;
           g.beginPath();
-          g.moveTo(end.x, end.y);
-          g.lineTo(end.x - arrowLen * Math.cos(angle - Math.PI / 6), end.y - arrowLen * Math.sin(angle - Math.PI / 6));
-          g.lineTo(end.x - arrowLen * Math.cos(angle + Math.PI / 6), end.y - arrowLen * Math.sin(angle + Math.PI / 6));
+          g.moveTo(endX, endY);
+          g.lineTo(endX - arrowLen * Math.cos(angle - Math.PI / 6), endY - arrowLen * Math.sin(angle - Math.PI / 6));
+          g.lineTo(endX - arrowLen * Math.cos(angle + Math.PI / 6), endY - arrowLen * Math.sin(angle + Math.PI / 6));
           g.closePath();
           g.fill();
         }
       });
 
-      // 3. Draw Agent Traversal Pulse
+      // 3. Draw Agent Traversal Comet (Gliding Luminous Trail)
       if (!reduced) {
         const from = nodeMap.get(agent.fromNodeId);
         const to = nodeMap.get(agent.toNodeId);
         if (from && to) {
-          const start = intersectRect(from.x, from.y, from.width / 2, from.height / 2, to.x, to.y);
-          const end = intersectRect(to.x, to.y, to.width / 2, to.height / 2, from.x, from.y);
-          const curX = start.x + (end.x - start.x) * agent.progress;
-          const curY = start.y + (end.y - start.y) * agent.progress;
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const dist = Math.hypot(dx, dy);
 
-          // Expanding pulse radar ring
+          const startX = from.x + (dx / dist) * from.radius;
+          const startY = from.y + (dy / dist) * from.radius;
+          const endX = to.x - (dx / dist) * to.radius;
+          const endY = to.y - (dy / dist) * to.radius;
+
+          // Luminous comet head position
+          const curX = startX + (endX - startX) * agent.progress;
+          const curY = startY + (endY - startY) * agent.progress;
+
+          // Fading trailing comet tail
+          for (let t = 1; t <= 6; t++) {
+            const tailP = Math.max(0, agent.progress - t * 0.025);
+            const tx = startX + (endX - startX) * tailP;
+            const ty = startY + (endY - startY) * tailP;
+            const alpha = (1 - t / 7) * 0.75;
+            g.beginPath();
+            g.arc(tx, ty, Math.max(1, 3.4 - t * 0.45), 0, Math.PI * 2);
+            g.fillStyle = `rgba(${p.amberRgb}, ${alpha})`;
+            g.fill();
+          }
+
+          // Gentle expanding sonar ping
           const ringR = 3 + 12 * agent.ring;
           g.beginPath();
           g.arc(curX, curY, ringR, 0, Math.PI * 2);
-          g.strokeStyle = `rgba(${p.isDark ? "245, 185, 66" : "0, 0, 0"}, ${1 - agent.ring})`;
-          g.lineWidth = 1.4;
+          g.strokeStyle = `rgba(${p.amberRgb}, ${1 - agent.ring})`;
+          g.lineWidth = 1.1;
           g.stroke();
 
-          // Core agent bead
+          // Main comet particle
           g.beginPath();
           g.arc(curX, curY, 3.8, 0, Math.PI * 2);
-          g.fillStyle = p.highlightBg;
+          g.fillStyle = p.isDark ? "#f5b942" : "#000000";
           g.fill();
-          g.strokeStyle = p.highlightText;
+          g.strokeStyle = p.isDark ? "#ffffff" : "#ffffff";
           g.lineWidth = 1;
           g.stroke();
         }
       }
 
-      // 4. Draw Nodes
+      // 4. Draw Constellation Nodes (Spheres, Rings & Glyphs)
       nodes.forEach((n) => {
         const isHovered = hoveredNodeId === n.id;
         const isSelected = selectedNode?.id === n.id;
         const isAgentHere = agent.toNodeId === n.id;
         const isDimmed = activeCategory !== "all" && n.category !== activeCategory;
 
-        const left = n.x - n.width / 2;
-        const top = n.y - n.height / 2;
-
         g.save();
-        if (isDimmed) {
-          g.globalAlpha = 0.18;
-        }
+        if (isDimmed) g.globalAlpha = 0.14;
 
-        // Card background
-        g.fillStyle = isHovered || isSelected ? p.highlightBg : n.isHub ? p.hubSurface : p.surface;
-        g.fillRect(left, top, n.width, n.height);
-
-        // Double border for hub nodes
-        if (n.isHub && !isHovered && !isSelected) {
-          g.strokeStyle = p.ruleSoft;
-          g.lineWidth = 1;
-          g.strokeRect(left - 2, top - 2, n.width + 4, n.height + 4);
-        }
-
-        // Primary border
-        g.strokeStyle = isHovered || isSelected ? p.highlightBg : isAgentHere ? (p.isDark ? "#f5b942" : "#000000") : p.rule;
-        g.lineWidth = isAgentHere || isSelected ? 2 : 1;
-        g.strokeRect(left, top, n.width, n.height);
-
-        // Badge text
-        g.font = "bold 6.8px 'Space Mono', monospace";
-        g.fillStyle = isHovered || isSelected ? p.highlightText : p.inkMuted;
-        g.textAlign = "left";
-        g.textBaseline = "top";
-        g.fillText(n.badge, left + 5, top + 4);
-
-        // Label text
-        g.font = `${n.isHub ? "bold" : "500"} 8.5px 'Space Mono', monospace`;
-        g.fillStyle = isHovered || isSelected ? p.highlightText : p.ink;
-        g.fillText(n.label, left + 5, top + 14);
-
-        // Active node beacon dot
-        if (isAgentHere && !isDimmed) {
+        // Ambient radial halo behind hubs
+        if (n.isHub || isHovered || isSelected) {
+          const haloR = n.radius + (isHovered || isSelected ? 14 : 9);
+          const haloGrad = g.createRadialGradient(n.x, n.y, n.radius * 0.5, n.x, n.y, haloR);
+          haloGrad.addColorStop(
+            0,
+            p.isDark ? "rgba(245, 185, 66, 0.22)" : "rgba(0, 0, 0, 0.12)"
+          );
+          haloGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
           g.beginPath();
-          g.arc(left + n.width - 6, top + 6, 2.5, 0, Math.PI * 2);
-          g.fillStyle = p.isDark ? "#f5b942" : "#10b981";
+          g.arc(n.x, n.y, haloR, 0, Math.PI * 2);
+          g.fillStyle = haloGrad;
           g.fill();
         }
+
+        // Outer concentric ring for hubs
+        if (n.isHub) {
+          g.beginPath();
+          g.arc(n.x, n.y, n.radius + 3, 0, Math.PI * 2);
+          g.strokeStyle = isHovered || isSelected ? p.highlightBg : p.ruleSoft;
+          g.lineWidth = 0.8;
+          g.stroke();
+        }
+
+        // Node core circle
+        g.beginPath();
+        g.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+        g.fillStyle = isHovered || isSelected ? p.highlightBg : p.surface;
+        g.fill();
+        g.strokeStyle = isHovered || isSelected ? p.highlightBg : isAgentHere ? (p.isDark ? "#f5b942" : "#000000") : p.rule;
+        g.lineWidth = isAgentHere || isSelected ? 2 : 1.2;
+        g.stroke();
+
+        // Center glyph
+        if (n.isHub) {
+          g.font = `bold ${n.radius >= 15 ? 11 : 9}px 'Space Mono', monospace`;
+          g.fillStyle = isHovered || isSelected ? p.highlightText : p.ink;
+          g.textAlign = "center";
+          g.textBaseline = "middle";
+          g.fillText(n.glyph, n.x, n.y);
+        } else {
+          // Small inner pip for satellite nodes
+          g.beginPath();
+          g.arc(n.x, n.y, 2.2, 0, Math.PI * 2);
+          g.fillStyle = isHovered || isSelected ? p.highlightText : p.ink;
+          g.fill();
+        }
+
+        // Monospace label sitting beside the node
+        const labelX = n.x + n.radius + 5;
+        const labelY = n.y;
+
+        g.font = `${n.isHub ? "bold 9px" : "8px"} 'Space Mono', monospace`;
+        g.fillStyle = isHovered || isSelected ? p.ink : n.isHub ? p.ink : p.inkMuted;
+        g.textAlign = "left";
+        g.textBaseline = "middle";
+        g.fillText(n.label, labelX, labelY);
 
         g.restore();
       });
 
-      g.restore(); // restore transform
+      g.restore(); // restore zoom/pan transform
     }
 
-    function frame() {
+    function frame(timestamp: number) {
       if (running) {
-        if (!reduced) {
+        stateRef.current.time = timestamp;
+        if (!reduced && !stateRef.current.isPaused) {
           updatePhysics();
           updateAgent();
         }
@@ -945,8 +1043,8 @@ export function HeroGraph() {
 
     raf = requestAnimationFrame(frame);
 
-    // Coordinate conversion factoring in zoom & pan
-    function toCanvasCoords(e: PointerEvent) {
+    // Zoom/pan coordinate translation
+    function toWorld(e: PointerEvent) {
       const rect = canvas!.getBoundingClientRect();
       const rawX = e.clientX - rect.left;
       const rawY = e.clientY - rect.top;
@@ -957,10 +1055,9 @@ export function HeroGraph() {
     }
 
     const onPointerMove = (e: PointerEvent) => {
-      const { x, y, rawX, rawY } = toCanvasCoords(e);
+      const { x, y, rawX, rawY } = toWorld(e);
       const state = stateRef.current;
 
-      // Canvas pan dragging
       if (state.isPanning) {
         setPan({
           x: state.pan.x + (rawX - state.panStart.x),
@@ -970,22 +1067,20 @@ export function HeroGraph() {
         return;
       }
 
-      // Node dragging
       if (state.draggedNodeId) {
-        const node = state.nodes.find((n) => n.id === state.draggedNodeId);
-        if (node) {
-          node.x = x;
-          node.y = y;
-          node.vx = 0;
-          node.vy = 0;
+        const n = state.nodes.find((node) => node.id === state.draggedNodeId);
+        if (n) {
+          n.x = x;
+          n.y = y;
+          n.vx = 0;
+          n.vy = 0;
         }
         return;
       }
 
-      // Hover detection
-      let hovered: DetailedNode | null = null;
+      let hovered: GraphNode | null = null;
       for (const n of state.nodes) {
-        if (Math.abs(x - n.x) <= n.width / 2 && Math.abs(y - n.y) <= n.height / 2) {
+        if (Math.hypot(x - n.x, y - n.y) <= n.radius + 6) {
           hovered = n;
           break;
         }
@@ -993,18 +1088,17 @@ export function HeroGraph() {
 
       state.hoveredNodeId = hovered ? hovered.id : null;
       canvas!.style.cursor = hovered ? "pointer" : "grab";
-
       if (hovered) {
         setActiveLog(hovered.log);
       }
     };
 
     const onPointerDown = (e: PointerEvent) => {
-      const { x, y, rawX, rawY } = toCanvasCoords(e);
+      const { x, y, rawX, rawY } = toWorld(e);
       const state = stateRef.current;
 
       for (const n of state.nodes) {
-        if (Math.abs(x - n.x) <= n.width / 2 && Math.abs(y - n.y) <= n.height / 2) {
+        if (Math.hypot(x - n.x, y - n.y) <= n.radius + 6) {
           state.draggedNodeId = n.id;
           state.dragStart = { x: rawX, y: rawY };
           canvas!.setPointerCapture(e.pointerId);
@@ -1013,7 +1107,6 @@ export function HeroGraph() {
         }
       }
 
-      // If clicked empty space, initiate canvas pan
       state.isPanning = true;
       state.panStart = { x: rawX, y: rawY };
       canvas!.style.cursor = "grabbing";
@@ -1022,18 +1115,15 @@ export function HeroGraph() {
 
     const onPointerUp = (e: PointerEvent) => {
       const state = stateRef.current;
-      const { rawX, rawY } = toCanvasCoords(e);
+      const { rawX, rawY } = toWorld(e);
 
       if (state.draggedNodeId) {
         const dist = Math.hypot(rawX - state.dragStart.x, rawY - state.dragStart.y);
         const node = state.nodes.find((n) => n.id === state.draggedNodeId);
-
-        if (dist < 5 && node) {
-          // Node clicked: select and dispatch agent
+        if (dist < 6 && node) {
           setSelectedNode(node);
           dispatchAgentTo(node.id);
         }
-
         state.draggedNodeId = null;
       }
 
@@ -1076,7 +1166,6 @@ export function HeroGraph() {
     };
   }, [initNodes, dispatchAgentTo, activeCategory, selectedNode]);
 
-  // Count incoming/outgoing edges for inspector
   const selectedNodeEdges = useMemo(() => {
     if (!selectedNode) return [];
     return RAW_EDGES.filter((e) => e.from === selectedNode.id || e.to === selectedNode.id);
@@ -1084,7 +1173,7 @@ export function HeroGraph() {
 
   return (
     <div className="hero-graph-card" ref={containerRef}>
-      {/* Top Telemetry Header */}
+      {/* Top Observatory Header */}
       <div className="hero-graph-header">
         <div className="hero-graph-header-left">
           <span className="hero-graph-pulse-dot" />
@@ -1093,6 +1182,14 @@ export function HeroGraph() {
           </span>
         </div>
         <div className="hero-graph-header-actions">
+          <button
+            type="button"
+            onClick={() => setIsPaused((p) => !p)}
+            className="hero-graph-btn secondary"
+            title={isPaused ? "Resume agent patrol" : "Pause agent traversal"}
+          >
+            {isPaused ? "RESUME ▶" : "PAUSE ⏸"}
+          </button>
           <button
             type="button"
             onClick={walkAgent}
@@ -1112,7 +1209,7 @@ export function HeroGraph() {
         </div>
       </div>
 
-      {/* Filter Layer Pills Bar */}
+      {/* Layer Filter Pills Bar */}
       <div className="hero-graph-filter-bar">
         <span className="hero-graph-filter-label">LAYER:</span>
         {(
@@ -1190,7 +1287,9 @@ export function HeroGraph() {
             </div>
 
             <div className="hero-graph-inspector-body">
-              <h4 className="hero-graph-inspector-title">{selectedNode.label}</h4>
+              <h4 className="hero-graph-inspector-title">
+                <span>{selectedNode.glyph}</span> {selectedNode.label}
+              </h4>
               <div className="hero-graph-inspector-meta">
                 <span>URI: <code>{selectedNode.uri}</code></span>
                 <span>INTERFACE: <strong>{selectedNode.protocol}</strong></span>
