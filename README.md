@@ -1,17 +1,22 @@
 # grapheway
 
-[![Status: Beta](https://img.shields.io/badge/status-beta-amber.svg)](https://github.com/6yte96/grapheway)
-[![Documentation](https://img.shields.io/badge/docs-github_pages-blue.svg)](https://6yte96.github.io/grapheway/)
-[![Tests](https://img.shields.io/badge/tests-111%20pass-success.svg)](https://github.com/6yte96/grapheway)
+> Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Your site opens its own door.
 
-> **Current status:** Grapheway is currently in active **Beta** (`v0.2.2`). Project documentation and live demo are hosted on GitHub Pages: [https://6yte96.github.io/grapheway/](https://6yte96.github.io/grapheway/)
+**Status:** Beta (v0.2.2) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway)
 
-**Native agent access for your web app — no paid crawlers, no scraping, no
-fees.** Your site opens its own door: its content becomes a live, typed
-knowledge graph that agents discover, traverse, search and act on — over
-open protocols, at runtime, for free.
+**Published on npm** — one package, six subpath exports:
 
-One package, subpath imports:
+| Import | Use case |
+| --- | --- |
+| `npm i grapheway` | Everything |
+| `grapheway` | Core: graph model, discovery, manifest, JSON-LD |
+| `grapheway/web` | For webservers — drop-in agent endpoint |
+| `grapheway/probe` | For agents — convert any site into a graph |
+| `grapheway/agent` | Typed client + skill for AI agents |
+| `grapheway/compat` | Optional legacy files (llms.txt, robots.txt, …) |
+| `grapheway/cli` | CLI: gateway, probe, serve, audit, generate |
+
+**Live documentation** deployed on GitHub Pages: [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/)
 
 - **For webservers — `grapheway/web`.** Your site opts in: install the
   runtime, describe it in one config, and its content becomes a live, typed
@@ -44,24 +49,6 @@ Deno, and the browser, and works with Express, Hono, Next.js, plain
 `node:http`, or static hosts.
 
 ---
-
-## Subpath exports
-
-One install. Import what you need:
-
-```bash
-npm install grapheway
-# or: bun add grapheway
-```
-
-| Import | What it is |
-| --- | --- |
-| `grapheway` | Core: graph model, discovery, manifest, JSON-LD. Zero deps. |
-| `grapheway/web` | **For webservers** — drop-in agent endpoint: graph, `/agent`, `/mcp` + framework adapters. |
-| `grapheway/probe` | **For agents** — convert ANY legacy site into a graph: crawl → graph → serve locally / export JSON. |
-| `grapheway/compat` | Optional legacy files (llms.txt, agents.txt, robots.txt, sitemap.xml). |
-| `grapheway/agent` | Typed `GraphewayClient` + skill for AI agents. |
-| `grapheway/cli` | CLI: gateway, probe, mcp-config, serve, audit, generate. |
 
 ```
 Your website/app

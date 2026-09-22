@@ -1,7 +1,7 @@
 {
   "name": "grapheway",
   "version": "0.2.2",
-  "description": "Native agent access for your web app — knowledge graph runtime, probe, MCP, CLI",
+  "description": "Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Published on npm with subpath exports: grapheway/web, grapheway/probe, grapheway/agent, grapheway/compat, grapheway/cli.",
   "type": "module",
   "private": false,
   "main": "./dist/core/index.js",
