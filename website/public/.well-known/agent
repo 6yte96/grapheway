@@ -1,6 +1,6 @@
 {
   "protocol": "grapheway",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "name": "Grapheway",
   "url": "https://6yte96.github.io/grapheway/",
   "tagline": "Your site opens its own door to AI agents",

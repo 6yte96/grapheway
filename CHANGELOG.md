@@ -5,6 +5,18 @@ All notable changes to Grapheway will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.7] - 2026-11-23
+
+Documentation release. No runtime behavior changes.
+
+### Changed
+- README rewritten for a general audience: 189 lines, a plain-English value
+  proposition, definitions for MCP and knowledge graph, three try-it paths,
+  and a short FAQ. The previous deep reference lives at
+  `docs/technical-reference.md`.
+- The package README is synced so the npm page shows the new overview.
+- Version-only update so npm picks up the new README.
+
 ## [0.2.6] - 2026-11-23
 
 The zero-install release — a hosted remote MCP endpoint.
