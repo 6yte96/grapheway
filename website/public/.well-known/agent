@@ -13,8 +13,10 @@
     "llms-txt",
     "agents-json",
     "json-ld",
-    "sitemap"
+    "sitemap",
+    "hosted-mcp"
   ],
+  "hostedMcp": "https://grapheway-mcp.usmani3923.workers.dev/mcp?url={url}",
   "graph": {
     "nodes": 0,
     "edges": 0,
