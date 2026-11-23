@@ -19,7 +19,11 @@ const rubik = Rubik({
   display: "swap",
 });
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "/grapheway";
+const ogImage = `${basePath}/og.png`;
+
 export const metadata = {
+  metadataBase: new URL(PROJECT_CONFIG.meta.url),
   title: PROJECT_CONFIG.meta.title,
   description: PROJECT_CONFIG.meta.description,
   keywords: PROJECT_CONFIG.meta.keywords,
@@ -30,12 +34,14 @@ export const metadata = {
     url: PROJECT_CONFIG.meta.url,
     siteName: PROJECT_CONFIG.brand.name,
     type: "website",
+    images: [{ url: ogImage, width: 1200, height: 630, alt: "grapheway — turn any website into a live knowledge graph and MCP server" }],
   },
   twitter: {
     card: "summary_large_image",
     title: PROJECT_CONFIG.meta.title,
     description: PROJECT_CONFIG.meta.description,
     creator: `@${PROJECT_CONFIG.brand.handle}`,
+    images: [ogImage],
   },
   icons: {
     icon: [
