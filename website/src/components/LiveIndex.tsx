@@ -195,6 +195,10 @@ export function LiveIndex({ full = false }: { full?: boolean }) {
             <span>{liveIndex.ctaFull}</span>
           </Link>
         )}
+        <Link href="/readiness" className="support-btn">
+          <i className="fas fa-chart-simple" aria-hidden="true" />
+          <span>Agent Readiness Index</span>
+        </Link>
       </div>
 
       <div className="live-index-badge">

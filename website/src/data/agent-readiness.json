@@ -1,0 +1,3314 @@
+{
+  "updatedAt": "2026-11-23T18:20:39.920Z",
+  "methodology": "Live audit of public endpoints: discovery card, knowledge graph, /agent API, MCP, robots.txt AI policy, llms.txt, agents.json, JSON-LD, sitemap. No visitor data.",
+  "total": 30,
+  "average": 28,
+  "passing": 0,
+  "results": [
+    {
+      "name": "Prisma Docs",
+      "url": "https://www.prisma.io/docs",
+      "slug": "prisma-io",
+      "score": 54,
+      "grade": "D",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)"
+      ]
+    },
+    {
+      "name": "Stripe Docs",
+      "url": "https://docs.stripe.com",
+      "slug": "docs-stripe-com",
+      "score": 48,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "structured data (JSON-LD) present"
+      ]
+    },
+    {
+      "name": "Supabase Docs",
+      "url": "https://supabase.com/docs",
+      "slug": "supabase-com",
+      "score": 48,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "structured data (JSON-LD) present"
+      ]
+    },
+    {
+      "name": "Twilio Docs",
+      "url": "https://www.twilio.com/docs",
+      "slug": "twilio-com",
+      "score": 44,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)"
+      ]
+    },
+    {
+      "name": "Vercel Docs",
+      "url": "https://vercel.com/docs",
+      "slug": "vercel-com",
+      "score": 44,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Docker Docs",
+      "url": "https://docs.docker.com",
+      "slug": "docs-docker-com",
+      "score": 40,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "meta description present"
+      ]
+    },
+    {
+      "name": "Anthropic Docs",
+      "url": "https://docs.anthropic.com",
+      "slug": "docs-anthropic-com",
+      "score": 38,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present"
+      ]
+    },
+    {
+      "name": "Express Docs",
+      "url": "https://expressjs.com",
+      "slug": "expressjs-com",
+      "score": 38,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "GitHub Docs",
+      "url": "https://docs.github.com",
+      "slug": "docs-github-com",
+      "score": 38,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "OpenAI Platform Docs",
+      "url": "https://platform.openai.com/docs",
+      "slug": "platform-openai-com",
+      "score": 38,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "structured data (JSON-LD) present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "React Docs",
+      "url": "https://react.dev",
+      "slug": "react-dev",
+      "score": 36,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present",
+        "semantic HTML: single H1",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "AWS Docs",
+      "url": "https://docs.aws.amazon.com",
+      "slug": "docs-aws-amazon-com",
+      "score": 34,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "meta description present",
+        "structured data (JSON-LD) present"
+      ]
+    },
+    {
+      "name": "MongoDB Docs",
+      "url": "https://www.mongodb.com/docs",
+      "slug": "mongodb-com",
+      "score": 34,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Next.js Docs",
+      "url": "https://nextjs.org/docs",
+      "slug": "nextjs-org",
+      "score": 34,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "MDN",
+      "url": "https://developer.mozilla.org",
+      "slug": "developer-mozilla-org",
+      "score": 24,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present"
+      ]
+    },
+    {
+      "name": "Microsoft Learn",
+      "url": "https://learn.microsoft.com",
+      "slug": "learn-microsoft-com",
+      "score": 24,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Python Docs",
+      "url": "https://docs.python.org",
+      "slug": "docs-python-org",
+      "score": 24,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present"
+      ]
+    },
+    {
+      "name": "Redis Docs",
+      "url": "https://redis.io/docs",
+      "slug": "redis-io",
+      "score": 24,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present"
+      ]
+    },
+    {
+      "name": "Docusaurus Docs",
+      "url": "https://docusaurus.io/docs",
+      "slug": "docusaurus-io",
+      "score": 20,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Shopify Docs",
+      "url": "https://shopify.dev/docs",
+      "slug": "shopify-dev",
+      "score": 20,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 400"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Svelte Docs",
+      "url": "https://svelte.dev/docs",
+      "slug": "svelte-dev",
+      "score": 20,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "meta description present",
+        "structured data (JSON-LD) present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Google Cloud Docs",
+      "url": "https://cloud.google.com/docs",
+      "slug": "cloud-google-com",
+      "score": 18,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "semantic HTML: single H1",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Astro Docs",
+      "url": "https://docs.astro.build",
+      "slug": "docs-astro-build",
+      "score": 16,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "meta description present",
+        "structured data (JSON-LD) present",
+        "semantic HTML: single H1",
+        "server-rendered content (no blank body)",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Kubernetes Docs",
+      "url": "https://kubernetes.io/docs",
+      "slug": "kubernetes-io",
+      "score": 16,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "meta description present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Tailwind CSS Docs",
+      "url": "https://tailwindcss.com/docs",
+      "slug": "tailwindcss-com",
+      "score": 14,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Vite Docs",
+      "url": "https://vitejs.dev/guide",
+      "slug": "vitejs-dev",
+      "score": 14,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "WordPress Docs",
+      "url": "https://wordpress.org/documentation",
+      "slug": "wordpress-org",
+      "score": 14,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": true,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "structured data (JSON-LD) present"
+      ]
+    },
+    {
+      "name": "Node.js Docs",
+      "url": "https://nodejs.org/docs",
+      "slug": "nodejs-org",
+      "score": 10,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "meta description present",
+        "structured data (JSON-LD) present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "PostgreSQL Docs",
+      "url": "https://www.postgresql.org/docs",
+      "slug": "postgresql-org",
+      "score": 10,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": true,
+          "detail": "HTTP 200"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "meta description present",
+        "structured data (JSON-LD) present",
+        "sitemap.xml exists (compat)"
+      ]
+    },
+    {
+      "name": "Playwright Docs",
+      "url": "https://playwright.dev/docs",
+      "slug": "playwright-dev",
+      "score": 0,
+      "grade": "F",
+      "checks": [
+        {
+          "id": "discovery (.well-known/agent)",
+          "label": "discovery (.well-known/agent)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "knowledge graph (/graph/v1)",
+          "label": "knowledge graph (/graph/v1)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "robots.txt exists",
+          "label": "robots.txt exists",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "AI crawler policy (GPTBot/ClaudeBot)",
+          "label": "AI crawler policy (GPTBot/ClaudeBot)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "llms.txt exists (compat)",
+          "label": "llms.txt exists (compat)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "llms.txt well-formed (H1 + sections)",
+          "label": "llms.txt well-formed (H1 + sections)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "agents.json manifest exists (compat)",
+          "label": "agents.json manifest exists (compat)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "/agent API (info + actions)",
+          "label": "/agent API (info + actions)",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "open MCP endpoint (/mcp)",
+          "label": "open MCP endpoint (/mcp)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "homepage reachable",
+          "label": "homepage reachable",
+          "ok": false,
+          "detail": "HTTP 404"
+        },
+        {
+          "id": "meta description present",
+          "label": "meta description present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "structured data (JSON-LD) present",
+          "label": "structured data (JSON-LD) present",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "semantic HTML: single H1",
+          "label": "semantic HTML: single H1",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "server-rendered content (no blank body)",
+          "label": "server-rendered content (no blank body)",
+          "ok": false,
+          "detail": null
+        },
+        {
+          "id": "sitemap.xml exists (compat)",
+          "label": "sitemap.xml exists (compat)",
+          "ok": false,
+          "detail": null
+        }
+      ],
+      "gaps": [
+        "discovery (.well-known/agent)",
+        "knowledge graph (/graph/v1)",
+        "robots.txt exists",
+        "AI crawler policy (GPTBot/ClaudeBot)",
+        "llms.txt exists (compat)",
+        "llms.txt well-formed (H1 + sections)",
+        "agents.json manifest exists (compat)",
+        "/agent API (info + actions)",
+        "open MCP endpoint (/mcp)",
+        "homepage reachable",
+        "meta description present",
+        "structured data (JSON-LD) present",
+        "semantic HTML: single H1",
+        "server-rendered content (no blank body)",
+        "sitemap.xml exists (compat)"
+      ]
+    }
+  ]
+}

@@ -73,6 +73,9 @@ export function Footer() {
             <a href={`${basePath}/agents.json`} className="footer-link">
               agents.json
             </a>
+            <a href={`${basePath}/readiness/`} className="footer-link">
+              Readiness index
+            </a>
           </div>
         </div>
       </div>
