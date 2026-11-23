@@ -9,7 +9,7 @@ Static site for Grapheway, built on the [Broadsheet editorial template](https://
 | Claim on page | Source |
 |---------------|--------|
 | 0 runtime dependencies | packages/grapheway/package.json |
-| 14 agent routes | README route table |
+| 14 agent routes | docs/technical-reference.md route table |
 | 6 subpath exports | packages/grapheway/package.json exports |
 | 129 passing tests | bun test (17 files, 400 assertions) |
 | 25 pages / 521 headings / 1,927 edges | real probe of expressjs.com |
