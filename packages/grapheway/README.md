@@ -43,6 +43,10 @@ That is slow, expensive and easy to get wrong. Grapheway flips it: **the site pu
 
 ## Try it in 60 seconds
 
+> Run these from your own project. If you are working inside the grapheway
+> repository, use `bun run grapheway -- <command>` — `npx` resolves the local
+> workspace there. If `npx` ever picks a stale cache, add `@latest`.
+
 ### If you run a website
 
 ```bash

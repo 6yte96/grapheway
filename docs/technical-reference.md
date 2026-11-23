@@ -648,6 +648,11 @@ just a page — its data comes entirely from the same graph API agents use.
 
 ## CLI
 
+> Inside the monorepo, run `bun run grapheway -- <args>` (or
+> `bun run cli -- <args>`). `npx grapheway` resolves the local workspace
+> package, which has no linked binary in the root `node_modules/.bin`.
+> Outside the repo, `npx -y grapheway@latest <args>` is the reliable path.
+
 ```bash
 # Zero-to-agent-surface: detect the framework, write the config, mount it.
 bunx grapheway init
