@@ -164,7 +164,7 @@ No. There is no telemetry. The adoption index is self-submitted and only checks 
 The runtime is yours to control, and actions are opt-in. The hosted demo rejects private addresses, respects `robots.txt`, caps the number of pages and rate-limits requests.
 
 **Is it ready for production?**
-It is beta (`v0.2.6`). The core is small, tested and dependency-free. Read the [technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md) before a large rollout.
+It is beta (`v0.2.7`). The core is small, tested and dependency-free. Read the [technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md) before a large rollout.
 
 ---
 
