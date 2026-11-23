@@ -11,7 +11,7 @@ Static site for Grapheway, built on the [Broadsheet editorial template](https://
 | 0 runtime dependencies | packages/grapheway/package.json |
 | 14 agent routes | README route table |
 | 6 subpath exports | packages/grapheway/package.json exports |
-| 127 passing tests | bun test (16 files, 395 assertions) |
+| 129 passing tests | bun test (17 files, 400 assertions) |
 | 25 pages / 521 headings / 1,927 edges | real probe of expressjs.com |
 | 6,728 lines, per-module counts | src/ tree |
 | GPL-3.0 | LICENSE |
