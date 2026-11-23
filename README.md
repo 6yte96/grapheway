@@ -1,777 +1,189 @@
 # grapheway
 
+**AI assistants should read your website like a map, not guess at a pile of HTML.**
+
 [![npm version](https://img.shields.io/npm/v/grapheway?color=0b0e15)](https://www.npmjs.com/package/grapheway)
 [![npm downloads](https://img.shields.io/npm/dm/grapheway?color=0b0e15)](https://www.npmjs.com/package/grapheway)
 [![agent-ready sites](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2F6yte96.github.io%2Fgrapheway%2Fadopters.json&query=%24.total&label=agent-ready%20sites&color=0b0e15)](https://6yte96.github.io/grapheway/adopters/)
-[![CI](https://github.com/6yte96/grapheway/actions/workflows/ci.yml/badge.svg)](https://github.com/6yte96/grapheway/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-GPL--3.0-0b0e15)](https://github.com/6yte96/grapheway/blob/main/LICENSE)
 
-> Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Your site opens its own door.
+Grapheway is an open, free way for a website to describe itself to AI agents.
 
-**Status:** Beta (v0.2.6) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
+Think of it as a **sitemap for AI agents** — except the map is live, searchable, and can do things.
 
-**Start in 60 seconds**
+Instead of scraping pages, an assistant asks the site for its **knowledge graph**: pages, sections, links and actions. The site answers in a clean, typed format, and the same content is available through **MCP** — the tool protocol used by Claude, Cursor, VS Code and other assistants.
 
-```bash
-npx grapheway init                              # detect your framework, write the config, mount the surface
-npx grapheway init --url https://your-site.com  # generate a real config from a live probe
-npx grapheway audit https://your-site.com       # 0–100 agent-readiness score + fixes
-npx grapheway badge --url https://your-site.com # embeddable SVG badge
-```
-
-If grapheway saves you a crawler, [star the repo](https://github.com/6yte96/grapheway) — that is how the next web team finds it. Add your site to the [live adoption index](https://6yte96.github.io/grapheway/adopters/) and every agent that reads you learns the pattern.
-
-**Published on npm** — one package, six subpath exports, plus a CLI with `init`, `probe`, `gateway`, `audit`, `badge`, `serve`, `generate`:
-
-| Import | Use case |
-| --- | --- |
-| `npm i grapheway` | Everything |
-| `grapheway` | Core: graph model, discovery, manifest, JSON-LD |
-| `grapheway/web` | For webservers — drop-in agent endpoint |
-| `grapheway/probe` | For agents — convert any site into a graph |
-| `grapheway/agent` | Typed client + skill for AI agents |
-| `grapheway/compat` | Optional legacy files (llms.txt, robots.txt, …) |
-| `grapheway/cli` | CLI: gateway, probe, serve, audit, generate |
-
-**Live documentation** deployed on GitHub Pages: [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/)
-
-- **For webservers — `grapheway/web`.** Your site opts in: install the
-  runtime, describe it in one config, and its content becomes a live, typed
-  knowledge graph that agents discover, traverse, search and act on — over
-  open protocols, at runtime, for free.
-- **For agents — `grapheway/probe`.** No site involvement needed: point it
-  at *any* legacy website (docs, APIs, anything), and it converts the site's
-  own content into the same graph — served locally for agents to use, or
-  exported as JSON. `grapheway probe <url>`.
-
-What a grapheway site exposes:
-
-- **Knowledge graph** — pages/sections become typed nodes, links become
-  edges. Agents `graph_node`, `graph_neighbors`, `graph_search` and
-  `graph_path` their way through your content instead of scraping HTML.
-- **Discovery** — `/.well-known/agent` (an A2A-style agent card) tells any
-  agent exactly what you expose, how, and where.
-- **Open MCP** — the same surface as a real
-  [Model Context Protocol](https://modelcontextprotocol.io) endpoint (`/mcp`):
-  graph tools, your actions as tools, and node content as markdown resources.
-- **Actions** — your **basic actions** (check status, checkout, query —
-  anything) exposed identically over HTTP and MCP.
-- **Maximum control** — every node, edge, page and action is *yours* to
-  define or override. Nothing is auto-derived behind your back.
-- **Compat (optional)** — `llms.txt`, `robots.txt`, `sitemap.xml`, … served
-  at runtime by a fully decoupled module, for the agents that still probe them.
-
-The core is **framework-agnostic and dependency-free**: it runs in Node, Bun,
-Deno, and the browser, and works with Express, Hono, Next.js, plain
-`node:http`, or static hosts.
+No account. No API key. No paid crawler. No data collection.
 
 ---
 
-```
-Your website/app
-      │  grapheway.config.ts
-      ▼
-┌─────────────────────────── grapheway ───────────────────────────┐
-│  /.well-known/agent  → discovery (what/how/where)               │
-│  /graph/v1           → knowledge graph: nodes · edges · search  │
-│                         path · traverse                         │
-│  /agent              → JSON API: info · sections · actions      │
-│  /mcp                → MCP: graph tools · your actions ·        │
-│                         resources (markdown)                    │
-│  <head>              → JSON-LD + Open Graph (GEO)               │
-│  + grapheway/compat → llms.txt · robots.txt · sitemap.xml      │
-└─────────────────────────────────────────────────────────────────┘
-      ▲                                        ▲
-  humans / search                     agents (Claude, Cursor, …)
-                                      via grapheway/agent or MCP
-```
+## Why this exists
+
+Today, an AI assistant that needs an answer from a website usually:
+
+1. downloads the HTML,
+2. strips out the navigation, ads and scripts,
+3. guesses which parts matter,
+4. repeats the whole process for every page.
+
+That is slow, expensive and easy to get wrong. Grapheway flips it: **the site publishes its own map, and the assistant walks it.**
 
 ---
 
-## Quick start (app side)
+## What you get
 
-**1. Install**
+- **A live map of your content.** Pages and sections become connected nodes. Agents can search the map, follow it, and show the path they took.
+- **One open door.** `/.well-known/agent` tells any agent what the site offers and where to find it.
+- **MCP, for free.** Claude Desktop, Cursor, VS Code and other clients can use the site's map and actions as native tools.
+- **Actions, not just pages.** "Check status", "search", "get a quote" — anything the site can already do can be offered to agents.
+- **Fresh, not stale.** When the site changes, the map can update live instead of waiting for the next crawl.
+- **Your rules.** You decide every node, edge, page and action.
 
-```bash
-bun add grapheway
-# or: npm i grapheway
-```
+---
 
-**2. Describe your site in one config**
+## Try it in 60 seconds
 
-```ts
-// grapheway.config.ts
-import type { GraphewayConfig } from "grapheway";
-
-export const graphewayConfig: GraphewayConfig = {
-  name: "Acme Gadgets",
-  url: "https://acme.example",
-  tagline: "API-powered gadgets for everyone",
-  summary:
-    "Acme Gadgets sells small, API-powered devices. Every product ships with an open HTTP API and full documentation.",
-  contact: { email: "hello@acme.example", protocol: "email" },
-  capabilities: ["search", "mcp"],
-
-  sections: [
-    {
-      title: "Getting Started",
-      items: [
-        { title: "Install the SDK", url: "/docs/install", notes: "npm i acme, auth, first call" },
-        { title: "Quickstart", url: "/docs/quickstart", notes: "First API call in 5 minutes" },
-      ],
-    },
-  ],
-
-  actions: [
-    {
-      name: "check_device_status",
-      description: "Checks the online/offline status of a device by serial.",
-      inputSchema: {
-        type: "object",
-        properties: { serial: { type: "string" } },
-        required: ["serial"],
-      },
-    },
-  ],
-};
-```
-
-**3. Mount the endpoint (any framework)**
-
-```ts
-import { createServer } from "node:http";
-import { createGrapheway, toNodeHandler, injectHead } from "grapheway/web";
-import { graphewayConfig } from "./grapheway.config.ts";
-
-const agent = createGrapheway(graphewayConfig, {
-  search: (q) => searchYourSite(q),              // powers search_content
-  getPageMarkdown: (path) => markdownFor(path),  // powers get_page + node content
-  actions: {
-    check_device_status: async (args) => queryDevice(args.serial),
-  },
-});
-
-const server = createServer(async (req, res) => {
-  // 1. Serve your normal pages (with GEO tags injected into <head>).
-  if (isPage(req.url)) {
-    res.end(injectHead(renderPage(req.url), graphewayConfig));
-    return;
-  }
-  // 2. Everything else → grapheway (graph, /agent, /mcp, …).
-  await toNodeHandler(agent.handler)(req, res);
-});
-
-server.listen(3000);
-```
-
-That's it. Your site now exposes its native agent surface:
-
-```
-GET  /.well-known/agent   discovery: protocol, capabilities, endpoints
-GET  /graph/v1            graph summary
-GET  /graph/v1/node       a node (page/section) of the site graph
-GET  /graph/v1/edges      edges touching a node (links, relations)
-GET  /graph/v1/search     ranked node search over the graph
-GET  /graph/v1/path       shortest path between two nodes (auditable)
-GET  /graph/v1/graph      the full live graph (nodes + edges + version)
-GET  /graph/v1/events     live graph events (SSE) — realtime subscriptions
-GET  /graph               the interactive graph viewer (self-contained UI)
-GET  /agent               full manifest
-GET  /agent/info          site info          GET  /agent/sections   curated sections
-GET  /agent/actions       declared actions   POST /agent/action     run an action
-POST /mcp                 Model Context Protocol (streamable HTTP)
-GET  /mcp                 MCP SSE announcement
-
-# Optional (mount grapheway/compat): llms.txt, agents.txt, agents.json,
-# robots.txt, sitemap.xml — served at runtime for agents that probe them.
-```
-
-> Every route sends `Access-Control-Allow-Origin: *`, so any agent anywhere
-> can call your endpoints cross-origin — free, global, open by design.
-
-### Framework adapters
-
-`grapheway/web` ships adapters for `node:http`, Express, Hono, and the
-Web-standard Fetch API (Next.js App Router, Cloudflare Workers, Deno, Bun,
-Vercel Edge):
-
-```ts
-// Express
-app.use(toExpressHandler(agent.handler));
-
-// Hono — mount at root or under a prefix
-app.all("*", toHonoHandler(agent.handler));
-```
-
-**Next.js App Router** is one command:
+### If you run a website
 
 ```bash
 npx grapheway init
 ```
 
-It writes `middleware.ts` (rewrites `/.well-known/agent`, `/graph`, `/agent`
-and `/mcp` to one route) plus `app/api/grapheway/route.ts`:
-
-```ts
-import { createGrapheway, toFetchHandler } from "grapheway/web";
-import { graphewayConfig } from "../../../grapheway.config";
-
-const agent = createGrapheway(graphewayConfig);
-const handler = toFetchHandler(agent.handler);
-
-export const dynamic = "force-dynamic";
-export const GET = handler;
-export const POST = handler;
-export const OPTIONS = handler;
-```
-
-The core handler itself only needs `{ method, url, headers, body }` in and
-`{ status, headers, body, contentType }` out — writing an adapter for your
-framework of choice is ~10 lines (see `adapters.ts`).
-
----
-
-## Actions — let agents *do* things
-
-Built-in actions work out of the box:
-
-| Action | Description |
-| --- | --- |
-| `get_site_info` | Site name, tagline, summary, contact. Call this first. |
-| `list_sections` | Curated sections with titles + URLs. |
-| `get_page` | A page as clean markdown — pass `{ url }` or `{ section }`. |
-| `search_content` | Search the site (only if you pass a `search` function). |
-
-Register your own:
-
-```ts
-createGrapheway(config, {
-  actions: {
-    check_device_status: async ({ serial }, ctx) => {
-      return { serial, status: "online", checkedAt: new Date().toISOString() };
-    },
-  },
-});
-```
-
-Agents call it via the HTTP API **or** as an MCP tool — same implementation:
+It detects your framework, writes one config file, and mounts the agent surface. Then:
 
 ```bash
-curl -X POST https://acme.example/agent/action \
-  -H 'content-type: application/json' \
-  -d '{"name":"check_device_status","arguments":{"serial":"WB-0001"}}'
+npx grapheway audit https://your-site.com
+npx grapheway badge --url https://your-site.com --out badge.svg
 ```
 
-```json
-{ "action": "check_device_status", "ok": true, "result": { "serial": "WB-0001", "status": "online" } }
-```
+`npx grapheway init --url https://your-site.com` builds the config from your existing site.
 
----
+Works with Next.js, Express, Hono, plain Node, static hosts, Cloudflare Workers, Deno and Bun.
 
-## `grapheway probe` — convert any website into a graph (for agents)
-
-The webserver story above requires the site to opt in. But most of the web
-isn't grapheway-enabled — legacy docs, old frameworks, static sites. That's
-what **`grapheway/probe`** is for: the *agent-side* tool that converts
-**any** URL into the same native agent surface, with zero site involvement.
-
-It extracts the site's own **knowledge** (not its tech stack): title, meta
-description, navigation, headings, links — and, when present, OpenAPI
-endpoints. Everything becomes a tagged graph (nav links `extracted`, content
-links `inferred`, headings `derived`), served through the *exact same*
-runtime surface, so agents point at `http://localhost:PORT` and all their
-existing tooling just works:
+### If you just want to read a site
 
 ```bash
-# Crawl any docs site and serve it as a full agent surface on :4321
-bunx grapheway probe https://expressjs.com
-
-# …or export the graph instead of serving
-bunx grapheway probe https://expressjs.com --no-serve --out ./express-graph
+npx grapheway probe https://docs.example.com
 ```
 
-```
-Probed Express.js (https://expressjs.com)
-  pages:    25
-  headings: 521
-  edges:    1927  (1361 extracted, 566 inferred)
-  api:      12 endpoints (https://expressjs.com/openapi.json)
+That turns any public site into the same map and serves it locally — no involvement from the site required. Add `--no-serve --out ./graph` to export it instead.
 
-Serving "Express.js" as an agent surface:
-  discovery    http://localhost:4321/.well-known/agent
-  graph        http://localhost:4321/graph/v1
-  events       http://localhost:4321/graph/v1/events (realtime SSE)
-  MCP          http://localhost:4321/mcp
+### If you use an AI assistant
+
+Use the hosted demo. No install:
+
+```text
+https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com
 ```
 
-From code:
-
-```ts
-import { probeSite, serveProbed, exportProbed } from "grapheway/probe";
-
-const result = await probeSite("https://legacy-docs.example", { maxPages: 50 });
-console.log(result.graph.nodes.length, "nodes"); // agents can walk, search, act
-
-const server = await serveProbed("https://legacy-docs.example"); // :4321
-// point your MCP client at http://localhost:4321/mcp  →  the legacy docs as MCP tools
-
-await exportProbed(result, { outDir: "./graph" }); // graph.json + config.json
-```
-
-Flags: `--port <n>`, `--depth <n>` (link depth, default 3), `--max-pages <n>`
-(default 50), `--no-serve`, `--out <dir>`. Robots.txt is respected; pages are
-fetched same-origin only; OpenAPI specs (`openapi.json`, `swagger.json`, …)
-become typed `api` nodes with method, path, summary and tags.
-
-This is the same promise as the opt-in path, applied to the sites that
-haven't joined yet: **agents stop scraping — they read the graph instead.**
-
----
-
-## The gateway — one server, many agents
-
-The probe and the site runtime both end in the same place: a graph server
-that speaks the agent protocol. `grapheway gateway` makes that server a
-first-class artifact — a lightweight daemon that **holds** a graph and
-answers agents over MCP (streamable HTTP) first:
-
-```bash
-# Hold any site's graph; re-crawl every 24h → the diff patches the live
-# graph, so SSE subscribers and MCP clients always see it fresh
-bunx grapheway gateway --probe https://legacy-docs.example --refresh 24
-
-# …a config-defined graph…
-bunx grapheway gateway --config grapheway.config.ts
-
-# …or an exported graph.json (no network needed)
-bunx grapheway gateway --graph graph.json
-```
-
-Agents connect by pointing their MCP client at the gateway — **no client
-shims, no per-agent processes, one live graph shared by every agent**:
-
-```bash
-bunx grapheway mcp-config          # prints the exact snippet to paste
-```
-
-```json
-{
-  "mcpServers": {
-    "grapheway": { "url": "http://localhost:4321/mcp" }
-  }
-}
-```
-
-Paste that into Claude Desktop / Cursor / VS Code / Claude Code and the
-gateway's graph tools + actions appear as native MCP tools. The gateway
-talks MCP over plain HTTP — the modern protocol — so nothing needs to run
-on the agent's machine. Localhost-first by default; expose with
-`--host 0.0.0.0` when you want remote agents to reach it.
-
----
-
-## Open MCP (the "free global open MCP")
-
-`/mcp` is a spec-aligned Model Context Protocol *streamable HTTP* server.
-Any MCP client can connect and gets your site's graph + actions as native
-tools, plus node content as markdown resources:
-
-```
-Claude Desktop / Cursor / VS Code / mcp CLI  ──►  https://your-site.com/mcp
-                                                      ├─ tools/list
-                                                      │    ├─ graph_node · graph_neighbors
-                                                      │    ├─ graph_search · graph_path
-                                                      │    └─ your actions as tools
-                                                      ├─ tools/call → graph + actions
-                                                      └─ resources/read → page markdown
-```
-
-```bash
-curl -X POST https://acme.example/mcp \
-  -H 'content-type: application/json' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
-```
-
-Supported: `initialize`, `ping`, `tools/list`, `tools/call`, `resources/list`,
-`resources/read`, notifications. No API key. No account. Open to every agent
-that speaks MCP.
-
-### Stdio — no hosting required
-
-Most local clients (Claude Desktop, Cursor, VS Code, Claude Code) can launch
-a command and speak newline-delimited JSON-RPC over stdin/stdout. Grapheway
-ships that transport too:
-
-```bash
-# Print the exact client snippet for any site
-bunx grapheway mcp-config --stdio --probe https://expressjs.com
-```
+Paste this into Cursor, Claude Desktop, VS Code or any MCP client:
 
 ```json
 {
   "mcpServers": {
     "grapheway": {
-      "command": "npx",
-      "args": ["-y", "grapheway", "mcp", "--probe", "https://expressjs.com"]
+      "url": "https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com"
     }
   }
 }
 ```
 
-`grapheway mcp` accepts `--probe <url>`, `--config <file>` or `--graph <file>`.
-Protocol messages go to stdout; logs go to stderr, so the client never sees a
-corrupted stream. No port, no daemon, no account.
-
-### Hosted demo — zero install
-
-A public grapheway MCP endpoint is running on Cloudflare Workers. Change the
-`url` parameter to any public site:
-
-```
-https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com
-```
-
-Add it as a **streamable HTTP** MCP server in Cursor, Claude Desktop, VS Code
-or any client. The Worker crawls up to 12 pages same-origin, respects
-`robots.txt`, caches for 10 minutes and is rate-limited. No account, no
-tracking. Source and guardrails: [`deploy/cloudflare-worker`](deploy/cloudflare-worker).
-
----
-
-## The Agent Readiness Index
-
-We audited 30 of the documentation sites agents read most. The average score
-is **28/100**; **0** scored B or better. The full table, every gap and a
-per-site report are public:
-
-**[6yte96.github.io/grapheway/readiness](https://6yte96.github.io/grapheway/readiness/)**
-
-The index is generated by the same `grapheway audit <url>` you can run on your
-own site. A low score measures missing agent-native endpoints, not site
-quality. No visitor data is collected.
-
-## MCP Registry
-
-Grapheway is published as a stdio MCP server in the Official MCP Registry
-(`io.github.6yte96/grapheway`). Validate or publish the manifest:
+Change the `url` parameter to any public site. Or run it locally:
 
 ```bash
-bun run mcp:validate   # validate server.json without publishing
-bun run mcp:publish    # publish via the GitHub token
-```
-
-## The agent side — `grapheway/agent`
-
-Everything above makes **your site** agent-ready. This package is for the
-**agent** (or the tooling around it) that wants to consume it.
-
-### 1. Typed client
-
-```ts
-import { GraphewayClient } from "grapheway/agent";
-
-const acme = new GraphewayClient("https://acme.example");
-
-const discovery = await acme.getDiscovery();   // what/how/where (agent card)
-const graph     = await acme.graphSummary();   // nodes + edges available
-const node      = await acme.graphNode("https://acme.example/docs/install");
-const neighbors = await acme.graphEdges(node.id, "both");  // how it links
-const hits      = await acme.graphSearch("weather");       // ranked nodes
-const path      = await acme.graphPath("https://acme.example", node.id);
-const walked    = await acme.traverse("https://acme.example", 2);  // native crawl
-
-const manifest = await acme.getManifest();     // info + sections + actions
-const page     = await acme.getPage("Install the SDK");  // clean markdown
-const status   = await acme.callAction("check_device_status", { serial: "WB-0001" });
-```
-
-That's the whole promise: **the agent reads your site by walking its graph —
-no paid crawler APIs, no scraping.**
-
-### 2. Connect via MCP — the gateway
-
-The primary way agents consume grapheway is over MCP, pointing straight at
-a server that holds the graph (`grapheway gateway`, a site running
-`grapheway/web`, or a `serveProbed` surface):
-
-```bash
-bunx grapheway gateway --probe https://acme.example --refresh 24
-bunx grapheway mcp-config --port 4321
-```
-
-```json
-{
-  "mcpServers": {
-    "grapheway": { "url": "http://localhost:4321/mcp" }
-  }
-}
-```
-
-Paste that into any MCP client — the graph tools and the site's actions
-become native tools, no shims required. This package's `GraphewayClient`
-is the same surface as typed methods, for embedding in your own tooling.
-
-### 3. Skill for agents
-
-[`packages/grapheway/SKILL.md`](https://github.com/6yte96/grapheway/blob/main/packages/grapheway/SKILL.md) teaches any
-AI agent how to discover and use agent-ready endpoints (probe
-`/.well-known/agent` → traverse the graph → call actions → MCP), so agents
-know to use your structured surface before scraping HTML.
-
----
-
-## Provenance & confidence — answers you can audit
-
-Every edge in a grapheway graph carries **provenance** (where it came from:
-a `config` declaration, a `section`, a `link` on a page, a `builder`
-function, or `derived` at runtime) and a **confidence** tag — the same
-`EXTRACTED` / `INFERRED` / `AMBIGUOUS` trust model that made Graphify famous,
-adapted from code to the web:
-
-| Confidence | Meaning |
-| --- | --- |
-| `extracted` | Ground truth — the site owner declared it or it was read directly from a page's links. |
-| `inferred` | Computed with clear evidence (e.g. a link found in a section or a parent page). |
-| `ambiguous` | Best-effort — worth verifying before relying on it (e.g. deduped links, guessed pages). |
-
-The graph **summary** reports how trustworthy the map is:
-
-```json
-{
-  "nodes": 12,
-  "edges": 31,
-  "provenance": { "config": 6, "section": 9, "link": 12, "derived": 4 },
-  "confidence": { "extracted": 18, "inferred": 9, "ambiguous": 4 }
-}
-```
-
-And **`graph_path` doesn't just answer — it shows its work**: the response
-includes every edge in the path with its provenance and confidence, so an
-agent can decide how much to trust the route, and a site owner can see
-exactly what an agent was told.
-
-```json
-{
-  "found": true,
-  "path": ["/", "/docs", "/docs/install"],
-  "edges": [
-    {
-      "from": "/", "to": "/docs", "type": "link",
-      "provenance": "section", "confidence": "extracted",
-      "note": "Declared in 'Getting Started' section"
-    }
-  ]
-}
+npx grapheway mcp --probe https://expressjs.com
 ```
 
 ---
 
-## Realtime — the live graph
+## See the web as it is
 
-Your graph is not a static dump: it's a **live structure agents can subscribe
-to**. Call `patchGraph()` from your app code whenever the world changes — new
-product, new docs page, price update — and the server applies the patch and
-broadcasts it:
+We audited 30 of the documentation sites AI assistants read most.
 
-```ts
-const agent = createGrapheway(config, { search, getPageMarkdown, actions });
+- Average score: **28/100**
+- Sites graded B or better: **0**
+- Full reports: **[Agent Readiness Index](https://6yte96.github.io/grapheway/readiness/)**
 
-// Anywhere in your app:
-agent.patchGraph([
-  { type: "add_node", node: { id: "/products/neo", type: "page", label: "NEO Gadget" } },
-  { type: "add_edge", edge: { id: "e-neo", source: "/", target: "/products/neo", type: "links_to" } },
-  { type: "set_node_meta", id: "/products/neo", meta: { price: "$199" } },
-  { type: "remove_node", id: "/products/legacy" },
-]);
-```
-
-Patches are applied in order and validated: `add_edge` endpoints must already
-exist (add the nodes first), `remove_node` also removes every edge touching it,
-and duplicates are no-ops. The returned value is the new graph version.
-
-Agents connect to `GET /graph/v1/events` over **Server-Sent Events**: they
-receive the current snapshot, then a stream of patches as the site evolves —
-no polling, no re-crawling:
-
-```bash
-curl -N https://acme.example/graph/v1/events
-```
-
-```
-event: graph
-data: {"type":"snapshot","version":0,"nodes":12,"edges":31}
-
-event: graph
-data: {"version":1,"patches":[{"type":"add_node","node":{"id":"/products/neo","type":"page","label":"NEO Gadget"}},{"type":"add_edge","edge":{"id":"e-neo","source":"/","target":"/products/neo","type":"links_to"}}]}
-
-: ping        (heartbeat every 15s)
-```
-
-The `grapheway/agent` client wraps it in a typed subscription that streams
-patches straight into a local graph:
-
-```ts
-const acme = new GraphewayClient("https://acme.example");
-const unsub = acme.subscribeGraph((patch) => {
-  console.log("graph changed:", patch.addEdges?.length ?? 0, "new edges");
-});
-```
-
-That's Graphify's "always-on" promise, on the web side: **agents stop
-re-crawling your site — your site pushes its truth to them.**
+The **[live adoption index](https://6yte96.github.io/grapheway/adopters/)** shows which sites have opened their door.
 
 ---
 
-## The graph viewer — see what agents see
+## How it works
 
-Every grapheway surface (your site, a `grapheway gateway`, a probed legacy
-site) also serves **`GET /graph`** — a self-contained, zero-dependency
-interactive map of the live graph. No build step, no CDN, no libraries:
+```text
+Your website / app
+        │  one config
+        ▼
+┌─────────────────────────────────────┐
+│  discovery  /.well-known/agent      │
+│  map        /graph/v1               │
+│  manifest   /agent                  │
+│  tools      /mcp                    │
+│  viewer     /graph                  │
+└─────────────────────────────────────┘
+        ▲                       ▲
+   people / search        AI assistants
+```
 
-- a hand-rolled force-directed layout — nodes colored by type, edges by
-  confidence (`extracted` / `inferred` / `ambiguous`)
-- pan, zoom, drag nodes; hover for edge provenance; click any node for its
-  full detail + neighbors
-- **search** (`/graph/v1/search`) and the **path inspector** — pick any two
-  nodes and see the auditable route with its provenance badges
-- **realtime**: it subscribes to `/graph/v1/events`, so patches animate in
-  live as your app pushes them
-- type/confidence filters, label toggle, one-click JSON export of the graph
-
-Open `http://localhost:4321/graph` on any running gateway, or
-`https://your-site.com/graph` on a grapheway-enabled site. The viewer is
-just a page — its data comes entirely from the same graph API agents use.
+1. Describe your site once.
+2. Grapheway serves the map and the tools.
+3. Agents read the map instead of scraping.
 
 ---
 
-## CLI
+## Who it is for
 
-```bash
-# Zero-to-agent-surface: detect the framework, write the config, mount it.
-bunx grapheway init
-bunx grapheway init --url https://legacy-docs.example   # generate a config from a live probe
-bunx grapheway init --framework static                  # write the static compat files
-
-# Embeddable agent-readiness badge (SVG, no tracking)
-bunx grapheway badge --url https://acme.example --out badge.svg --md
-
-# Stdio MCP server for local clients — no hosting, no port
-bunx grapheway mcp --probe https://legacy-docs.example
-bunx grapheway mcp --config grapheway.config.ts
-bunx grapheway mcp-config --stdio --probe https://legacy-docs.example
-
-# THE graph gateway: a lightweight server that holds a graph and answers
-# agents over MCP. With --probe --refresh it re-crawls and patches the
-# live graph on a schedule — one server, many agents, always fresh.
-bunx grapheway gateway --probe https://legacy-docs.example --refresh 24
-bunx grapheway gateway --config grapheway.config.ts
-bunx grapheway gateway --graph graph.json
-
-# Print the mcpServers snippet to paste into any MCP client
-bunx grapheway mcp-config --port 4321
-
-# Convert ANY website into an agent-native graph (for agents, no site
-# involvement): crawl → serve locally as the full agent surface
-bunx grapheway probe https://legacy-docs.example --port 4321
-# …or export the graph instead
-bunx grapheway probe https://legacy-docs.example --no-serve --out ./graph
-
-# Serve the runtime agent surface + compat files from a config file
-bunx grapheway serve --config grapheway.config.ts --port 3000
-
-# Live agent-readiness audit of any deployed site
-bunx grapheway audit https://acme.example
-#   Score: 92/100  Grade: A
-#   ✓ discovery (.well-known/agent)  ✓ knowledge graph (/graph/v1)
-#   ✓ robots.txt AI policy           ✓ /agent API
-#   ✓ open MCP endpoint (/mcp)       ✓ structured data (JSON-LD)
-#   …
-
-# Legacy static files for a plain static host (via grapheway/compat)
-bunx grapheway generate --config grapheway.config.ts --out public
-```
+- **Docs and content teams** who want their site to show up correctly in AI answers.
+- **SaaS and API companies** who want agents to use their product without a custom integration.
+- **Agencies** who want a repeatable "make this site agent-ready" service.
+- **AI builders** who want a clean way to read public web content without building a custom crawler.
 
 ---
 
-## GEO — Generative Engine Optimization
+## Questions people ask
 
-`grapheway` treats GEO as a first-class, always-on feature:
+**What is MCP?**
+The Model Context Protocol is a common way for AI assistants to use tools and read content. Think of it as a standard port that lets Claude, Cursor, VS Code and other assistants plug into a site.
 
-- **Structured data**: Schema.org `Organization`, `WebSite` (with
-  `SearchAction`), and one `WebPage` per curated section, injected as
-  `<script type="application/ld+json">` into every page via `injectHead()`.
-- **Semantic metadata**: description, Open Graph, and Twitter card tags.
-- **Audit**: `grapheway audit <url>` checks 14 signals (robots policy,
-  llms.txt format, JSON-LD, semantic HTML, SSR content, MCP, …) and scores
-  0–100 with a grade.
+**What is a knowledge graph?**
+A map of the site: pages and sections are the places, links are the roads between them. Agents can search the map and follow a route instead of guessing from raw HTML.
 
----
+**Is it free?**
+Yes. GPL-3.0. No account, no key, no paid crawler.
 
-## Repository layout
+**Does the site owner have to install it?**
+No. `grapheway probe` works on any public site. The runtime makes the map permanent and live.
 
-```
-grapheway/
-├─ packages/grapheway/                — single unified package
-│  ├─ src/core/       graphemodel, discovery, manifest, JSON-LD
-│  ├─ src/web/        runtime endpoint + adapters + MCP
-│  ├─ src/probe/      convert ANY site into a graph
-│  ├─ src/compat/     optional legacy files (llms.txt, robots, …)
-│  ├─ src/agent/      typed client + skill
-│  ├─ src/cli/        gateway / probe / mcp-config / serve / audit / generate
-│  └─ test/           129 tests across 6 subpath modules
-├─ examples/simple-site/              — runnable demo (server + demo client)
-├─ docs/                               — landing page (GitHub Pages) + white paper
-└─ README.md
-```
+**Is this just `llms.txt`?**
+No. `llms.txt` is a static, hand-written file. Grapheway is a live map with search, links, actions and updates.
 
-```bash
-bun install          # install workspace deps
-bun run build        # compile to dist/ (6 bundles + .d.ts)
-bun test             # 129 tests across all subpaths
-npx tsc --noEmit     # typecheck
-bun run example      # start the demo site on :4321
-```
+**Does it collect data?**
+No. There is no telemetry. The adoption index is self-submitted and only checks each site's public agent card.
+
+**What about security?**
+The runtime is yours to control, and actions are opt-in. The hosted demo rejects private addresses, respects `robots.txt`, caps the number of pages and rate-limits requests.
+
+**Is it ready for production?**
+It is beta (`v0.2.6`). The core is small, tested and dependency-free. Read the [technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md) before a large rollout.
 
 ---
 
-## Publishing (npm)
+## Learn more
 
-One package, one publish:
+- [Documentation](https://6yte96.github.io/grapheway/docs/)
+- [Technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md)
+- [White paper](https://github.com/6yte96/grapheway/blob/main/docs/whitepaper.md)
+- [Live adoption index](https://6yte96.github.io/grapheway/adopters/)
+- [Agent Readiness Index](https://6yte96.github.io/grapheway/readiness/)
+- [Launch notes](https://github.com/6yte96/grapheway/tree/main/docs/launch)
+- [npm package](https://www.npmjs.com/package/grapheway)
+- [Releases](https://github.com/6yte96/grapheway/releases)
+- [Contributing](https://github.com/6yte96/grapheway/blob/main/CONTRIBUTING.md)
 
-1. **Develop on `dev`** — pushes to `dev` trigger internal GitHub runner builds that commit the tarball to `artifacts/` (stays strictly within GitHub, no npm publishing).
-2. **Bump the version** in `packages/grapheway/package.json` when ready to release.
-3. **Open PR to `main`** — GitHub Actions runs typecheck and tests on the PR (no publishing).
-4. **Merge into `main`** — merging the pull request into `main` triggers the `Publish to npm` workflow to build and publish the release to the npm registry.
-
-> The package compiles to `dist/` (6 JS bundles + type declarations) — works on
-> **Node**, **Bun**, **Deno**, and bundlers. Subpath exports let users import
-> only what they need. Binary: `grapheway`.
-
-### Dev builds (artifacts)
-
-Every push to `dev` builds the unified package **on the GitHub runner** and commits
-
-the tarball back into the repo on `dev` under `artifacts/` — grab the latest
-
-build straight from the branch, no local build needed:
-
-```bash
-npm i https://github.com/6yte96/grapheway/raw/dev/artifacts/grapheway-0.1.0.tgz
-```
-
-(The commit-back is tagged `[skip ci]`, so the workflow doesn't loop on itself.)
-
----
-
-## Further reading
-
-- [**White paper**](https://github.com/6yte96/grapheway/blob/main/docs/whitepaper.md) — the architecture, why graphs beat static files, the provenance model
-- [**Contributing**](https://github.com/6yte96/grapheway/blob/main/CONTRIBUTING.md) — development workflow, project structure, code conventions
-- [**Changelog**](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md) — version history and what's new
-- [**Landing page**](https://6yte96.github.io/grapheway/) — broadsheet site built from `website/` (GitHub Pages)
+If this saves you a crawler, [star the repo](https://github.com/6yte96/grapheway) — it helps the next team find it.
 
 ---
 
 ## License
 
-GPL-3.0
+GPL-3.0.
