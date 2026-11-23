@@ -63,13 +63,23 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          set -o pipefail
           cd packages/grapheway
           version="$(node -p "require('./package.json').version")"
           if npm view "grapheway@$version" version >/dev/null 2>&1; then
             echo "✓ grapheway@$version already published — skipped"
           else
             echo "⬆ Publishing grapheway@$version"
-            npm publish --access public
+            if ! npm publish --access public 2>&1 | tee /tmp/npm-publish.log; then
+              # npm stages versions before making them visible. A retry of an
+              # already-staged version returns E409; treat that as success.
+              if grep -qE "E409|previously staged" /tmp/npm-publish.log; then
+                echo "✓ grapheway@$version is already staged — waiting for npm"
+              else
+                cat /tmp/npm-publish.log
+                exit 1
+              fi
+            fi
           fi
 
       - name: Verify
@@ -77,13 +87,14 @@ jobs:
           cd packages/grapheway
           version="$(node -p "require('./package.json').version")"
           echo "Verifying grapheway@$version on npm..."
-          for i in {1..10}; do
+          for i in $(seq 1 60); do
             published=$(npm view "grapheway@$version" version 2>/dev/null || echo "")
             if [ "$published" = "$version" ]; then
               echo "✓ grapheway@$published verified on npm registry"
               exit 0
             fi
-            echo "Waiting for npm registry to index grapheway@$version ($i/10)..."
-            sleep 3
+            echo "Waiting for npm registry to index grapheway@$version ($i/60)..."
+            sleep 5
           done
-          echo "⚠ grapheway@$version published, but registry index is still updating"
+          echo "✗ grapheway@$version was not indexed within 5 minutes"
+          exit 1
