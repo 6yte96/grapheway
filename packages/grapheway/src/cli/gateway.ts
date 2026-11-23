@@ -18,7 +18,12 @@
 
 import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import type { GraphewayConfig, KnowledgeGraph } from "../core/index.js";
+import {
+  GRAPHEWAY_INDEX,
+  GRAPHEWAY_REPO,
+  type GraphewayConfig,
+  type KnowledgeGraph,
+} from "../core/index.js";
 import { compatHandler } from "../compat/index.js";
 import { createGrapheway, toNodeHandler } from "../web/index.js";
 import { createProbeAgent, probeSite, summarizeProbe } from "../probe/index.js";
@@ -98,6 +103,9 @@ function printBanner(name: string, url: string, extras: string[] = []) {
     ``,
     `Connect any agent — paste this into Claude Desktop / Cursor / VS Code / Claude Code:`,
     mcpConfigJson(`${url}/mcp`),
+    ``,
+    `  ★ Star grapheway: ${GRAPHEWAY_REPO}`,
+    `  ◇ Live adoption index: ${GRAPHEWAY_INDEX}`,
     ``,
   ];
   console.log("\n" + lines.join("\n"));

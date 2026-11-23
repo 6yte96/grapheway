@@ -1,17 +1,39 @@
 # grapheway
 
-[![Status: Beta](https://img.shields.io/badge/status-beta-amber.svg)](https://github.com/6yte96/grapheway)
-[![Documentation](https://img.shields.io/badge/docs-github_pages-blue.svg)](https://6yte96.github.io/grapheway/)
-[![Tests](https://img.shields.io/badge/tests-111%20pass-success.svg)](https://github.com/6yte96/grapheway)
+[![npm version](https://img.shields.io/npm/v/grapheway?color=0b0e15)](https://www.npmjs.com/package/grapheway)
+[![npm downloads](https://img.shields.io/npm/dm/grapheway?color=0b0e15)](https://www.npmjs.com/package/grapheway)
+[![agent-ready sites](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2F6yte96.github.io%2Fgrapheway%2Fadopters.json&query=%24.total&label=agent-ready%20sites&color=0b0e15)](https://6yte96.github.io/grapheway/adopters/)
+[![CI](https://github.com/6yte96/grapheway/actions/workflows/ci.yml/badge.svg)](https://github.com/6yte96/grapheway/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-GPL--3.0-0b0e15)](https://github.com/6yte96/grapheway/blob/main/LICENSE)
 
-> **Current status:** Grapheway is currently in active **Beta** (`v0.2.2`). Project documentation and live demo are hosted on GitHub Pages: [https://6yte96.github.io/grapheway/](https://6yte96.github.io/grapheway/)
+> Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Your site opens its own door.
 
-**Native agent access for your web app — no paid crawlers, no scraping, no
-fees.** Your site opens its own door: its content becomes a live, typed
-knowledge graph that agents discover, traverse, search and act on — over
-open protocols, at runtime, for free.
+**Status:** Beta (v0.2.3) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
 
-One package, subpath imports:
+**Start in 60 seconds**
+
+```bash
+npx grapheway init                              # detect your framework, write the config, mount the surface
+npx grapheway init --url https://your-site.com  # generate a real config from a live probe
+npx grapheway audit https://your-site.com       # 0–100 agent-readiness score + fixes
+npx grapheway badge --url https://your-site.com # embeddable SVG badge
+```
+
+If grapheway saves you a crawler, [star the repo](https://github.com/6yte96/grapheway) — that is how the next web team finds it. Add your site to the [live adoption index](https://6yte96.github.io/grapheway/adopters/) and every agent that reads you learns the pattern.
+
+**Published on npm** — one package, six subpath exports, plus a CLI with `init`, `probe`, `gateway`, `audit`, `badge`, `serve`, `generate`:
+
+| Import | Use case |
+| --- | --- |
+| `npm i grapheway` | Everything |
+| `grapheway` | Core: graph model, discovery, manifest, JSON-LD |
+| `grapheway/web` | For webservers — drop-in agent endpoint |
+| `grapheway/probe` | For agents — convert any site into a graph |
+| `grapheway/agent` | Typed client + skill for AI agents |
+| `grapheway/compat` | Optional legacy files (llms.txt, robots.txt, …) |
+| `grapheway/cli` | CLI: gateway, probe, serve, audit, generate |
+
+**Live documentation** deployed on GitHub Pages: [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/)
 
 - **For webservers — `grapheway/web`.** Your site opts in: install the
   runtime, describe it in one config, and its content becomes a live, typed
@@ -44,24 +66,6 @@ Deno, and the browser, and works with Express, Hono, Next.js, plain
 `node:http`, or static hosts.
 
 ---
-
-## Subpath exports
-
-One install. Import what you need:
-
-```bash
-npm install grapheway
-# or: bun add grapheway
-```
-
-| Import | What it is |
-| --- | --- |
-| `grapheway` | Core: graph model, discovery, manifest, JSON-LD. Zero deps. |
-| `grapheway/web` | **For webservers** — drop-in agent endpoint: graph, `/agent`, `/mcp` + framework adapters. |
-| `grapheway/probe` | **For agents** — convert ANY legacy site into a graph: crawl → graph → serve locally / export JSON. |
-| `grapheway/compat` | Optional legacy files (llms.txt, agents.txt, robots.txt, sitemap.xml). |
-| `grapheway/agent` | Typed `GraphewayClient` + skill for AI agents. |
-| `grapheway/cli` | CLI: gateway, probe, mcp-config, serve, audit, generate. |
 
 ```
 Your website/app
@@ -187,7 +191,9 @@ GET  /mcp                 MCP SSE announcement
 
 ### Framework adapters
 
-`grapheway/web` ships adapters for `node:http`, Express, and Hono:
+`grapheway/web` ships adapters for `node:http`, Express, Hono, and the
+Web-standard Fetch API (Next.js App Router, Cloudflare Workers, Deno, Bun,
+Vercel Edge):
 
 ```ts
 // Express
@@ -195,6 +201,28 @@ app.use(toExpressHandler(agent.handler));
 
 // Hono — mount at root or under a prefix
 app.all("*", toHonoHandler(agent.handler));
+```
+
+**Next.js App Router** is one command:
+
+```bash
+npx grapheway init
+```
+
+It writes `middleware.ts` (rewrites `/.well-known/agent`, `/graph`, `/agent`
+and `/mcp` to one route) plus `app/api/grapheway/route.ts`:
+
+```ts
+import { createGrapheway, toFetchHandler } from "grapheway/web";
+import { graphewayConfig } from "../../../grapheway.config";
+
+const agent = createGrapheway(graphewayConfig);
+const handler = toFetchHandler(agent.handler);
+
+export const dynamic = "force-dynamic";
+export const GET = handler;
+export const POST = handler;
+export const OPTIONS = handler;
 ```
 
 The core handler itself only needs `{ method, url, headers, body }` in and
@@ -557,6 +585,14 @@ just a page — its data comes entirely from the same graph API agents use.
 ## CLI
 
 ```bash
+# Zero-to-agent-surface: detect the framework, write the config, mount it.
+bunx grapheway init
+bunx grapheway init --url https://legacy-docs.example   # generate a config from a live probe
+bunx grapheway init --framework static                  # write the static compat files
+
+# Embeddable agent-readiness badge (SVG, no tracking)
+bunx grapheway badge --url https://acme.example --out badge.svg --md
+
 # THE graph gateway: a lightweight server that holds a graph and answers
 # agents over MCP. With --probe --refresh it re-crawls and patches the
 # live graph on a schedule — one server, many agents, always fresh.
@@ -615,7 +651,7 @@ grapheway/
 │  ├─ src/compat/     optional legacy files (llms.txt, robots, …)
 │  ├─ src/agent/      typed client + skill
 │  ├─ src/cli/        gateway / probe / mcp-config / serve / audit / generate
-│  └─ test/           111 tests across 6 subpath modules
+│  └─ test/           127 tests across 6 subpath modules
 ├─ examples/simple-site/              — runnable demo (server + demo client)
 ├─ docs/                               — landing page (GitHub Pages) + white paper
 └─ README.md
@@ -624,7 +660,7 @@ grapheway/
 ```bash
 bun install          # install workspace deps
 bun run build        # compile to dist/ (6 bundles + .d.ts)
-bun test             # 111 tests across all subpaths
+bun test             # 127 tests across all subpaths
 npx tsc --noEmit     # typecheck
 bun run example      # start the demo site on :4321
 ```

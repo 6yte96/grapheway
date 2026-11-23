@@ -1,0 +1,38 @@
+{
+  "protocol": "grapheway",
+  "version": "0.2.3",
+  "name": "Grapheway",
+  "url": "https://6yte96.github.io/grapheway/",
+  "tagline": "Your site opens its own door to AI agents",
+  "summary": "Grapheway is an open protocol for AI agents to discover, traverse and act on website content as a live knowledge graph. This landing page is a static agent surface: it publishes llms.txt, agents.json, JSON-LD and a sitemap. The runtime graph and MCP endpoint are available when a site installs the package or runs the gateway.",
+  "contact": {
+    "url": "https://github.com/6yte96/grapheway/issues"
+  },
+  "capabilities": [
+    "static-agent-files",
+    "llms-txt",
+    "agents-json",
+    "json-ld",
+    "sitemap"
+  ],
+  "graph": {
+    "nodes": 0,
+    "edges": 0,
+    "nodeTypes": [],
+    "edgeTypes": []
+  },
+  "endpoints": {
+    "manifest": "https://6yte96.github.io/grapheway/agents.json",
+    "graph": null,
+    "mcp": null,
+    "actions": null
+  },
+  "static": true,
+  "runtime": false,
+  "auth": "open",
+  "poweredBy": {
+    "name": "grapheway",
+    "url": "https://github.com/6yte96/grapheway",
+    "install": "npx grapheway init"
+  }
+}

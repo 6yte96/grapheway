@@ -2,6 +2,7 @@ import { Hero } from "@/components/Hero";
 import { Playground } from "@/components/Playground";
 import { FeatureBento } from "@/components/FeatureBento";
 import { Benchmarks } from "@/components/Benchmarks";
+import { LiveIndex } from "@/components/LiveIndex";
 import { Architecture } from "@/components/Architecture";
 import { Support } from "@/components/Support";
 
@@ -21,6 +22,7 @@ export default function LandingPage() {
       <Playground />
       <FeatureBento />
       <Benchmarks />
+      <LiveIndex />
       <Architecture />
       <Support />
     </>

@@ -1,3 +1,4 @@
+import { GRAPHEWAY_INSTALL, GRAPHEWAY_REPO } from "./attribution.ts";
 import { MANIFEST_VERSION, type AgentManifest, type GraphewayConfig } from "./types.ts";
 
 /** Build the absolute URL for a root-relative path. */
@@ -94,6 +95,11 @@ export function buildManifest(config: GraphewayConfig): AgentManifest {
       semanticHtml: true,
     },
     links: config.links ?? [],
+    poweredBy: {
+      name: "grapheway",
+      url: GRAPHEWAY_REPO,
+      install: GRAPHEWAY_INSTALL,
+    },
   };
 }
 

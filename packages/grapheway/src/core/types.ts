@@ -117,6 +117,12 @@ export interface GraphewayConfig {
     /** Optional headers forwarded when fetching internal pages. */
     headers?: Record<string, string>;
   };
+  /**
+   * Include the short "powered by grapheway" attribution in generated
+   * llms.txt / agents.txt files. Defaults to true. Set `false` for a
+   * completely unbranded output.
+   */
+  attribution?: boolean;
 }
 
 /** The generated machine-readable manifest served at `/agent` and `agents.json`. */
@@ -163,6 +169,15 @@ export interface AgentManifest {
   };
   /** Important links. */
   links: SiteLink[];
+  /**
+   * The protocol/runtime that produced this manifest. Always present for
+   * grapheway-generated manifests; optional so external manifests validate.
+   */
+  poweredBy?: {
+    name: string;
+    url: string;
+    install: string;
+  };
 }
 
 /** Result of a single agent-readiness check. */
@@ -187,6 +202,6 @@ export interface AuditResult {
 }
 
 /** Current grapheway package version (used in serverInfo + user-agents). */
-export const GRAPHEWAY_VERSION = "0.1.0";
+export const GRAPHEWAY_VERSION = "0.2.3";
 
 export const MANIFEST_VERSION = GRAPHEWAY_VERSION;

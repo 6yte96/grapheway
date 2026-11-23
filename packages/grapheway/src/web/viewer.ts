@@ -242,11 +242,27 @@ export const VIEWER_HTML = String.raw`<!doctype html>
   .tooltip .row { color: var(--ink-dim); margin-top: 3px; line-height: 1.5; }
   .tooltip .row b { display: inline; font-family: var(--mono); font-size: 10px; }
 
+  /* attribution — visible on every graph viewer, links back to the protocol */
+  .gw-credit {
+    position: fixed; right: 14px; bottom: 14px; z-index: 22;
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 10px;
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.02em;
+    color: var(--ink-dim); text-decoration: none;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .gw-credit b { color: var(--amber); font-weight: 400; }
+  .gw-credit:hover { color: var(--ink); border-color: rgba(245, 185, 66, 0.45); }
+
   @media (max-width: 860px) {
     .stats { display: none; }
     .search input { width: 140px; }
     .hint { display: none; }
     .drawer { width: min(340px, calc(100vw - 28px)); }
+    .gw-credit { font-size: 8.5px; max-width: 210px; }
   }
 </style>
 </head>
@@ -296,6 +312,11 @@ export const VIEWER_HTML = String.raw`<!doctype html>
 
 <div class="loading"><div class="spin"></div>charting the graph…</div>
 <div class="empty-state" id="empty" style="display:none"><b>The observatory is empty</b><span>this graph has no nodes yet</span></div>
+
+<a class="gw-credit" href="https://github.com/6yte96/grapheway" target="_blank" rel="noopener noreferrer"
+   title="grapheway — the open protocol for agent-ready websites">
+  <b>◆</b> powered by grapheway · make your site agent-ready
+</a>
 
 <div class="legend">
   <span class="lg"><span class="sw" style="background:#7dd3fc"></span>page</span>

@@ -34,6 +34,13 @@ describe("buildAgentsTxt", () => {
     expect(out).toContain("`search_content`: Search docs");
     expect(out).toContain("CORS: Access-Control-Allow-Origin: *");
   });
+
+  test("includes the protocol attribution and live index", () => {
+    const out = buildAgentsTxt(config);
+    expect(out).toContain("## Agent access");
+    expect(out).toContain("npx grapheway init");
+    expect(out).toContain("adopters");
+  });
 });
 
 describe("buildAgentsJson / generateAll", () => {
@@ -41,6 +48,9 @@ describe("buildAgentsJson / generateAll", () => {
     const parsed = JSON.parse(buildAgentsJson(config)) as { site: { name: string }; endpoints: { mcp: string } };
     expect(parsed.site.name).toBe("Acme");
     expect(parsed.endpoints.mcp).toContain("/mcp");
+    expect(
+      (JSON.parse(buildAgentsJson(config)) as { poweredBy: { name: string } }).poweredBy.name,
+    ).toBe("grapheway");
   });
 
   test("generateAll returns all legacy static artifacts", () => {

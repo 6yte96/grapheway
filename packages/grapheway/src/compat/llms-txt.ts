@@ -1,4 +1,11 @@
-import { absoluteUrl, type GraphewayConfig, type LlmsTxtItem, type Section } from "../core/index.js";
+import {
+  absoluteUrl,
+  GRAPHEWAY_CTA,
+  GRAPHEWAY_FOOTER,
+  type GraphewayConfig,
+  type LlmsTxtItem,
+  type Section,
+} from "../core/index.js";
 
 /**
  * Generate `/llms.txt` following the llmstxt.org convention:
@@ -43,6 +50,17 @@ export function generateLlmsTxt(config: GraphewayConfig): string {
     for (const link of config.links) {
       lines.push(`- [${link.title}](${absoluteUrl(config, link.url)}): ${link.description ?? ""}`);
     }
+    lines.push("");
+  }
+
+  // Attribution is visible, useful documentation — not hidden metadata.
+  // It tells agents what produced this surface and how another site can
+  // publish the same one. Opt out with `attribution: false`.
+  if (config.attribution !== false) {
+    lines.push("## Agent access");
+    lines.push("");
+    lines.push(`- ${GRAPHEWAY_FOOTER}`);
+    lines.push(`- ${GRAPHEWAY_CTA}`);
     lines.push("");
   }
 

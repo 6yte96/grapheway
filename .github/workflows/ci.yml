@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: bun test
+
+      - name: Build
+        run: bun run build
+
+      - name: Node 20 smoke test
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: |
+          node -e "import('./packages/grapheway/dist/core/index.js').then((m) => {
+            if (typeof m.buildDiscovery !== 'function') throw new Error('core export missing');
+            if (!m.GRAPHEWAY_VERSION) throw new Error('version missing');
+            console.log('node 20 import ok:', m.GRAPHEWAY_VERSION);
+          })"
+      - name: CLI smoke test
+        run: node packages/grapheway/dist/cli/cli.js --help

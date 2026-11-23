@@ -3,6 +3,7 @@ import { PROJECT_CONFIG } from "@/config";
 export function Footer() {
   const { brand, links, meta, nav, support } = PROJECT_CONFIG;
   const currentYear = new Date().getFullYear();
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "/grapheway";
 
   return (
     <footer className="footer">
@@ -61,6 +62,17 @@ export function Footer() {
                 <i className="fas fa-heart"></i>
               </a>
             )}
+          </div>
+          <div className="footer-links" style={{ marginTop: "0.75rem" }}>
+            <a href={`${basePath}/adopters/`} className="footer-link">
+              Live index
+            </a>
+            <a href={`${basePath}/llms.txt`} className="footer-link">
+              llms.txt
+            </a>
+            <a href={`${basePath}/agents.json`} className="footer-link">
+              agents.json
+            </a>
           </div>
         </div>
       </div>

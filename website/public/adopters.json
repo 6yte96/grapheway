@@ -1,0 +1,26 @@
+{
+  "updatedAt": "2026-11-23T17:42:31.471Z",
+  "total": 2,
+  "sites": [
+    {
+      "name": "Grapheway",
+      "url": "https://6yte96.github.io/grapheway/",
+      "surface": "static",
+      "status": "listed",
+      "addedAt": "2026-11-23",
+      "note": "The project landing page, serving generated agent files.",
+      "lastChecked": "2026-11-23T17:42:31.471Z",
+      "verified": false,
+      "detail": "HTTP 404"
+    },
+    {
+      "name": "Simple Site Demo",
+      "url": "https://github.com/6yte96/grapheway/tree/main/examples/simple-site",
+      "surface": "runtime",
+      "status": "demo",
+      "addedAt": "2026-11-23",
+      "note": "Runnable example: bun run example"
+    }
+  ],
+  "verified": 0
+}

@@ -1,0 +1,43 @@
+# Grapheway — agent-readable by design.
+# The landing page is a static agent surface: llms.txt, agents.json and JSON-LD.
+
+User-agent: *
+Allow: /
+
+# Search + retrieval agents: read and cite this site.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# User-triggered agents: fetch on behalf of a human.
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Google-Agent
+Allow: /
+
+# Training crawlers: allowed here because this is an open-source project page.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://6yte96.github.io/grapheway/sitemap.xml

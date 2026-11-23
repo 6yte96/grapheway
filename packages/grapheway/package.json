@@ -1,7 +1,7 @@
 {
   "name": "grapheway",
-  "version": "0.2.2",
-  "description": "Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Published on npm with subpath exports: grapheway/web, grapheway/probe, grapheway/agent, grapheway/compat, grapheway/cli.",
+  "version": "0.2.3",
+  "description": "Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. `npx grapheway init` mounts the surface; subpath exports: grapheway/web, grapheway/probe, grapheway/agent, grapheway/compat, grapheway/cli.",
   "type": "module",
   "private": false,
   "main": "./dist/core/index.js",
@@ -46,18 +46,29 @@
     "test": "bun test"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   },
   "keywords": [
     "ai",
     "agents",
     "mcp",
+    "mcp-server",
     "knowledge-graph",
     "llm",
     "chatgpt",
     "claude",
     "crawler",
-    "web scraping"
+    "web scraping",
+    "agent-ready",
+    "agent-experience",
+    "ax",
+    "a2a",
+    "agent-skills",
+    "llms-txt",
+    "geo",
+    "seo",
+    "agent-protocol",
+    "edge"
   ],
   "author": "Operivora",
   "license": "GPL-3.0",
@@ -66,7 +77,7 @@
     "url": "git+https://github.com/6yte96/grapheway.git",
     "directory": "packages/grapheway"
   },
-  "homepage": "https://github.com/6yte96/grapheway#readme",
+  "homepage": "https://6yte96.github.io/grapheway/",
   "bugs": {
     "url": "https://github.com/6yte96/grapheway/issues"
   }

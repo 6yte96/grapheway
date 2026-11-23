@@ -130,6 +130,101 @@ export function toHonoHandler(agentHandler: (req: AgentRequest) => Promise<Agent
   };
 }
 
+export interface FetchAdapterOptions {
+  /**
+   * Header carrying the original request path when a framework rewrites the
+   * URL (Next.js middleware does this). Defaults to `x-grapheway-path`.
+   */
+  pathHeader?: string;
+  /** Strip this prefix from the path before the grapheway handler sees it. */
+  prefix?: string;
+}
+
+/**
+ * Web-standard Fetch adapter — works in **Next.js App Router**, Cloudflare
+ * Workers, Deno, Bun, Vercel Edge, and any runtime with `Request`/`Response`.
+ *
+ * Next.js (one small middleware + one route file):
+ *
+ *   // middleware.ts — rewrite the agent surface to the route handler
+ *   export function middleware(req: NextRequest) {
+ *     const url = req.nextUrl.clone();
+ *     url.pathname = "/api/grapheway";
+ *     const headers = new Headers(req.headers);
+ *     headers.set("x-grapheway-path", req.nextUrl.pathname);
+ *     return NextResponse.rewrite(url, { request: { headers } });
+ *   }
+ *
+ *   // app/api/grapheway/route.ts
+ *   import { createGrapheway, toFetchHandler } from "grapheway/web";
+ *   import { graphewayConfig } from "../../../grapheway.config";
+ *   const agent = createGrapheway(graphewayConfig);
+ *   const handler = toFetchHandler(agent.handler);
+ *   export const dynamic = "force-dynamic";
+ *   export const GET = handler;
+ *   export const POST = handler;
+ *   export const OPTIONS = handler;
+ */
+export function toFetchHandler(
+  agentHandler: (req: AgentRequest) => Promise<AgentResponse>,
+  options: FetchAdapterOptions = {},
+) {
+  const pathHeader = (options.pathHeader ?? "x-grapheway-path").toLowerCase();
+  const prefix = (options.prefix ?? "").replace(/\/+$/, "");
+
+  return async function graphewayFetchHandler(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    let path = request.headers.get(pathHeader) ?? url.pathname;
+    if (prefix && path.startsWith(prefix)) path = path.slice(prefix.length) || "/";
+
+    const contentType = request.headers.get("content-type") ?? "";
+    let body: unknown;
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      const raw = await request.text();
+      if (raw) body = contentType.includes("application/json") ? safeParse(raw) : raw;
+    }
+
+    const headers: Record<string, string> = {};
+    request.headers.forEach((value, key) => {
+      headers[key] = value;
+    });
+
+    const result = await agentHandler({
+      method: request.method,
+      url: `${path}${url.search}`,
+      headers,
+      body,
+    });
+
+    const responseHeaders = new Headers(result.headers);
+    responseHeaders.set("content-type", result.contentType);
+
+    if (result.bodyStream) {
+      const stream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          try {
+            for await (const chunk of result.bodyStream!) {
+              controller.enqueue(new TextEncoder().encode(chunk));
+            }
+            controller.close();
+          } catch (err) {
+            controller.error(err);
+          }
+        },
+        cancel() {
+          (result.bodyStream as { close?: () => void })?.close?.();
+        },
+      });
+      return new Response(stream, { status: result.status, headers: responseHeaders });
+    }
+
+    return new Response(result.body, { status: result.status, headers: responseHeaders });
+  };
+}
+
+/** Alias for Next.js App Router route handlers. */
+export const toNextHandler = toFetchHandler;
+
 function safeParse(s: string): unknown {
   try {
     return JSON.parse(s);

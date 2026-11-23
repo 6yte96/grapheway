@@ -5,7 +5,12 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import type { GraphewayConfig, AuditResult } from "../core/index.js";
+import {
+  GRAPHEWAY_INDEX,
+  GRAPHEWAY_REPO,
+  type GraphewayConfig,
+  type AuditResult,
+} from "../core/index.js";
 import { compatHandler, generateAll } from "../compat/index.js";
 import { createGrapheway, toNodeHandler } from "../web/index.js";
 import { exportProbed, probeSite, serveProbed, summarizeProbe } from "../probe/index.js";
@@ -209,7 +214,9 @@ export async function probe(flags: ProbeFlags): Promise<void> {
   console.log(`  events       http://localhost:${p}/graph/v1/events (realtime SSE)`);
   console.log(`  manifest     http://localhost:${p}/agent`);
   console.log(`  MCP          http://localhost:${p}/mcp`);
-  console.log(`  point agents at http://localhost:${p} (grapheway mcp-config, GraphewayClient, SKILL.md)\n`);
+  console.log(`  point agents at http://localhost:${p} (grapheway mcp-config, GraphewayClient, SKILL.md)`);
+  console.log(`\n  ★ Star grapheway: ${GRAPHEWAY_REPO}`);
+  console.log(`  ◇ Add this site to the live index: ${GRAPHEWAY_INDEX}\n`);
   await new Promise<void>(() => {}); // keep serving
 }
 
@@ -241,6 +248,8 @@ export async function serve(config: GraphewayConfig, port: number): Promise<void
     console.log(`  manifest     http://localhost:${port}/agent`);
     console.log(`  MCP          http://localhost:${port}/mcp`);
     console.log(`  compat       http://localhost:${port}/llms.txt (robots.txt, sitemap.xml, …)`);
+    console.log(`\n  ★ Star grapheway: ${GRAPHEWAY_REPO}`);
+    console.log(`  ◇ Add this site to the live index: ${GRAPHEWAY_INDEX}\n`);
   });
 }
 
