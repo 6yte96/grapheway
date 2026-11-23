@@ -5,6 +5,16 @@ All notable changes to Grapheway will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] - 2026-11-23
+
+The registry release — discoverable by MCP clients that query the official index.
+
+### Added
+- `mcpName: io.github.6yte96/grapheway` in the package metadata.
+- `server.json` validated against the Official MCP Registry schema, listing the
+  stdio transport (`npx -y grapheway mcp --probe <url>`).
+- `bun run mcp:validate` and `bun run mcp:publish` helper scripts.
+
 ## [0.2.4] - 2026-11-23
 
 The universal-client release — stdio MCP, so no hosting is required.

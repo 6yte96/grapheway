@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * GRAPHEWAY LANDING PAGE CONFIGURATION
- * All content verified against the repository (v0.2.4).
+ * All content verified against the repository (v0.2.5).
  * See CONTENT_RULES.md: no dummy data, human phrasing, no chrome.
  * ============================================================================
  */
@@ -123,7 +123,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
     ],
     url: "https://6yte96.github.io/grapheway/",
     author: "6yte96",
-    version: "v0.2.4 (Beta)",
+    version: "v0.2.5 (Beta)",
   },
   brand: {
     name: "grapheway",
@@ -139,7 +139,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
     { id: "architecture", label: "Source" },
   ],
   hero: {
-    issueBadge: "v0.2.4",
+    issueBadge: "v0.2.5",
     titleLines: {
       before: "Agents Stop",
       highlight: "Scraping",
@@ -167,7 +167,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
   },
   telemetry: {
     label: "Registry Facts",
-    updatedText: "Verified against packages/grapheway, v0.2.4",
+    updatedText: "Verified against packages/grapheway, v0.2.5",
     stats: [
       { number: "0", label: "Runtime Dependencies" },
       { number: "14", label: "Agent Routes" },

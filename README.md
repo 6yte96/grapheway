@@ -8,7 +8,7 @@
 
 > Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Your site opens its own door.
 
-**Status:** Beta (v0.2.4) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
+**Status:** Beta (v0.2.5) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
 
 **Start in 60 seconds**
 
@@ -423,6 +423,16 @@ Protocol messages go to stdout; logs go to stderr, so the client never sees a
 corrupted stream. No port, no daemon, no account.
 
 ---
+
+## MCP Registry
+
+Grapheway is published as a stdio MCP server in the Official MCP Registry
+(`io.github.6yte96/grapheway`). Validate or publish the manifest:
+
+```bash
+bun run mcp:validate   # validate server.json without publishing
+bun run mcp:publish    # publish via the GitHub token
+```
 
 ## The agent side — `grapheway/agent`
 

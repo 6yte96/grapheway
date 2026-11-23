@@ -1,0 +1,44 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.6yte96/grapheway",
+  "title": "Grapheway",
+  "description": "Turn any website into a live knowledge graph and MCP server. Probe any URL.",
+  "version": "0.2.5",
+  "websiteUrl": "https://6yte96.github.io/grapheway/",
+  "repository": {
+    "url": "https://github.com/6yte96/grapheway",
+    "source": "github",
+    "id": "1331205525",
+    "subfolder": "packages/grapheway"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "grapheway",
+      "version": "0.2.5",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        },
+        {
+          "type": "named",
+          "name": "--probe",
+          "value": "{url}",
+          "variables": {
+            "url": {
+              "description": "Website URL to probe into a graph",
+              "placeholder": "https://docs.example.com",
+              "format": "string",
+              "isRequired": true
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

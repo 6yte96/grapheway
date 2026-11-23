@@ -14,7 +14,9 @@
     "example": "bun run examples/simple-site/server.ts",
     "cli": "bun run packages/grapheway/src/cli/cli.ts",
     "website": "bun run --cwd website dev",
-    "website:build": "bun run --cwd website build"
+    "website:build": "bun run --cwd website build",
+    "mcp:validate": "node scripts/publish-mcp-registry.mjs --validate",
+    "mcp:publish": "node scripts/publish-mcp-registry.mjs --publish"
   },
   "engines": {
     "bun": ">=1.0",
