@@ -93,6 +93,10 @@ export function Header() {
                 <span>{item.label}</span>
               </a>
             ))}
+            <Link href="/docs" className="nav-link">
+              <i className="fas fa-book mr-1"></i>
+              <span>Docs</span>
+            </Link>
             <a
               href={links.github}
               target="_blank"
@@ -143,6 +147,10 @@ export function Header() {
               <span>{item.label}</span>
             </a>
           ))}
+          <Link href="/docs" className="drawer-link" onClick={closeDrawer}>
+            <i className="fas fa-book"></i>
+            <span>Docs</span>
+          </Link>
           <a
             href={links.github}
             target="_blank"
