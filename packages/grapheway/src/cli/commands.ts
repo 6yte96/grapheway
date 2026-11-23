@@ -53,7 +53,11 @@ export async function auditUrl(url: string): Promise<AuditResult> {
 
   const fetchText = async (path: string) => {
     try {
-      const res = await fetch(origin + path, { redirect: "follow" });
+      const res = await fetch(origin + path, {
+        redirect: "follow",
+        headers: { "user-agent": "grapheway-audit/0.2.5 (+https://github.com/6yte96/grapheway)" },
+        signal: AbortSignal.timeout(12_000),
+      });
       return { status: res.status, text: await res.text(), headers: res.headers };
     } catch {
       return { status: 0, text: "", headers: undefined };
