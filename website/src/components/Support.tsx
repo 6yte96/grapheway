@@ -107,6 +107,28 @@ export function Support() {
                   <span>Live index</span>
                 </a>
 
+                <a
+                  href="https://twitter.com/intent/tweet?text=Grapheway%20%E2%80%94%20turn%20any%20website%20into%20a%20live%20knowledge%20graph%20%2B%20MCP%20server%20in%20one%20command.%20npx%20grapheway%20init&url=https%3A%2F%2Fgithub.com%2F6yte96%2Fgrapheway"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="support-btn"
+                  aria-label="Share grapheway on X"
+                >
+                  <i className="fab fa-x-twitter"></i>
+                  <span>Post on X</span>
+                </a>
+
+                <a
+                  href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgithub.com%2F6yte96%2Fgrapheway&t=Turn%20any%20website%20into%20an%20MCP%20server%20in%20one%20command"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="support-btn"
+                  aria-label="Submit grapheway to Hacker News"
+                >
+                  <i className="fab fa-hacker-news"></i>
+                  <span>Hacker News</span>
+                </a>
+
                 {links.sponsor && (
                   <a
                     href={links.sponsor}
