@@ -49,6 +49,19 @@ describe("generateLlmsTxt", () => {
     expect(validateLlmsTxt(out).valid).toBe(true);
   });
 
+  test("includes the protocol attribution and install CTA", () => {
+    const out = generateLlmsTxt(config);
+    expect(out).toContain("## Agent access");
+    expect(out).toContain("npx grapheway init");
+    expect(out).toContain("https://github.com/6yte96/grapheway");
+  });
+
+  test("attribution can be disabled", () => {
+    const out = generateLlmsTxt({ ...config, attribution: false });
+    expect(out).not.toContain("## Agent access");
+    expect(out).not.toContain("npx grapheway init");
+  });
+
   test("validateLlmsTxt catches a missing H1", () => {
     const res = validateLlmsTxt("not a title\n## Section\n- [X](/x)");
     expect(res.valid).toBe(false);

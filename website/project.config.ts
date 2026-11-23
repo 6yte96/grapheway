@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * GRAPHEWAY LANDING PAGE CONFIGURATION
- * All content verified against the repository (v0.2.2).
+ * All content verified against the repository (v0.2.3).
  * See CONTENT_RULES.md: no dummy data, human phrasing, no chrome.
  * ============================================================================
  */
@@ -68,6 +68,14 @@ export interface ProjectConfig {
       highlight?: boolean;
     }[];
   };
+  liveIndex: {
+    title: string;
+    subtitle: string;
+    ctaAdd: string;
+    ctaFull: string;
+    ctaBadge: string;
+    empty: string;
+  };
   architecture: {
     title: string;
     subtitle: string;
@@ -115,7 +123,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
     ],
     url: "https://6yte96.github.io/grapheway/",
     author: "6yte96",
-    version: "v0.2.2 (Beta)",
+    version: "v0.2.3 (Beta)",
   },
   brand: {
     name: "grapheway",
@@ -127,10 +135,11 @@ export const PROJECT_CONFIG: ProjectConfig = {
     { id: "playground", label: "Probe" },
     { id: "features", label: "Surface" },
     { id: "benchmarks", label: "Numbers" },
+    { id: "index", label: "Index" },
     { id: "architecture", label: "Source" },
   ],
   hero: {
-    issueBadge: "v0.2.2",
+    issueBadge: "v0.2.3",
     titleLines: {
       before: "Agents Stop",
       highlight: "Scraping",
@@ -158,12 +167,12 @@ export const PROJECT_CONFIG: ProjectConfig = {
   },
   telemetry: {
     label: "Registry Facts",
-    updatedText: "Verified against packages/grapheway, v0.2.2",
+    updatedText: "Verified against packages/grapheway, v0.2.3",
     stats: [
       { number: "0", label: "Runtime Dependencies" },
       { number: "14", label: "Agent Routes" },
       { number: "6", label: "Subpath Exports" },
-      { number: "111", label: "Passing Tests" },
+      { number: "127", label: "Passing Tests" },
     ],
   },
   features: [
@@ -422,20 +431,29 @@ server.listen(3000);`,
       },
     ],
   },
+  liveIndex: {
+    title: "The Live Index",
+    subtitle:
+      "Public sites that publish an agent surface. The count is read live from a self-submitted registry; the verifier checks each site's own public agent card, never a visitor.",
+    ctaAdd: "Add your site",
+    ctaFull: "Open the full index",
+    ctaBadge: "Embed the live badge",
+    empty: "No sites listed yet. Be the first to publish an agent surface.",
+  },
   architecture: {
     title: "Under the Hood",
     subtitle:
-      "Six subpath exports, about 6,000 lines of TypeScript, zero dependencies. Where the code lives.",
+      "Six subpath exports, about 6,700 lines of TypeScript, zero dependencies. Where the code lives.",
     layers: [
       {
         tag: "MODULE 1",
         name: "core",
-        role: "1,336 lines. The graph model: typed nodes, typed edges, properties, versioning. Graph operations, live patching with structural validation, diff between snapshots, the discovery manifest, and Schema.org JSON-LD serialization.",
+        role: "1,380 lines. The graph model: typed nodes, typed edges, properties, versioning. Graph operations, live patching with structural validation, diff between snapshots, the discovery manifest, and Schema.org JSON-LD serialization.",
       },
       {
         tag: "MODULE 2",
         name: "web",
-        role: "2,154 lines. The drop-in agent endpoint: createGrapheway, 14 routes across discovery, graph, viewer, agent API, and MCP. Framework adapters for node:http, Express, and Hono. Live SSE events, patchGraph, and GEO head injection.",
+        role: "2,275 lines. The drop-in agent endpoint: createGrapheway, 14 routes across discovery, graph, viewer, agent API, and MCP. Framework adapters for node:http, Express, Hono and the Web-standard Fetch API (Next.js, Cloudflare Workers, Deno, Bun). Live SSE events, patchGraph, and GEO head injection.",
       },
       {
         tag: "MODULE 3",
@@ -445,7 +463,7 @@ server.listen(3000);`,
       {
         tag: "MODULE 4",
         name: "compat",
-        role: "540 lines. The optional legacy module: llms.txt, agents.txt, agents.json, robots.txt, and sitemap.xml served at runtime. Fully decoupled from the core.",
+        role: "573 lines. The optional legacy module: llms.txt, agents.txt, agents.json, robots.txt, and sitemap.xml served at runtime. Fully decoupled from the core.",
       },
       {
         tag: "MODULE 5",
@@ -455,7 +473,7 @@ server.listen(3000);`,
       {
         tag: "MODULE 6",
         name: "cli",
-        role: "661 lines. The grapheway command: probe, gateway, serve, mcp-config, audit, and generate. mcp-config prints the exact client snippet to paste.",
+        role: "1,130 lines. The grapheway command: init, probe, gateway, serve, mcp-config, audit, badge, and generate. init mounts the surface; badge emits an embeddable SVG.",
       },
     ],
   },

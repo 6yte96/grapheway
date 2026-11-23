@@ -1,0 +1,56 @@
+name: Add a site to the Agent-Ready Index
+description: List a site that publishes a grapheway (or compatible) agent surface.
+title: "[adopt] "
+labels: ["adoption"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for making the web agent-readable. This index only lists sites
+        their owners submit. We check the site's public `/.well-known/agent`
+        card; we do not collect analytics or personal data.
+
+  - type: input
+    id: name
+    attributes:
+      label: Site name
+      placeholder: Acme Docs
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: Canonical URL
+      placeholder: https://docs.acme.com
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: What does the site publish?
+      options:
+        - Runtime (graph + MCP)
+        - Static agent files (llms.txt, agents.txt, JSON-LD)
+        - Gateway / probed graph
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: What should agents find?
+      placeholder: API reference, guides, changelog, and a support action.
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I own or maintain this site.
+          required: true
+        - label: The site publishes a public `/.well-known/agent` card or agent files.
+          required: true
+        - label: I'm happy to have the site listed publicly and re-checked daily.
+          required: true

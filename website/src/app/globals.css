@@ -7466,3 +7466,198 @@ div[id].projects-section {
   color: var(--muted-foreground);
   text-transform: uppercase;
 }
+
+/* ── Live adoption index ─────────────────────────────────────────── */
+.index-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border: 1px solid var(--rule-soft);
+  background: var(--background);
+  padding: 0.35rem 0.6rem;
+  white-space: nowrap;
+}
+
+.index-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+  animation: index-pulse 2.2s infinite;
+}
+
+@keyframes index-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.live-index-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.35rem 0 1rem;
+}
+
+.live-index-stat {
+  position: relative;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  padding: 0.9rem 1rem 0.85rem;
+  overflow: hidden;
+}
+
+.live-index-stat::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--primary);
+}
+
+.live-index-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.live-index-value {
+  display: block;
+  margin: 0.25rem 0 0.2rem;
+  font-family: var(--font-mono);
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  line-height: 1;
+  color: var(--ink);
+}
+
+.live-index-note {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-secondary);
+}
+
+.live-index-list {
+  border: 1px solid var(--rule);
+  background: var(--background);
+}
+
+.live-index-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--rule-soft);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+
+.live-index-row:last-child { border-bottom: none; }
+.live-index-row:hover { background: var(--surface); }
+
+.live-index-site {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.live-index-site strong {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.live-index-site span {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.live-index-tags {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-secondary);
+}
+
+.live-index-tag {
+  border: 1px solid var(--rule-soft);
+  padding: 1px 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.live-index-status {
+  border: 1px solid var(--rule-soft);
+  padding: 1px 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.live-index-status.is-verified {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.live-index-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.live-index-badge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px dashed var(--rule-soft);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-secondary);
+}
+
+.live-index-badge code {
+  padding: 2px 5px;
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.live-index-updated { margin-left: auto; }
+
+.live-index-empty {
+  padding: 1.1rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 760px) {
+  .live-index-grid { grid-template-columns: 1fr; }
+  .live-index-row { align-items: flex-start; flex-direction: column; gap: 0.35rem; }
+  .live-index-updated { margin-left: 0; }
+}

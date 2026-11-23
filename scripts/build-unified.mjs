@@ -41,11 +41,15 @@ async function main() {
       process.exit(1);
     }
 
-    // Add shebang to CLI
+    // Add shebang to CLI — but only if Bun did not already carry it over
+    // from the TypeScript entry. A duplicate shebang on line 2 is a hard
+    // syntax error, which would break `npx grapheway` entirely.
     if (name === "cli") {
       const cliPath = join(pkg, outdir, "cli.js");
       const content = await readFile(cliPath, "utf-8");
-      await writeFile(cliPath, "#!/usr/bin/env node\n" + content);
+      if (!content.startsWith("#!")) {
+        await writeFile(cliPath, "#!/usr/bin/env node\n" + content);
+      }
     }
 
     // Generate .d.ts declarations

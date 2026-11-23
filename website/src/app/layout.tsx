@@ -56,6 +56,43 @@ export const viewport = {
   ],
 };
 
+const siteUrl = PROJECT_CONFIG.meta.url;
+const repoUrl = PROJECT_CONFIG.links.github;
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: PROJECT_CONFIG.brand.name,
+    url: siteUrl,
+    sameAs: [repoUrl, PROJECT_CONFIG.links.npm].filter(Boolean),
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: PROJECT_CONFIG.brand.name,
+    url: siteUrl,
+    description: PROJECT_CONFIG.meta.description,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}adopters/?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: PROJECT_CONFIG.brand.name,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Node, Bun, Deno, Edge runtimes",
+    description: PROJECT_CONFIG.meta.description,
+    url: siteUrl,
+    codeRepository: repoUrl,
+    license: "https://www.gnu.org/licenses/gpl-3.0.html",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  },
+];
+
 const themeInitScript = `
 (function(){
   try {
@@ -81,6 +118,10 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <link
           rel="icon"
           type="image/svg+xml"

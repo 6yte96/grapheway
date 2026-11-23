@@ -7,13 +7,36 @@
  *   grapheway serve  [--config grapheway.config.ts] [--port 3000]
  */
 
+import { writeFile } from "node:fs/promises";
+import { GRAPHEWAY_INDEX, GRAPHEWAY_REPO, GRAPHEWAY_SITE } from "../core/index.js";
+import { badgeMarkdown, generateBadgeSvg } from "./badge.ts";
 import { auditUrl, generate, parseFlags, parseProbeFlags, probe, serve } from "./commands.ts";
 import { mcpConfigJson, parseGatewayFlags, runGateway } from "./gateway.ts";
+import { scaffoldProject, type Framework, type InitOptions } from "./init.ts";
 import { DEFAULT_CONFIG_PATH, loadConfig } from "./load-config.ts";
+
+/** One-line, non-nagging growth footer shown after a successful command. */
+function printGrowthFooter(): void {
+  console.log(`  ★ Star grapheway: ${GRAPHEWAY_REPO}`);
+  console.log(`  ◇ Add your site to the live index: ${GRAPHEWAY_INDEX}\n`);
+}
 
 const HELP = `grapheway — native agent access for your web app
 
+New here? Run \`grapheway init\` inside your project. It detects the
+framework, writes a config, and mounts the agent surface in one step.
+
 Usage:
+  grapheway init [--dir <dir>] [--url <site>] [--name <name>] [--framework next|express|hono|node|static] [--max-pages <n>] [--force]
+      Zero-to-agent-surface scaffold. With --url, probes the existing site
+      and generates a real config (sections, links, actions) from its content.
+      Next.js gets middleware + route handler; Express/Hono/node get an exact
+      mount snippet; static hosts get the compat files.
+
+  grapheway badge [--score <n>] [--url <site>] [--label <text>] [--value <text>] [--out <file>] [--md]
+      Emit an embeddable SVG agent-readiness badge (no tracking). With --url,
+      runs the live audit first; with --md, prints the markdown snippet.
+
   grapheway gateway --probe <url> [--refresh <hours>] [--port <port>] [--host <host>] [--depth <n>] [--max-pages <n>]
   grapheway gateway --config <file> [--port <port>] [--host <host>]
   grapheway gateway --graph <graph.json> [--port <port>] [--host <host>]
@@ -59,12 +82,69 @@ async function main() {
   }
 
   switch (command) {
+    case "init": {
+      const rest = args.slice(1);
+      const options: InitOptions = {};
+      for (let i = 0; i < rest.length; i++) {
+        const a = rest[i] ?? "";
+        if (a === "--dir" || a === "-d") options.dir = rest[++i];
+        else if (a === "--url" || a === "-u") options.url = rest[++i];
+        else if (a === "--name" || a === "-n") options.name = rest[++i];
+        else if (a === "--framework" || a === "-f") options.framework = rest[++i] as Framework;
+        else if (a === "--max-pages" || a === "-m") options.maxPages = Number(rest[++i] ?? 20);
+        else if (a === "--force") options.force = true;
+      }
+      const result = await scaffoldProject(options);
+      console.log(
+        `\n  grapheway init — ${result.framework}${result.probed ? " · config generated from live probe" : ""}\n`,
+      );
+      for (const file of result.files) console.log(`  ✓ ${file}`);
+      for (const file of result.skipped) console.log(`  · ${file} (exists — use --force to overwrite)`);
+      console.log("\n  Next:");
+      for (const step of result.nextSteps) console.log(`    ${step}`);
+      console.log("");
+      printGrowthFooter();
+      break;
+    }
+    case "badge": {
+      const rest = args.slice(1);
+      let score: number | undefined;
+      let url: string | undefined;
+      let label = "agent-ready";
+      let value: string | undefined;
+      let out: string | undefined;
+      let markdown = false;
+      for (let i = 0; i < rest.length; i++) {
+        const a = rest[i] ?? "";
+        if (a === "--score") score = Number(rest[++i]);
+        else if (a === "--url") url = rest[++i];
+        else if (a === "--label") label = rest[++i] ?? label;
+        else if (a === "--value") value = rest[++i];
+        else if (a === "--out" || a === "-o") out = rest[++i];
+        else if (a === "--md") markdown = true;
+      }
+      if (url && (score === undefined || !Number.isFinite(score))) {
+        const result = await auditUrl(url);
+        score = result.score;
+      }
+      const finalValue = value ?? (score !== undefined && Number.isFinite(score) ? `${score}/100` : "grapheway");
+      const svg = generateBadgeSvg({ label, value: finalValue });
+      if (out) {
+        await writeFile(out, svg, "utf-8");
+        console.log(`  ✓ ${out}`);
+        if (markdown) console.log(`  ${badgeMarkdown(out, url ?? GRAPHEWAY_SITE)}`);
+      } else {
+        console.log(svg);
+      }
+      break;
+    }
     case "generate": {
       const { configPath, outDir } = parseFlags(args.slice(1));
       const config = await loadConfig(configPath);
       const files = await generate(config, outDir ?? "public");
       console.log(`Generated ${files.length} agent files for "${config.name}":`);
       for (const f of files) console.log(`  ✓ ${f}`);
+      printGrowthFooter();
       break;
     }
     case "audit": {
@@ -82,6 +162,7 @@ async function main() {
         console.log(`  ${mark} ${check.label}${detail}`);
       }
       console.log(`\n  ${result.summary}\n`);
+      printGrowthFooter();
       break;
     }
     case "probe": {
@@ -105,6 +186,7 @@ async function main() {
       if (!url.endsWith("/mcp")) url = url.replace(/\/+$/, "") + "/mcp";
       console.log(`Paste this into Claude Desktop / Cursor / VS Code / Claude Code:\n`);
       console.log(mcpConfigJson(url));
+      printGrowthFooter();
       break;
     }
     case "serve": {

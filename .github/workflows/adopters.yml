@@ -1,0 +1,34 @@
+name: Refresh adopter index
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check self-submitted agent cards
+        run: node scripts/check-adopters.mjs
+
+      - name: Commit the refreshed index
+        run: |
+          git config user.name "grapheway-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add website/public/adopters.json
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "chore: refresh adopter index [skip ci]"
+            git push
+          fi

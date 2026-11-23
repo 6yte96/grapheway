@@ -4,7 +4,13 @@
  * served only when the site owner mounts `compatHandler`.
  */
 
-import { buildManifest, type GraphewayConfig } from "../core/index.js";
+import {
+  buildManifest,
+  GRAPHEWAY_CTA,
+  GRAPHEWAY_INDEX,
+  GRAPHEWAY_REPO,
+  type GraphewayConfig,
+} from "../core/index.js";
 
 /**
  * Build `agents.txt` — a human+agent readable capability declaration
@@ -56,6 +62,15 @@ export function buildAgentsTxt(config: GraphewayConfig): string {
 
   lines.push("CORS: Access-Control-Allow-Origin: *");
   lines.push("");
+
+  if (config.attribution !== false) {
+    lines.push("## Agent access");
+    lines.push(`- Protocol: grapheway — ${GRAPHEWAY_REPO}`);
+    lines.push(`- ${GRAPHEWAY_CTA}`);
+    lines.push(`- Live adoption index: ${GRAPHEWAY_INDEX}`);
+    lines.push("");
+  }
+
   return lines.join("\n");
 }
 

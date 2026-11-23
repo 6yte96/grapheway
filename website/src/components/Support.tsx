@@ -98,6 +98,15 @@ export function Support() {
                   <span>{shared ? "Shared" : "Share"}</span>
                 </button>
 
+                <a
+                  href="https://6yte96.github.io/grapheway/adopters/"
+                  className="support-btn"
+                  aria-label="Open the live adopter index"
+                >
+                  <i className="fas fa-table-list"></i>
+                  <span>Live index</span>
+                </a>
+
                 {links.sponsor && (
                   <a
                     href={links.sponsor}

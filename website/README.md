@@ -4,16 +4,16 @@ Static site for Grapheway, built on the [Broadsheet editorial template](https://
 
 **Live at:** `https://6yte96.github.io/grapheway/`
 
-## Content sources (all real, v0.2.2 Beta)
+## Content sources (all real, v0.2.3 Beta)
 
 | Claim on page | Source |
 |---------------|--------|
 | 0 runtime dependencies | packages/grapheway/package.json |
 | 14 agent routes | README route table |
 | 6 subpath exports | packages/grapheway/package.json exports |
-| 111 passing tests | bun test (13 files, 345 assertions) |
+| 127 passing tests | bun test (16 files, 395 assertions) |
 | 25 pages / 521 headings / 1,927 edges | real probe of expressjs.com |
-| 6,061 lines, per-module counts | src/ tree |
+| 6,728 lines, per-module counts | src/ tree |
 | GPL-3.0 | LICENSE |
 
 ## Structure (reader's question order)

@@ -1,0 +1,26 @@
+{
+  "name": "Grapheway",
+  "url": "https://6yte96.github.io/grapheway/",
+  "description": "Open protocol for AI agents to discover, traverse and act on website content as a live knowledge graph.",
+  "capabilities": [
+    "static-agent-files",
+    "llms-txt",
+    "json-ld",
+    "mcp-gateway",
+    "probe"
+  ],
+  "files": {
+    "llms": "https://6yte96.github.io/grapheway/llms.txt",
+    "agents": "https://6yte96.github.io/grapheway/agents.json",
+    "robots": "https://6yte96.github.io/grapheway/robots.txt",
+    "sitemap": "https://6yte96.github.io/grapheway/sitemap.xml",
+    "discovery": "https://6yte96.github.io/grapheway/.well-known/agent"
+  },
+  "install": "npx grapheway init",
+  "probe": "npx grapheway probe https://example.com",
+  "mcp": "npx grapheway gateway --probe https://example.com",
+  "poweredBy": {
+    "name": "grapheway",
+    "url": "https://github.com/6yte96/grapheway"
+  }
+}
