@@ -5,6 +5,20 @@ All notable changes to Grapheway will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] - 2026-11-23
+
+The zero-install release — a hosted remote MCP endpoint.
+
+### Added
+- **Hosted MCP on Cloudflare Workers**:
+  `https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com`.
+  Probes any public site (12 pages, robots-aware, 10-minute cache, rate-limited)
+  and serves the full graph + actions + resources surface. Source in
+  `deploy/cloudflare-worker/`.
+- **Remote MCP Registry entry** — the same `server.json` now lists a
+  `streamable-http` remote with a `{url}` variable, alongside the stdio package.
+- The website, `llms.txt`, `agents.json` and launch copy point at the hosted demo.
+
 ## [0.2.5] - 2026-11-23
 
 The registry release — discoverable by MCP clients that query the official index.

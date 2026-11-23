@@ -18,6 +18,7 @@ Grapheway turns a website into a typed, live knowledge graph with an open MCP en
 - [Agent manifest](https://6yte96.github.io/grapheway/agents.json): capabilities and file locations.
 - [Agent skill](https://github.com/6yte96/grapheway/blob/main/packages/grapheway/SKILL.md): how to discover and use a grapheway site.
 - [Probe any site](https://github.com/6yte96/grapheway#grapheway-probe--convert-any-website-into-a-graph-for-agents): `npx grapheway probe https://example.com` turns any URL into the same graph surface.
+- [Hosted demo MCP](https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com): zero-install remote MCP for any public site; swap the url parameter.
 
 ## For site owners
 
