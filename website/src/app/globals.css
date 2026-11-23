@@ -7842,3 +7842,54 @@ div[id].projects-section {
   .readiness-report-grid { grid-template-columns: 1fr; }
   .readiness-gaps-card ul { columns: 1; }
 }
+
+/* ── Hosted MCP demo callout ─────────────────────────────────────── */
+.hosted-demo-callout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.9rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.hosted-demo-copy {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.hosted-demo-copy p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+  max-width: 52ch;
+}
+
+.hosted-demo-url {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.hosted-demo-url code {
+  padding: 5px 8px;
+  border: 1px solid var(--rule-soft);
+  background: var(--background);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--ink);
+  overflow-x: auto;
+  white-space: nowrap;
+  max-width: min(52vw, 560px);
+}
+
+@media (max-width: 760px) {
+  .hosted-demo-url code { max-width: 100%; }
+}
