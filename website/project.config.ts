@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * GRAPHEWAY LANDING PAGE CONFIGURATION
- * All content verified against the repository (v0.2.3).
+ * All content verified against the repository (v0.2.4).
  * See CONTENT_RULES.md: no dummy data, human phrasing, no chrome.
  * ============================================================================
  */
@@ -123,7 +123,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
     ],
     url: "https://6yte96.github.io/grapheway/",
     author: "6yte96",
-    version: "v0.2.3 (Beta)",
+    version: "v0.2.4 (Beta)",
   },
   brand: {
     name: "grapheway",
@@ -139,7 +139,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
     { id: "architecture", label: "Source" },
   ],
   hero: {
-    issueBadge: "v0.2.3",
+    issueBadge: "v0.2.4",
     titleLines: {
       before: "Agents Stop",
       highlight: "Scraping",
@@ -167,12 +167,12 @@ export const PROJECT_CONFIG: ProjectConfig = {
   },
   telemetry: {
     label: "Registry Facts",
-    updatedText: "Verified against packages/grapheway, v0.2.3",
+    updatedText: "Verified against packages/grapheway, v0.2.4",
     stats: [
       { number: "0", label: "Runtime Dependencies" },
       { number: "14", label: "Agent Routes" },
       { number: "6", label: "Subpath Exports" },
-      { number: "127", label: "Passing Tests" },
+      { number: "129", label: "Passing Tests" },
     ],
   },
   features: [
@@ -197,7 +197,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
       tech: "STREAMABLE HTTP",
       title: "Open MCP, No API Key",
       description:
-        "The /mcp endpoint is a spec-aligned Model Context Protocol server. Claude Desktop, Cursor, VS Code, and any MCP client get your graph tools and actions as native tools, plus pages as markdown resources. No key, no account.",
+        "The /mcp endpoint is a spec-aligned Model Context Protocol server. Claude Desktop, Cursor, VS Code, and any MCP client get your graph tools and actions as native tools, plus pages as markdown resources. Or launch a local stdio server with `npx grapheway mcp --probe <url>` — no hosting, no port. No key, no account.",
       repoLinkText: "src/web/mcp.ts",
       repoHref: "https://github.com/6yte96/grapheway/tree/main/packages/grapheway/src/web",
       stamp: { label: "MCP METHODS", value: "7" },
@@ -385,7 +385,10 @@ server.listen(3000);`,
 
 // tools you get:  graph_node · graph_neighbors
 //                graph_search · graph_path
-//                your actions (check_device_status, ...)`,
+//                your actions (check_device_status, ...)
+//
+// No hosting? Run the stdio server instead:
+//   npx grapheway mcp --probe https://expressjs.com`,
       },
     ],
   },

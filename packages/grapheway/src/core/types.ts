@@ -202,6 +202,6 @@ export interface AuditResult {
 }
 
 /** Current grapheway package version (used in serverInfo + user-agents). */
-export const GRAPHEWAY_VERSION = "0.2.3";
+export const GRAPHEWAY_VERSION = "0.2.4";
 
 export const MANIFEST_VERSION = GRAPHEWAY_VERSION;

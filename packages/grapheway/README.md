@@ -8,7 +8,7 @@
 
 > Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Your site opens its own door.
 
-**Status:** Beta (v0.2.3) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
+**Status:** Beta (v0.2.4) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
 
 **Start in 60 seconds**
 
@@ -396,6 +396,32 @@ Supported: `initialize`, `ping`, `tools/list`, `tools/call`, `resources/list`,
 `resources/read`, notifications. No API key. No account. Open to every agent
 that speaks MCP.
 
+### Stdio — no hosting required
+
+Most local clients (Claude Desktop, Cursor, VS Code, Claude Code) can launch
+a command and speak newline-delimited JSON-RPC over stdin/stdout. Grapheway
+ships that transport too:
+
+```bash
+# Print the exact client snippet for any site
+bunx grapheway mcp-config --stdio --probe https://expressjs.com
+```
+
+```json
+{
+  "mcpServers": {
+    "grapheway": {
+      "command": "npx",
+      "args": ["-y", "grapheway", "mcp", "--probe", "https://expressjs.com"]
+    }
+  }
+}
+```
+
+`grapheway mcp` accepts `--probe <url>`, `--config <file>` or `--graph <file>`.
+Protocol messages go to stdout; logs go to stderr, so the client never sees a
+corrupted stream. No port, no daemon, no account.
+
 ---
 
 ## The agent side — `grapheway/agent`
@@ -593,6 +619,11 @@ bunx grapheway init --framework static                  # write the static compa
 # Embeddable agent-readiness badge (SVG, no tracking)
 bunx grapheway badge --url https://acme.example --out badge.svg --md
 
+# Stdio MCP server for local clients — no hosting, no port
+bunx grapheway mcp --probe https://legacy-docs.example
+bunx grapheway mcp --config grapheway.config.ts
+bunx grapheway mcp-config --stdio --probe https://legacy-docs.example
+
 # THE graph gateway: a lightweight server that holds a graph and answers
 # agents over MCP. With --probe --refresh it re-crawls and patches the
 # live graph on a schedule — one server, many agents, always fresh.
@@ -651,7 +682,7 @@ grapheway/
 │  ├─ src/compat/     optional legacy files (llms.txt, robots, …)
 │  ├─ src/agent/      typed client + skill
 │  ├─ src/cli/        gateway / probe / mcp-config / serve / audit / generate
-│  └─ test/           127 tests across 6 subpath modules
+│  └─ test/           129 tests across 6 subpath modules
 ├─ examples/simple-site/              — runnable demo (server + demo client)
 ├─ docs/                               — landing page (GitHub Pages) + white paper
 └─ README.md
@@ -660,7 +691,7 @@ grapheway/
 ```bash
 bun install          # install workspace deps
 bun run build        # compile to dist/ (6 bundles + .d.ts)
-bun test             # 127 tests across all subpaths
+bun test             # 129 tests across all subpaths
 npx tsc --noEmit     # typecheck
 bun run example      # start the demo site on :4321
 ```

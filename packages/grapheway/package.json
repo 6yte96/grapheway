@@ -1,6 +1,6 @@
 {
   "name": "grapheway",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. `npx grapheway init` mounts the surface; subpath exports: grapheway/web, grapheway/probe, grapheway/agent, grapheway/compat, grapheway/cli.",
   "type": "module",
   "private": false,

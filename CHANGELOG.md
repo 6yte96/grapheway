@@ -5,6 +5,18 @@ All notable changes to Grapheway will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2026-11-23
+
+The universal-client release — stdio MCP, so no hosting is required.
+
+### Added
+- **`grapheway mcp`** — a stdio MCP server over newline-delimited JSON-RPC.
+  Accepts `--probe <url>`, `--config <file>` or `--graph <file>`. Protocol
+  on stdout, logs on stderr. Works in Claude Desktop, Cursor, VS Code and
+  Claude Code without a port, daemon or account.
+- **`grapheway mcp-config --stdio`** — prints the exact `npx` client snippet.
+- Stdio tests (initialize, tools/list, parse errors): 129 tests, 400 assertions.
+
 ## [0.2.3] - 2026-11-23
 
 The adoption release — one command, a public index, and a Web-standard adapter.
