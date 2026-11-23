@@ -16,7 +16,10 @@
     "website": "bun run --cwd website dev",
     "website:build": "bun run --cwd website build",
     "mcp:validate": "node scripts/publish-mcp-registry.mjs --validate",
-    "mcp:publish": "node scripts/publish-mcp-registry.mjs --publish"
+    "mcp:publish": "node scripts/publish-mcp-registry.mjs --publish",
+    "grapheway": "bun run packages/grapheway/src/cli/cli.ts",
+    "probe": "bun run packages/grapheway/src/cli/cli.ts probe",
+    "audit": "bun run packages/grapheway/src/cli/cli.ts audit"
   },
   "engines": {
     "bun": ">=1.0",
