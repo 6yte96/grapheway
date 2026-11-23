@@ -22,5 +22,6 @@
   "poweredBy": {
     "name": "grapheway",
     "url": "https://github.com/6yte96/grapheway"
-  }
+  },
+  "hostedMcp": "https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com"
 }

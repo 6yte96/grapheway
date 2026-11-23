@@ -21,7 +21,12 @@ typed knowledge graph instead. One install gives agents:
 
 For sites that have not opted in, `npx grapheway probe <url>` converts any
 public site into the same graph locally — no site involvement. The probe
-respects robots.txt and stays same-origin.
+respects robots.txt and stays same-origin. There is also a hosted,
+zero-install demo MCP endpoint — swap the `url` parameter for any public site:
+
+```
+https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com
+```
 
 The new part is the 60-second path:
 

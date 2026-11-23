@@ -3,7 +3,7 @@
   "name": "io.github.6yte96/grapheway",
   "title": "Grapheway",
   "description": "Turn any website into a live knowledge graph and MCP server. Probe any URL.",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "websiteUrl": "https://6yte96.github.io/grapheway/",
   "repository": {
     "url": "https://github.com/6yte96/grapheway",
@@ -11,11 +11,25 @@
     "id": "1331205525",
     "subfolder": "packages/grapheway"
   },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://grapheway-mcp.usmani3923.workers.dev/mcp?url={url}",
+      "variables": {
+        "url": {
+          "description": "Public website URL to probe into a graph",
+          "placeholder": "https://docs.example.com",
+          "format": "string",
+          "isRequired": true
+        }
+      }
+    }
+  ],
   "packages": [
     {
       "registryType": "npm",
       "identifier": "grapheway",
-      "version": "0.2.5",
+      "version": "0.2.6",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"
