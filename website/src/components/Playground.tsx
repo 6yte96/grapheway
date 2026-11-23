@@ -7,6 +7,7 @@ export function Playground() {
   const { codePlayground } = PROJECT_CONFIG;
   const [activeTabId, setActiveTabId] = useState(codePlayground.tabs[0].id);
   const [copied, setCopied] = useState(false);
+  const [hostedCopied, setHostedCopied] = useState(false);
 
   const currentTab =
     codePlayground.tabs.find((t) => t.id === activeTabId) ||
@@ -17,6 +18,14 @@ export function Playground() {
       await navigator.clipboard.writeText(currentTab.code);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
+  const handleHostedCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(codePlayground.hostedDemo.url);
+      setHostedCopied(true);
+      setTimeout(() => setHostedCopied(false), 2000);
     } catch {}
   };
 
@@ -76,6 +85,25 @@ export function Playground() {
           <pre className="code-window-body">
             <code>{currentTab.code}</code>
           </pre>
+        </div>
+
+        <div className="hosted-demo-callout">
+          <div className="hosted-demo-copy">
+            <span className="postcard-tag boxed tilt-up">{codePlayground.hostedDemo.label}</span>
+            <p>{codePlayground.hostedDemo.text}</p>
+          </div>
+          <div className="hosted-demo-url">
+            <code>{codePlayground.hostedDemo.url}</code>
+            <button
+              type="button"
+              onClick={handleHostedCopy}
+              className={`copy-btn ${hostedCopied ? "copied" : ""}`}
+              title="Copy hosted MCP URL"
+            >
+              <i className={`fas ${hostedCopied ? "fa-check" : "fa-copy"}`}></i>
+              <span>{hostedCopied ? "Copied" : "Copy URL"}</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>

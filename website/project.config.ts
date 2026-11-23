@@ -55,6 +55,7 @@ export interface ProjectConfig {
     title: string;
     filename: string;
     language: string;
+    hostedDemo: { label: string; text: string; url: string };
     tabs: { id: string; label: string; filename: string; code: string }[];
   };
   benchmarks: {
@@ -279,6 +280,11 @@ export const PROJECT_CONFIG: ProjectConfig = {
     title: "One Probe, a Whole Agent Surface",
     filename: "probe.sh",
     language: "shell",
+    hostedDemo: {
+      label: "HOSTED DEMO",
+      text: "No install? Point any streamable-HTTP MCP client at this URL and swap the site:",
+      url: "https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com",
+    },
     tabs: [
       {
         id: "probe",
