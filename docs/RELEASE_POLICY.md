@@ -182,6 +182,24 @@ On a manual dispatch:
 - still runs the version checks;
 - is reserved for recovery, not routine releases.
 
+## Protection rules in force
+
+The repository enforces the policy, not just the docs:
+
+- **`main` branch:** pull request required, required checks are `test`,
+  `Release guard`, `Release gate` and `Typecheck & tests`, admins are subject to
+  the rules, force pushes and deletions are blocked, and conversations must be
+  resolved before merging.
+- **`npm-release` environment:** the npm publish job requires approval from
+  `@6yte96` and only runs for protected branches.
+- **`v*` tags:** a repository ruleset blocks deletion and update of release
+  tags.
+- **`release` label:** required on any pull request to `main` that changes the
+  version.
+- **`automation` label:** used for the daily adopter index PR.
+
+If a rule is changed, update this section in the same pull request.
+
 ## Hotfixes
 
 A hotfix still follows the release process, but it may be a single patch.

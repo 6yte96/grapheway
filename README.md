@@ -186,6 +186,7 @@ It is beta (`v0.2.8`). The core is small, tested and dependency-free. Read the [
 - [Release notes](https://6yte96.github.io/grapheway/releases/)
 - [GitHub releases](https://github.com/6yte96/grapheway/releases)
 - [Contributing](https://github.com/6yte96/grapheway/blob/main/CONTRIBUTING.md)
+- [Security policy](https://github.com/6yte96/grapheway/blob/main/SECURITY.md)
 - [Project and architecture](https://github.com/6yte96/grapheway/blob/main/PROJECT.md)
 - [Product definition](https://github.com/6yte96/grapheway/blob/main/PRODUCT.md)
 - [Release policy](https://github.com/6yte96/grapheway/blob/main/docs/RELEASE_POLICY.md)
