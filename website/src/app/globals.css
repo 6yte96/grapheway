@@ -8012,52 +8012,33 @@ div[id].projects-section {
   }
 }
 
-/* ── Hero agent prompt ───────────────────────────────────────────── */
-.hero-agent-prompt {
-  margin-top: 1.25rem;
-  border: 1px solid var(--rule);
-  background: var(--surface);
-  max-width: 640px;
+/* ── Hero agent prompt dropdown ─────────────────────────────────── */
+.hero-agent-trigger {
+  white-space: nowrap;
 }
 
-.hero-agent-prompt summary {
+.hero-agent-prompt-dropdown {
+  margin-top: 1rem;
+  max-width: 640px;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  animation: hero-inspector-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-agent-prompt-head {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.6rem 0.75rem;
-  cursor: pointer;
-  list-style: none;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
   font-family: var(--font-mono);
   font-size: 9px;
+  letter-spacing: 0.14em;
   color: var(--text-secondary);
 }
 
-.hero-agent-prompt summary::-webkit-details-marker {
-  display: none;
-}
-
-.hero-agent-prompt summary i {
-  margin-left: auto;
-  font-size: 8px;
-  transition: transform 0.15s ease;
-}
-
-.hero-agent-prompt[open] summary {
-  border-bottom: 1px solid var(--rule);
-}
-
-.hero-agent-prompt[open] summary i {
-  transform: rotate(180deg);
-}
-
-.hero-agent-prompt-label {
-  padding: 1px 5px;
-  border: 1px solid var(--rule-soft);
-  color: var(--ink);
-  letter-spacing: 0.08em;
-}
-
-.hero-agent-prompt pre {
+.hero-agent-prompt-dropdown pre {
   margin: 0;
   padding: 0.8rem;
   max-height: 240px;
@@ -8075,8 +8056,15 @@ div[id].projects-section {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  flex-wrap: wrap;
   padding: 0.55rem 0.75rem;
   border-top: 1px solid var(--rule-soft);
+}
+
+.hero-agent-prompt-actions > span {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  color: var(--text-secondary);
 }
 
 .hero-agent-prompt-link {
@@ -8093,29 +8081,9 @@ div[id].projects-section {
   text-decoration: underline;
 }
 
-@media (max-width: 760px) {
-  .hero-agent-prompt pre {
-    max-height: 200px;
-  }
-}
-
-/* Click-to-copy prompt affordances */
-.hero-agent-prompt summary,
-.hero-agent-prompt pre,
+/* Click-to-copy prompt affordances in the setup section. */
 .agent-prompt-body {
   cursor: copy;
-}
-
-.hero-agent-prompt-hint {
-  margin-left: auto;
-  font-size: 8px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-.hero-agent-prompt summary i {
-  margin-left: 0;
 }
 
 .agent-prompt-hint {
@@ -8127,10 +8095,15 @@ div[id].projects-section {
   color: var(--text-secondary);
 }
 
-.hero-agent-prompt pre:focus-visible,
 .agent-prompt-body:focus-visible {
   outline: 1px solid var(--primary);
   outline-offset: -2px;
+}
+
+@media (max-width: 760px) {
+  .hero-agent-prompt-dropdown pre {
+    max-height: 200px;
+  }
 }
 
 @media (max-width: 600px) {
