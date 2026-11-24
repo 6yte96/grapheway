@@ -29,9 +29,15 @@ export interface GraphEdge {
     type: GraphEdgeType;
     props?: Record<string, unknown>;
 }
+export interface GraphMeta {
+    sourceUrl?: string;
+    capturedAt?: string;
+    snapshot?: boolean;
+}
 export interface KnowledgeGraph {
     nodes: GraphNode[];
     edges: GraphEdge[];
+    meta?: GraphMeta;
 }
 export interface GraphBuildOptions {
     /** Full custom builder — total control; replaces the config projection. */

@@ -64,9 +64,24 @@ export interface GraphEdge {
   note?: string;
 }
 
+/** Provenance of the graph itself, when it came from a probe/snapshot. */
+export interface GraphMeta {
+  /** Canonical URL of the site this graph was captured from. */
+  sourceUrl?: string;
+  /** ISO timestamp of the crawl that produced this graph. */
+  capturedAt?: string;
+  /** True when the graph is a point-in-time copy, not a live site state. */
+  snapshot?: boolean;
+}
+
 export interface KnowledgeGraph {
   nodes: GraphNode[];
   edges: GraphEdge[];
+  /**
+   * Optional capture metadata. Probed graphs set this so agents can tell
+   * the user they are quoting a snapshot, not the site's live state.
+   */
+  meta?: GraphMeta;
 }
 
 export interface GraphBuildOptions {
