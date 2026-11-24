@@ -1,8 +1,13 @@
-name: Publish to npm
+name: Release to npm
 
-# Publishes the unified grapheway package to npm.
-# Triggers on push/merge to main, or PR to main (quality check only).
-# The dev branch stays within GitHub (artifacts only) and never publishes to npm.
+# Publishing is a deliberate release, not a side effect of every push.
+#
+# - Pull request to main: quality checks only, never publish.
+# - Push to main: publish only if packages/grapheway/package.json changed in
+#   that push and every version file agrees.
+# - Manual dispatch: emergency only. Requires confirm=publish.
+#
+# The release rules live in docs/RELEASE_POLICY.md.
 
 on:
   push:
@@ -10,10 +15,18 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "publish" to confirm a manual release'
+        required: true
+        type: string
 
 concurrency:
   group: npm-publish
   cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
   quality:
@@ -31,20 +44,116 @@ jobs:
       - name: Run tests
         run: bun test
 
+  gate:
+    name: Release gate
+    runs-on: ubuntu-latest
+    needs: quality
+    outputs:
+      publish: ${{ steps.gate.outputs.publish }}
+      version: ${{ steps.gate.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Decide whether this push is a release
+        id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+
+          version="$(node -p "require('./packages/grapheway/package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "publish=false" >> "$GITHUB_OUTPUT"
+
+          # Pull requests never publish.
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            echo "Pull request: quality only, no publish."
+            exit 0
+          fi
+
+          # Manual releases must be explicitly confirmed.
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$CONFIRM" != "publish" ]; then
+            echo "::error::Manual releases require confirm=publish."
+            exit 1
+          fi
+
+          # A push to main releases only when the package version changed in
+          # that push. A docs, website or workflow push must not publish.
+          if [ "$EVENT_NAME" = "push" ]; then
+            if [ -z "${BEFORE_SHA:-}" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              echo "No previous commit to compare. Skipping publish."
+              exit 0
+            fi
+            if git diff --quiet "$BEFORE_SHA" HEAD -- packages/grapheway/package.json; then
+              echo "The package version did not change in this push. Nothing to release."
+              exit 0
+            fi
+          fi
+
+          core_version="$(sed -n 's/.*GRAPHEWAY_VERSION = "\([^"]*\)".*/\1/p' packages/grapheway/src/core/types.ts | head -1)"
+          server_version="$(node -p "require('./server.json').version")"
+
+          if [ "$version" != "$core_version" ]; then
+            echo "::error::package.json version ($version) does not match GRAPHEWAY_VERSION ($core_version)."
+            exit 1
+          fi
+          if [ "$version" != "$server_version" ]; then
+            echo "::error::package.json version ($version) does not match server.json ($server_version)."
+            exit 1
+          fi
+          if ! grep -Fq "## [$version]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no entry for $version."
+            exit 1
+          fi
+
+          if npm view "grapheway@$version" version >/dev/null 2>&1; then
+            echo "grapheway@$version is already on npm. Nothing to publish."
+            exit 0
+          fi
+
+          latest="$(npm view grapheway version 2>/dev/null || echo "0.0.0")"
+
+          # Pre-releases are allowed to be below the stable latest.
+          if [[ "$version" != *-* ]]; then
+            node -e '
+              const [latest, next] = process.argv.slice(1).map((v) => v.split("-")[0].split(".").map(Number));
+              for (let i = 0; i < 3; i++) {
+                if ((next[i] || 0) > (latest[i] || 0)) process.exit(0);
+                if ((next[i] || 0) < (latest[i] || 0)) process.exit(1);
+              }
+              process.exit(1);
+            ' "$latest" "$version" || {
+              echo "::error::Version $version is not greater than the current latest ($latest)."
+              exit 1
+            }
+          fi
+
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+          echo "Release approved by the gate: $version (latest was $latest)."
+
   publish:
     name: Publish to npm
-    needs: quality
+    needs: [quality, gate]
+    if: needs.gate.outputs.publish == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    # NEVER publish on pull requests or from dev branch.
-    # Only publish on push/merge to main (or manual workflow_dispatch on main).
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    environment: npm-release
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
+
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
@@ -67,14 +176,12 @@ jobs:
           cd packages/grapheway
           version="$(node -p "require('./package.json').version")"
           if npm view "grapheway@$version" version >/dev/null 2>&1; then
-            echo "✓ grapheway@$version already published — skipped"
+            echo "grapheway@$version already published. Skipping."
           else
-            echo "⬆ Publishing grapheway@$version"
+            echo "Publishing grapheway@$version"
             if ! npm publish --access public 2>&1 | tee /tmp/npm-publish.log; then
-              # npm stages versions before making them visible. A retry of an
-              # already-staged version returns E409; treat that as success.
               if grep -qE "E409|previously staged" /tmp/npm-publish.log; then
-                echo "✓ grapheway@$version is already staged — waiting for npm"
+                echo "grapheway@$version is already staged. Waiting for npm."
               else
                 cat /tmp/npm-publish.log
                 exit 1
@@ -90,11 +197,11 @@ jobs:
           for i in $(seq 1 60); do
             published=$(npm view "grapheway@$version" version 2>/dev/null || echo "")
             if [ "$published" = "$version" ]; then
-              echo "✓ grapheway@$published verified on npm registry"
+              echo "grapheway@$published verified on npm registry."
               exit 0
             fi
             echo "Waiting for npm registry to index grapheway@$version ($i/60)..."
             sleep 5
           done
-          echo "✗ grapheway@$version was not indexed within 5 minutes"
+          echo "grapheway@$version was not indexed within 5 minutes."
           exit 1

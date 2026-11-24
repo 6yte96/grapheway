@@ -186,6 +186,10 @@ It is beta (`v0.2.8`). The core is small, tested and dependency-free. Read the [
 - [Release notes](https://6yte96.github.io/grapheway/releases/)
 - [GitHub releases](https://github.com/6yte96/grapheway/releases)
 - [Contributing](https://github.com/6yte96/grapheway/blob/main/CONTRIBUTING.md)
+- [Project and architecture](https://github.com/6yte96/grapheway/blob/main/PROJECT.md)
+- [Product definition](https://github.com/6yte96/grapheway/blob/main/PRODUCT.md)
+- [Release policy](https://github.com/6yte96/grapheway/blob/main/docs/RELEASE_POLICY.md)
+- [Rules for AI agents](https://github.com/6yte96/grapheway/blob/main/AGENTS.md)
 
 If this saves you a crawler, [star the repo](https://github.com/6yte96/grapheway) — it helps the next team find it.
 

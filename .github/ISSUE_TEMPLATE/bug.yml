@@ -1,0 +1,46 @@
+name: Bug report
+description: Something is broken or does not match the docs.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the command, the expected result and the actual result.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run ...
+        2. Open ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: grapheway 0.2.8, Node 22, Linux
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Remove tokens, private URLs and personal data.
+      render: shell
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and discussions.
+          required: true
+        - label: This is not a security report. Security reports go to the maintainer privately.
+          required: true
