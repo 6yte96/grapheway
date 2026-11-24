@@ -8011,3 +8011,90 @@ div[id].projects-section {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Hero agent prompt ───────────────────────────────────────────── */
+.hero-agent-prompt {
+  margin-top: 1.25rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  max-width: 640px;
+}
+
+.hero-agent-prompt summary {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-secondary);
+}
+
+.hero-agent-prompt summary::-webkit-details-marker {
+  display: none;
+}
+
+.hero-agent-prompt summary i {
+  margin-left: auto;
+  font-size: 8px;
+  transition: transform 0.15s ease;
+}
+
+.hero-agent-prompt[open] summary {
+  border-bottom: 1px solid var(--rule);
+}
+
+.hero-agent-prompt[open] summary i {
+  transform: rotate(180deg);
+}
+
+.hero-agent-prompt-label {
+  padding: 1px 5px;
+  border: 1px solid var(--rule-soft);
+  color: var(--ink);
+  letter-spacing: 0.08em;
+}
+
+.hero-agent-prompt pre {
+  margin: 0;
+  padding: 0.8rem;
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--background);
+}
+
+.hero-agent-prompt-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.hero-agent-prompt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.hero-agent-prompt-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+  .hero-agent-prompt pre {
+    max-height: 200px;
+  }
+}
