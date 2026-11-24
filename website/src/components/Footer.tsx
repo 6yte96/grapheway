@@ -82,6 +82,9 @@ export function Footer() {
             <a href={`${basePath}/releases/`} className="footer-link">
               Release notes
             </a>
+            <a href={`${basePath}/setup/`} className="footer-link">
+              Agent setup
+            </a>
           </div>
         </div>
       </div>

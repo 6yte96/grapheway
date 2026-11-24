@@ -19,7 +19,9 @@
     "mcp:publish": "node scripts/publish-mcp-registry.mjs --publish",
     "grapheway": "bun run packages/grapheway/src/cli/cli.ts",
     "probe": "bun run packages/grapheway/src/cli/cli.ts probe",
-    "audit": "bun run packages/grapheway/src/cli/cli.ts audit"
+    "audit": "bun run packages/grapheway/src/cli/cli.ts audit",
+    "postinstall": "node scripts/link-local-cli.mjs",
+    "link:cli": "node scripts/link-local-cli.mjs"
   },
   "engines": {
     "bun": ">=1.0",
