@@ -7906,3 +7906,108 @@ div[id].projects-section {
   color: var(--text-secondary);
   margin-bottom: 0.15rem;
 }
+
+/* ── Agent setup prompt ──────────────────────────────────────────── */
+.agent-setup-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(270px, 0.55fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.agent-prompt-card {
+  border: 1px solid var(--rule);
+  background: var(--background);
+  min-width: 0;
+}
+
+.agent-prompt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+}
+
+.agent-prompt-body {
+  margin: 0;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.65;
+  color: var(--ink);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.agent-prompt-note {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border-top: 1px dashed var(--rule-soft);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.agent-prompt-note i {
+  margin-right: 0.4rem;
+  color: #10b981;
+}
+
+.agent-setup-side {
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  padding: 1rem;
+}
+
+.agent-setup-side h3 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.agent-setup-side h3:not(:first-child) {
+  margin-top: 1.1rem;
+}
+
+.agent-fallback-list,
+.agent-step-list {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.agent-fallback-list li,
+.agent-step-list li {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  line-height: 1.7;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+
+.agent-step-list {
+  list-style: decimal;
+}
+
+.agent-setup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .agent-setup-grid {
+    grid-template-columns: 1fr;
+  }
+}

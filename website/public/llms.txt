@@ -23,6 +23,7 @@ Grapheway turns a website into a typed, live knowledge graph with an open MCP en
 ## For site owners
 
 - [One-command setup](https://github.com/6yte96/grapheway#quick-start-app-side): `npx grapheway init` detects the framework and mounts the agent surface.
+- [Agent setup prompt](https://6yte96.github.io/grapheway/setup/): copy a prompt into Claude, Cursor, Codex or any coding agent to set up and verify the site.
 - [Next.js and edge adapter](https://github.com/6yte96/grapheway/blob/main/packages/grapheway/src/web/adapters.ts): `toFetchHandler` works in the App Router, Cloudflare Workers, Deno and Bun.
 - [Live audit and badge](https://github.com/6yte96/grapheway#cli): `npx grapheway audit https://your.site` and `npx grapheway badge --url https://your.site`.
 

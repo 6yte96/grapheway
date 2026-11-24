@@ -33,6 +33,17 @@ export interface ProjectConfig {
     defaultManager: string;
     managers: Record<string, string>;
   };
+  agentSetup: {
+    title: string;
+    subtitle: string;
+    prompt: string;
+    fallbackTitle: string;
+    fallbacks: string[];
+    fullSteps: string[];
+    note: string;
+    cta: string;
+    ctaHref: string;
+  };
   telemetry: {
     label: string;
     updatedText: string;
@@ -134,6 +145,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
   },
   nav: [
     { id: "playground", label: "Probe" },
+    { id: "agent-setup", label: "Setup" },
     { id: "features", label: "Surface" },
     { id: "benchmarks", label: "Numbers" },
     { id: "index", label: "Index" },
@@ -165,6 +177,48 @@ export const PROJECT_CONFIG: ProjectConfig = {
       probe: "bunx grapheway probe https://your-site.com",
       gateway: "bunx grapheway gateway --probe https://your-site.com",
     },
+  },
+  agentSetup: {
+    title: "Let an agent set it up",
+    subtitle:
+      "Copy this prompt into Claude, Cursor, Codex or any coding agent. It inspects your project, mounts grapheway, verifies the endpoints and reports back.",
+    prompt: `You are setting up grapheway for this website. Work in the current repository.
+
+1. Inspect package.json and detect the framework: Next.js, Express, Hono, plain Node, or a static host.
+2. Run:
+   npx -y grapheway@latest init
+   If npx fails, try:
+   npm exec --yes --package=grapheway@latest -- grapheway init
+   or: bunx grapheway@latest init
+3. If the framework is unsupported, run:
+   npx -y grapheway@latest init --url <production URL>
+   then follow the printed steps.
+4. Start the dev server and verify these endpoints:
+   /.well-known/agent
+   /graph/v1
+   /mcp
+5. Run the audit on the local URL and fix failed checks:
+   npx -y grapheway@latest audit <local URL>
+6. Show me the files you changed, the audit score, and the exact MCP URL.
+Do not deploy, publish to npm, or change production without my approval.`,
+    fallbackTitle: "If npx says command not found",
+    fallbacks: [
+      "Run from your own project root, not inside the grapheway repository.",
+      "Use npx -y grapheway@latest <command> so npm fetches the registry package.",
+      "Fallback: npm exec --yes --package=grapheway@latest -- grapheway <command>.",
+      "Or use bunx grapheway@latest <command>.",
+    ],
+    fullSteps: [
+      "Open your project in Claude Code, Cursor, Codex, or another coding agent.",
+      "Paste the prompt above and let the agent inspect the framework.",
+      "The agent runs init, mounts the surface, and starts the dev server.",
+      "It verifies /.well-known/agent, /graph/v1, and /mcp.",
+      "It runs the audit and fixes the failed checks.",
+      "You review the changed files and approve before deploy.",
+    ],
+    note: "The prompt tells the agent to stop before deploy, npm publish, or any production change.",
+    cta: "Open the full setup guide",
+    ctaHref: "/setup",
   },
   telemetry: {
     label: "Registry Facts",
