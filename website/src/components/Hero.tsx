@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { PROJECT_CONFIG } from "@/config";
 import { HeroGraph } from "./HeroGraph";
@@ -30,6 +30,13 @@ export function Hero() {
       setPromptCopied(true);
       setTimeout(() => setPromptCopied(false), 2000);
     } catch {}
+  };
+
+  const handlePromptKey = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      void handlePromptCopy();
+    }
   };
 
   return (
@@ -121,12 +128,27 @@ export function Hero() {
         </div>
 
         <details className="hero-agent-prompt">
-          <summary>
+          <summary
+            onClick={handlePromptCopy}
+            title="Click to copy the setup prompt"
+          >
             <span className="hero-agent-prompt-label">FOR CODING AGENTS</span>
-            <span>Copy the setup prompt</span>
+            <span>Setup prompt</span>
+            <span className="hero-agent-prompt-hint">
+              {promptCopied ? "copied" : "click to copy"}
+            </span>
             <i className="fas fa-chevron-down" aria-hidden="true" />
           </summary>
-          <pre>{agentSetup.prompt}</pre>
+          <pre
+            onClick={handlePromptCopy}
+            onKeyDown={handlePromptKey}
+            role="button"
+            tabIndex={0}
+            title="Click to copy the prompt"
+            aria-label="Copy the agent setup prompt"
+          >
+            {agentSetup.prompt}
+          </pre>
           <div className="hero-agent-prompt-actions">
             <button
               type="button"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { PROJECT_CONFIG } from "@/config";
 
@@ -16,6 +16,13 @@ export function AgentSetup({ full = false }: { full?: boolean }) {
     } catch {
       // Clipboard can be unavailable in insecure contexts; the prompt is still
       // selectable on screen.
+    }
+  };
+
+  const handlePromptKey = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      void handleCopy();
     }
   };
 
@@ -36,6 +43,7 @@ export function AgentSetup({ full = false }: { full?: boolean }) {
         <div className="agent-prompt-card">
           <div className="agent-prompt-head">
             <span>AGENT PROMPT</span>
+            <span className="agent-prompt-hint">click text to copy</span>
             <button
               type="button"
               onClick={handleCopy}
@@ -46,7 +54,17 @@ export function AgentSetup({ full = false }: { full?: boolean }) {
               <span>{copied ? "Copied" : "Copy prompt"}</span>
             </button>
           </div>
-          <pre className="agent-prompt-body">{agentSetup.prompt}</pre>
+          <pre
+            className="agent-prompt-body"
+            onClick={handleCopy}
+            onKeyDown={handlePromptKey}
+            role="button"
+            tabIndex={0}
+            title="Click to copy the prompt"
+            aria-label="Copy the agent setup prompt"
+          >
+            {agentSetup.prompt}
+          </pre>
           <p className="agent-prompt-note">
             <i className="fas fa-shield-halved" aria-hidden="true" />
             {agentSetup.note}
