@@ -4,6 +4,9 @@ The goal of this kit is distribution, not more features. The product is
 already one command: `npx grapheway init`. The job is to put that command in
 front of the people who maintain websites and the agents that read them.
 
+**Detailed content plan:** [`7-day-content-plan.md`](./7-day-content-plan.md)
+· **Publish-ready articles:** [`docs/articles/`](../articles/)
+
 ## The positioning
 
 **One line:** Turn any website into a live knowledge graph that AI agents can
