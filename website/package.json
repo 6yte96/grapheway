@@ -4,10 +4,11 @@
   "private": true,
   "description": "Paper & Ink editorial landing page for Grapheway",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
+    "dev": "node scripts/generate-sitemap.mjs && next dev --turbopack",
+    "build": "node scripts/generate-sitemap.mjs && next build",
     "start": "next start",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "sitemap": "node scripts/generate-sitemap.mjs"
   },
   "dependencies": {
     "next": "15.5.29",

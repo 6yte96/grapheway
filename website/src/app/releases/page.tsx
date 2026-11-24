@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { PROJECT_CONFIG } from "@/config";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: `Release notes · ${PROJECT_CONFIG.brand.name}`,
   description:
     "What changed in grapheway, newest first. Snapshot provenance, hosted MCP, stdio MCP, the Official MCP Registry and the concise README.",
-};
+  path: "/releases/",
+  imageAlt: "Grapheway release notes",
+});
 
 const releases = [
   {
@@ -71,6 +74,7 @@ const releases = [
 export default function ReleasesPage() {
   return (
     <section className="projects-section" style={{ paddingTop: "2rem" }}>
+      <h1 className="sr-only">Release notes</h1>
       <div className="section-header">
         <div className="section-header-left">
           <p className="readiness-eyebrow">RELEASE NOTES</p>
