@@ -181,7 +181,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
   agentSetup: {
     title: "Let an agent set it up",
     subtitle:
-      "Copy this prompt into Claude, Cursor, Codex or any coding agent. It inspects your project, mounts grapheway, verifies the endpoints and reports back.",
+      "Click the prompt to copy it into Claude, Cursor, Codex or any coding agent. It inspects your project, mounts grapheway, verifies the endpoints and reports back.",
     prompt: `Set up grapheway for this website. Use the environment and tools available to you.
 
 1. Inspect the project and detect the framework: Next.js, Express, Hono, plain Node, or a static host.
