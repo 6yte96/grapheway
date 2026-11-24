@@ -92,7 +92,10 @@ jobs:
               echo "No previous commit to compare. Skipping publish."
               exit 0
             fi
-            if git diff --quiet "$BEFORE_SHA" HEAD -- packages/grapheway/package.json; then
+            if git diff --quiet "$BEFORE_SHA" HEAD -- \
+            packages/grapheway/package.json \
+            packages/grapheway/src/core/types.ts \
+            server.json; then
               echo "The package version did not change in this push. Nothing to release."
               exit 0
             fi
