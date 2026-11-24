@@ -217,6 +217,7 @@ The version must match in:
 | `docs/launch/` | Launch, articles and content plan |
 | `packages/grapheway/SKILL.md` | Instructions for agents consuming a site |
 | `CHANGELOG.md` | Release history |
+| `SECURITY.md` | Private vulnerability reporting and security defaults |
 
 ## Ownership
 
