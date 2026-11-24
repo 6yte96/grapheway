@@ -42,7 +42,7 @@ body:
     attributes:
       label: Before submitting
       options:
-        - label: I read PRODUCT.md and this is in scope.
+        - label: I read the README and this is in scope.
           required: true
         - label: I searched existing issues and discussions.
           required: true
