@@ -53,12 +53,6 @@ far more accurate than parsing markup.
   event with `{ version, patches }` on every change. The `version` field of
   `/graph/v1` tells you whether the graph moved since you last looked — no
   need to re-crawl.
-- **Snapshot provenance:** a probed graph adds `_meta` to search, node,
-  neighbors and path results:
-  `{ "sourceUrl": "...", "capturedAt": "ISO-8601", "snapshot": true }`.
-  When you quote a result, tell the user it came from a copy captured at
-  `capturedAt`, not necessarily the site's live state. Start a fresh probe
-  (or use a gateway with `--refresh`) if the answer must be current.
 
 ## 2. The agent API
 

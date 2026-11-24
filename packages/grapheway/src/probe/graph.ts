@@ -233,15 +233,7 @@ export function buildFromCrawl(
 
   return {
     config,
-    graph: {
-      nodes,
-      edges,
-      meta: {
-        sourceUrl: root,
-        capturedAt: new Date().toISOString(),
-        snapshot: true,
-      },
-    },
+    graph: { nodes, edges },
     pages,
     openApiUrl,
     stats: {

@@ -120,9 +120,6 @@ export function createProbeAgent(origin: string, result: ProbeResult): ProbeAgen
     refresh(next: ProbeResult) {
       const patches = diffGraphs(agent.graph, next.graph);
       const version = agent.patchGraph(patches);
-      // Keep the snapshot provenance current: the graph is patched, not
-      // rebuilt, so copy the new capture metadata onto the live graph.
-      if (next.graph.meta) agent.graph.meta = next.graph.meta;
       current = next;
       byPath.clear();
       for (const p of next.pages) byPath.set(new URL(p.url).pathname, p);

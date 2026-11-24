@@ -20,7 +20,7 @@ import type { KnowledgeGraph } from "../../../packages/grapheway/src/core/index.
 import { createGrapheway } from "../../../packages/grapheway/src/web/handler.ts";
 import { handleMcpMessage, type McpDeps } from "../../../packages/grapheway/src/web/mcp.ts";
 
-const VERSION = "0.2.8";
+const VERSION = "0.2.7";
 const MAX_PAGES = 12;
 const TTL_MS = 10 * 60 * 1000;
 const MAX_CACHE = 40;
