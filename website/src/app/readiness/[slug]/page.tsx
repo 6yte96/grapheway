@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import data from "@/data/agent-readiness.json";
 import { PROJECT_CONFIG } from "@/config";
+import { canonical, pageMetadata } from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -17,15 +18,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const site = data.results.find((item) => item.slug === slug);
   if (!site) return { title: "Agent readiness report" };
-  return {
+  return pageMetadata({
     title: `${site.name} agent readiness: ${site.score}/100 (${site.grade})`,
     description: `Public agent-readiness audit of ${site.url}: score ${site.score}/100, grade ${site.grade}, ${site.gaps.length} gaps. Run the same audit with grapheway.`,
-    openGraph: {
-      title: `${site.name} — ${site.score}/100 agent-ready`,
-      description: `${site.gaps.length} gaps found. Make it agent-ready in one command.`,
-      images: [{ url: `${process.env.NEXT_PUBLIC_BASE_PATH ?? "/grapheway"}/og.png`, width: 1200, height: 630 }],
-    },
-  };
+    path: `/readiness/${site.slug}/`,
+    imageAlt: `${site.name} agent readiness report`,
+  });
 }
 
 export default async function ReadinessReport({
@@ -39,9 +37,28 @@ export default async function ReadinessReport({
 
   const checks = site.checks;
   const passed = checks.filter((c) => c.ok).length;
+  const articleLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `${site.name} agent readiness: ${site.score}/100`,
+    description: `Public agent-readiness audit of ${site.url}. Score ${site.score}/100, grade ${site.grade}, ${site.gaps.length} gaps.`,
+    datePublished: data.updatedAt,
+    dateModified: data.updatedAt,
+    mainEntityOfPage: canonical(`/readiness/${site.slug}/`),
+    author: {
+      "@type": "Organization",
+      name: "Grapheway",
+      url: "https://6yte96.github.io/grapheway/",
+    },
+  };
 
   return (
     <section className="projects-section" style={{ paddingTop: "2rem" }}>
+      <h1 className="sr-only">{site.name} agent readiness report</h1>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
+      />
       <div className="section-header">
         <div className="section-header-left">
           <p className="readiness-eyebrow">AGENT READINESS REPORT</p>
