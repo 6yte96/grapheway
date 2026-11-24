@@ -21,7 +21,7 @@ agents could discover, read and act on.
 
 Here is the checklist we use.
 
-## What “agent readiness” actually means
+## What "agent readiness" actually means
 
 An agent needs to do three things with your site:
 
@@ -103,14 +103,14 @@ A manifest tells an agent what exists before it starts clicking:
 - endpoint URLs.
 
 This is also where you declare **actions**: things the agent can do, not just
-read. “Check order status.” “Search the docs.” “Get a quote.” “Book a demo.”
+read. "Check order status." "Search the docs." "Get a quote." "Book a demo."
 
 Declare the action once. Expose it over HTTP and over MCP from the same
 implementation. Do not build two versions that drift.
 
 ### 5. Open an MCP endpoint
 
-MCP — the Model Context Protocol — is the common way AI clients connect to
+MCP, the Model Context Protocol, is the common way AI clients connect to
 tools. Claude Desktop, Cursor, VS Code and other clients can connect to a
 single URL and see your graph tools and actions as native tools.
 
@@ -165,10 +165,10 @@ A rough reading:
 
 | Score | Grade | What it means |
 |---:|---|---|
-| 90–100 | A+ | Fully agent-ready; agents can discover, read and act |
-| 70–89 | B/A | Strong; a few gaps remain |
-| 50–69 | C/D | Partial; agents fall back to scraping |
-| 0–49 | F | Invisible to structured agents |
+| 90-100 | A+ | Fully agent-ready; agents can discover, read and act |
+| 70-89 | B/A | Strong; a few gaps remain |
+| 50-69 | C/D | Partial; agents fall back to scraping |
+| 0-49 | F | Invisible to structured agents |
 
 The score is not a judgment of your content. It measures whether the
 agent-native surface exists.
@@ -267,4 +267,4 @@ teams can see what good looks like.
 
 *I built [grapheway](https://github.com/6yte96/grapheway), an open protocol
 for agent-ready websites. It is free, open source and in beta. If this
-checklist helped, star the repo — it helps the next team find it.*
+checklist helped, star the repo. It helps the next team find it.*

@@ -37,6 +37,30 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://6yte96.github.io/grapheway/blog/</loc>
+    <lastmod>2026-11-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://6yte96.github.io/grapheway/blog/ai-agent-readiness-checklist/</loc>
+    <lastmod>2026-11-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://6yte96.github.io/grapheway/blog/website-mcp-server/</loc>
+    <lastmod>2026-11-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://6yte96.github.io/grapheway/blog/llms-txt-live-graph/</loc>
+    <lastmod>2026-11-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://6yte96.github.io/grapheway/readiness/prisma-io/</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>

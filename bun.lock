@@ -27,6 +27,7 @@
       "name": "grapheway-website",
       "version": "1.0.0",
       "dependencies": {
+        "marked": "^18.3.0",
         "next": "15.5.29",
         "react": "19.1.0",
         "react-dom": "19.1.0",
@@ -153,6 +154,8 @@
     "grapheway": ["grapheway@workspace:packages/grapheway"],
 
     "grapheway-website": ["grapheway-website@workspace:website"],
+
+    "marked": ["marked@18.3.0", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-ed8zmPXlBb3UfGXN5iHMQyMhFpdqLgoV5umUXx/Q1R+FW3q8VpqpyoKUwlENL9appo2UMvNLURDVaT3AMOryGA=="],
 
     "nanoid": ["nanoid@3.3.20", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-uKdg2G3GNCKQn9byYOpxbGqrT2fGO5KRt5J/8b3pok8rT6qxGWF6hxMyJiEYtAf+FVyYuD9hRaDqX5uPFYJ4ZQ=="],
 
