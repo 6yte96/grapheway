@@ -122,6 +122,9 @@ npm pack --pack-destination /tmp/grapheway-release
 
 - Base: `main`
 - Head: `release/x.y.z`
+- Rebase the release branch on `main`, or merge `main` into it, before
+  opening the PR. `main` uses strict status checks, so the head branch must be
+  up to date.
 - Title: `release: vX.Y.Z`
 - Label: `release`
 - Include the changelog and the verification output.
