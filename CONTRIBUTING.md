@@ -1,21 +1,14 @@
 # Contributing to grapheway
 
-Thanks for your interest. This guide covers the day-to-day workflow.
-
-Before your first change, read:
-
-1. [`AGENTS.md`](./AGENTS.md) for the hard rules, including the release rules.
-2. [`PROJECT.md`](./PROJECT.md) for the layout, commands and quality gates.
-3. [`PRODUCT.md`](./PRODUCT.md) for the product and scope.
-4. [`docs/RELEASE_POLICY.md`](./docs/RELEASE_POLICY.md) for how releases work.
+Thanks for your interest. This guide covers the public contribution workflow.
 
 ## The most important rule
 
 **A local change is not a release.**
 
 Do not bump the version. Do not publish. Do not create a release. Development
-happens on `dev`. Releases happen from `release/x.y.z` to `main`, one batch at a
-time, with maintainer approval.
+happens on `dev`. Releases are handled by the maintainer from a
+`release/x.y.z` branch to the protected `main` branch.
 
 ## Prerequisites
 
@@ -50,7 +43,7 @@ grapheway/
 ├─ website/          Next.js landing page, docs, readiness, releases
 ├─ examples/         runnable example site
 ├─ deploy/           hosted MCP Worker
-├─ docs/             whitepaper, technical reference, launch, articles
+├─ docs/             whitepaper and technical reference
 └─ scripts/          build and maintenance scripts
 ```
 
@@ -85,8 +78,8 @@ grapheway/
    `feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`.
 6. Push your branch and open a pull request against `dev`.
 
-Do not open a pull request against `main` unless it is a release PR from
-`release/x.y.z`.
+Do not open a pull request against `main` unless the maintainer asked you to
+prepare a release.
 
 ## Tests and build
 
@@ -113,6 +106,16 @@ node packages/grapheway/dist/cli/cli.js --help
 - No AI co-author trailers unless the maintainer asks.
 - Keep public behavior documented in the README or technical reference.
 
+## Release rules for contributors
+
+- Do not change the version in `package.json`, `server.json`,
+  `GRAPHEWAY_VERSION` or the changelog.
+- Do not publish to npm or create a GitHub release.
+- Do not push to `main`.
+- `main` is protected and only accepts release pull requests from
+  `release/x.y.z` with the `release` label.
+- The maintainer decides when a batch is complete.
+
 ## Pull request checklist
 
 - [ ] The change is based on `dev`.
@@ -122,26 +125,6 @@ node packages/grapheway/dist/cli/cli.js --help
 - [ ] Docs and examples are updated if behavior changed.
 - [ ] No telemetry or hidden prompt instructions were added.
 - [ ] The PR explains what changed and how it was tested.
-
-Use the pull request template for the full checklist.
-
-## Releases
-
-Releases are handled by the maintainer. The short version:
-
-```text
-dev  ->  release/x.y.z  ->  PR to main  ->  merge  ->  one release
-```
-
-A release PR:
-
-- bumps the version exactly once;
-- updates the changelog and release notes;
-- carries the `release` label;
-- passes the `Release guard`;
-- is merged only with explicit approval.
-
-See [`docs/RELEASE_POLICY.md`](./docs/RELEASE_POLICY.md) for the full checklist.
 
 ## License
 

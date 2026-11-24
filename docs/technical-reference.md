@@ -763,8 +763,8 @@ Releases are deliberate. A local change is not a release.
    do not publish.
 
 Do not bump the version on a feature branch. Do not publish from `dev` or
-`beta/*`. Do not cut a release for every small fix. The full checklist is in
-[`docs/RELEASE_POLICY.md`](RELEASE_POLICY.md).
+`beta/*`. Do not cut a release for every small fix. Releases are maintainer-only;
+see [`CONTRIBUTING.md`](../CONTRIBUTING.md) for the contributor-facing rules.
 
 > The package compiles to `dist/` (6 JS bundles + type declarations) — works on
 > **Node**, **Bun**, **Deno**, and bundlers. Subpath exports let users import

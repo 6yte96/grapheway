@@ -32,6 +32,4 @@ What did you run?
 - [ ] No version bump outside a release branch.
 - [ ] Docs and examples are updated if behavior changed.
 - [ ] No telemetry, visitor tracking or hidden agent instructions.
-- [ ] I read `AGENTS.md`, `PROJECT.md`, `PRODUCT.md` and
-      `docs/RELEASE_POLICY.md`.
 - [ ] This PR does not publish, tag or announce a release.
