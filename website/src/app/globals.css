@@ -8098,3 +8098,43 @@ div[id].projects-section {
     max-height: 200px;
   }
 }
+
+/* Click-to-copy prompt affordances */
+.hero-agent-prompt summary,
+.hero-agent-prompt pre,
+.agent-prompt-body {
+  cursor: copy;
+}
+
+.hero-agent-prompt-hint {
+  margin-left: auto;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.hero-agent-prompt summary i {
+  margin-left: 0;
+}
+
+.agent-prompt-hint {
+  margin-left: auto;
+  margin-right: 0.5rem;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.hero-agent-prompt pre:focus-visible,
+.agent-prompt-body:focus-visible {
+  outline: 1px solid var(--primary);
+  outline-offset: -2px;
+}
+
+@media (max-width: 600px) {
+  .agent-prompt-hint {
+    display: none;
+  }
+}
