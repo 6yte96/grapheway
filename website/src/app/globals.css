@@ -7893,3 +7893,16 @@ div[id].projects-section {
 @media (max-width: 760px) {
   .hosted-demo-url code { max-width: 100%; }
 }
+
+.readiness-release-list {
+  margin: 0.6rem 0 0.7rem;
+  padding-left: 1.1rem;
+}
+
+.readiness-release-list li {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 0.15rem;
+}

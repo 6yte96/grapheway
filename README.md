@@ -183,7 +183,8 @@ It is beta (`v0.2.8`). The core is small, tested and dependency-free. Read the [
 - [Launch notes and articles](https://github.com/6yte96/grapheway/tree/main/docs/launch)
 - [Publishing pack](https://github.com/6yte96/grapheway/tree/main/docs/articles)
 - [npm package](https://www.npmjs.com/package/grapheway)
-- [Releases](https://github.com/6yte96/grapheway/releases)
+- [Release notes](https://6yte96.github.io/grapheway/releases/)
+- [GitHub releases](https://github.com/6yte96/grapheway/releases)
 - [Contributing](https://github.com/6yte96/grapheway/blob/main/CONTRIBUTING.md)
 
 If this saves you a crawler, [star the repo](https://github.com/6yte96/grapheway) — it helps the next team find it.
