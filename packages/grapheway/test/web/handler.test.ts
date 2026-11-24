@@ -72,6 +72,46 @@ describe("discovery", () => {
   });
 });
 
+describe("snapshot metadata", () => {
+  test("graph search and node results expose source + capture time", async () => {
+    const meta = {
+      sourceUrl: "https://acme.example",
+      capturedAt: "2026-11-24T00:00:00.000Z",
+      snapshot: true,
+    };
+    const snapshotAgent = createGrapheway(config, {
+      graph: {
+        builder: () => ({
+          nodes: [{ id: "https://acme.example/docs/install", type: "page", label: "Installation" }],
+          edges: [],
+          meta,
+        }),
+      },
+    });
+
+    const search = await snapshotAgent.handler({
+      method: "GET",
+      url: "/graph/v1/search?q=install",
+      headers: {},
+    });
+    const searchData = JSON.parse(search.body) as {
+      _meta: typeof meta;
+      results: Array<{ node: { id: string } }>;
+    };
+    expect(searchData._meta).toEqual(meta);
+    expect(searchData.results[0]?.node.id).toContain("/docs/install");
+
+    const node = await snapshotAgent.handler({
+      method: "GET",
+      url: "/graph/v1/node?id=https%3A%2F%2Facme.example%2Fdocs%2Finstall",
+      headers: {},
+    });
+    const nodeData = JSON.parse(node.body) as { _meta: typeof meta; label: string };
+    expect(nodeData._meta).toEqual(meta);
+    expect(nodeData.label).toBe("Installation");
+  });
+});
+
 describe("graph protocol (/graph/v1)", () => {
   test("graph summary lists nodes/edges + provenance breakdown", async () => {
     const { status, json } = await get("/graph/v1");

@@ -37,6 +37,7 @@ That is slow, expensive and easy to get wrong. Grapheway flips it: **the site pu
 - **MCP, for free.** Claude Desktop, Cursor, VS Code and other clients can use the site's map and actions as native tools.
 - **Actions, not just pages.** "Check status", "search", "get a quote" — anything the site can already do can be offered to agents.
 - **Fresh, not stale.** When the site changes, the map can update live instead of waiting for the next crawl.
+- **Honest snapshots.** A probed map carries its source URL and capture time, so an agent can tell the user it read a copy, not the live site.
 - **Your rules.** You decide every node, edge, page and action.
 
 ---
@@ -168,7 +169,7 @@ No. There is no telemetry. The adoption index is self-submitted and only checks 
 The runtime is yours to control, and actions are opt-in. The hosted demo rejects private addresses, respects `robots.txt`, caps the number of pages and rate-limits requests.
 
 **Is it ready for production?**
-It is beta (`v0.2.7`). The core is small, tested and dependency-free. Read the [technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md) before a large rollout.
+It is beta (`v0.2.8`). The core is small, tested and dependency-free. Read the [technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md) before a large rollout.
 
 ---
 

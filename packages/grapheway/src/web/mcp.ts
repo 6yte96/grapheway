@@ -82,22 +82,31 @@ export function isKnownTool(deps: McpDeps, name: string): boolean {
 /** Execute a graph_* tool against the site graph (synchronous). */
 export function callGraphTool(deps: McpDeps, name: string, args: Record<string, unknown>): unknown {
   const g = deps.graph;
+  const meta = g.meta ? { _meta: g.meta } : {};
   switch (name) {
-    case "graph_node":
-      return findNode(g, String(args.id ?? ""));
+    case "graph_node": {
+      const node = findNode(g, String(args.id ?? ""));
+      return node ? { ...node, ...meta } : null;
+    }
     case "graph_neighbors": {
       const rawDir = typeof args.direction === "string" ? args.direction.toLowerCase() : "";
       const dir = rawDir === "in" || rawDir === "out" ? rawDir : "both";
       const type = typeof args.type === "string" ? (args.type as GraphEdgeType) : undefined;
-      return neighborsOf(g, String(args.id ?? ""), dir, type);
+      return { ...neighborsOf(g, String(args.id ?? ""), dir, type), ...meta };
     }
     case "graph_search": {
       const limit = Number(args.limit ?? 10);
       const safe = Number.isFinite(limit) && limit > 0 ? limit : 10;
-      return { query: args.q, results: searchNodes(g, String(args.q ?? ""), safe) };
+      return {
+        query: args.q,
+        ...meta,
+        results: searchNodes(g, String(args.q ?? ""), safe),
+      };
     }
-    case "graph_path":
-      return findPathWithEdges(g, String(args.from ?? ""), String(args.to ?? ""));
+    case "graph_path": {
+      const path = findPathWithEdges(g, String(args.from ?? ""), String(args.to ?? ""));
+      return path ? { ...path, ...meta } : path;
+    }
     default:
       return null;
   }

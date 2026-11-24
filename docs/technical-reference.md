@@ -10,7 +10,7 @@
 
 > Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Your site opens its own door.
 
-**Status:** Beta (v0.2.7) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
+**Status:** Beta (v0.2.8) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
 
 **Start in 60 seconds**
 
@@ -546,6 +546,11 @@ The graph **summary** reports how trustworthy the map is:
   "confidence": { "extracted": 18, "inferred": 9, "ambiguous": 4 }
 }
 ```
+
+Probed graphs also carry snapshot provenance: `meta: { sourceUrl, capturedAt,
+snapshot }` on the graph, and `_meta` on search, node, neighbor and path
+results. An agent can tell the user it is quoting a copy captured at a
+specific time, not the site's live state.
 
 And **`graph_path` doesn't just answer — it shows its work**: the response
 includes every edge in the path with its provenance and confidence, so an

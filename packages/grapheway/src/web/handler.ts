@@ -196,6 +196,7 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
           edges: liveGraph.edges.length,
           nodeTypes: [...new Set(liveGraph.nodes.map((n) => n.type))].sort(),
           edgeTypes: [...new Set(liveGraph.edges.map((e) => e.type))].sort(),
+          meta: liveGraph.meta,
           provenance,
           confidence,
           endpoints: {
@@ -216,7 +217,7 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         const id = new URL(req.url, "http://localhost").searchParams.get("id") ?? "";
         const node = findNode(liveGraph, id);
         if (!node) return json(404, { error: "Unknown node", id });
-        return json(200, node);
+        return json(200, liveGraph.meta ? { ...node, _meta: liveGraph.meta } : node);
       },
     },
     {
@@ -227,7 +228,8 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         const dir = sp.get("direction")?.toLowerCase();
         const direction = dir === "in" || dir === "out" ? dir : "both";
         const type = (sp.get("type") ?? undefined) as GraphEdgeType | undefined;
-        return json(200, neighborsOf(liveGraph, id, direction, type));
+        const result = neighborsOf(liveGraph, id, direction, type);
+        return json(200, liveGraph.meta ? { ...result, _meta: liveGraph.meta } : result);
       },
     },
     {
@@ -236,7 +238,11 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         const sp = new URL(req.url, "http://localhost").searchParams;
         const q = sp.get("q") ?? "";
         const limit = Number(sp.get("limit") ?? 10);
-        return json(200, { query: q, results: searchNodes(liveGraph, q, Number.isFinite(limit) ? limit : 10) });
+        return json(200, {
+          query: q,
+          ...(liveGraph.meta ? { _meta: liveGraph.meta } : {}),
+          results: searchNodes(liveGraph, q, Number.isFinite(limit) ? limit : 10),
+        });
       },
     },
     {
@@ -247,13 +253,25 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         const to = sp.get("to") ?? "";
         const result = findPathWithEdges(liveGraph, from, to);
         if (!result) return json(404, { error: "No path between nodes", from, to });
-        return json(200, { from, to, path: result.path, edges: result.edges });
+        return json(200, {
+          from,
+          to,
+          ...(liveGraph.meta ? { _meta: liveGraph.meta } : {}),
+          path: result.path,
+          edges: result.edges,
+        });
       },
     },
     {
       // Full graph dump — the viewer (and agents) get everything in one call.
       match: (p, m) => p === "/graph/v1/graph" && m === "GET",
-      handler: () => json(200, { version: graphVersion, nodes: liveGraph.nodes, edges: liveGraph.edges }),
+      handler: () =>
+        json(200, {
+          version: graphVersion,
+          nodes: liveGraph.nodes,
+          edges: liveGraph.edges,
+          meta: liveGraph.meta,
+        }),
     },
     {
       // The interactive graph viewer (self-contained HTML, zero deps).
