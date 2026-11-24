@@ -16,6 +16,9 @@ const today = new Date().toISOString().slice(0, 10);
 const data = JSON.parse(
   await readFile(join(root, "src", "data", "agent-readiness.json"), "utf-8"),
 );
+const articles = JSON.parse(
+  await readFile(join(root, "src", "data", "articles.json"), "utf-8"),
+);
 
 const pages = [
   { path: "", changefreq: "weekly", priority: "1.0" },
@@ -24,6 +27,12 @@ const pages = [
   { path: "readiness", changefreq: "weekly", priority: "0.9" },
   { path: "adopters", changefreq: "daily", priority: "0.8" },
   { path: "releases", changefreq: "weekly", priority: "0.8" },
+  { path: "blog", changefreq: "weekly", priority: "0.9" },
+  ...articles.map((article) => ({
+    path: `blog/${article.slug}`,
+    changefreq: "monthly",
+    priority: "0.7",
+  })),
   ...data.results.map((site) => ({
     path: `readiness/${site.slug}`,
     changefreq: "monthly",

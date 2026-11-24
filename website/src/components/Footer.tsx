@@ -76,6 +76,9 @@ export function Footer() {
             <a href={`${basePath}/readiness/`} className="footer-link">
               Readiness index
             </a>
+            <a href={`${basePath}/blog/`} className="footer-link">
+              Writing
+            </a>
             <a href={`${basePath}/docs/`} className="footer-link">
               Docs
             </a>

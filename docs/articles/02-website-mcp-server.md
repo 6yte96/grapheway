@@ -1,13 +1,13 @@
 # Turn Any Website Into an MCP Server in One Command
 
-MCP — the Model Context Protocol — is becoming the standard way AI assistants
+MCP, the Model Context Protocol, is becoming the standard way AI assistants
 use tools. Claude Desktop, Cursor, VS Code and a growing list of clients can
 connect to an MCP server and call its tools like native functions.
 
 The problem is simple: most websites do not have an MCP server.
 
-That means when you ask an assistant to “read the Express docs” or “find the
-pricing page on this site,” it often falls back to scraping HTML. It downloads
+That means when you ask an assistant to "read the Express docs" or "find the
+pricing page on this site," it often falls back to scraping HTML. It downloads
 the page, strips the markup, guesses the structure, and repeats the whole
 process for every page.
 
@@ -31,8 +31,8 @@ Once a site is exposed over MCP, an agent gets tools such as:
 | `get_site_info` | Get the site's name, summary and contact |
 | `list_sections` | See the curated sections |
 
-The same server can also expose the site's own actions — “check status,”
-“search,” “get a quote” — so the agent can do something, not just read.
+The same server can also expose the site's own actions, such as "check status,"
+"search," or "get a quote," so the agent can do something, not just read.
 
 ## Option 1: the zero-install hosted demo
 
@@ -130,11 +130,11 @@ npx -y grapheway@latest audit https://your-site.com
 
 Ask your assistant:
 
-> “How does routing work in Express, and where is the middleware guide?”
+> "How does routing work in Express, and where is the middleware guide?"
 
 A well-behaved agent can:
 
-1. call `graph_search` for “routing”,
+1. call `graph_search` for "routing",
 2. call `graph_neighbors` on the best node,
 3. call `get_page` for the guide,
 4. answer with a link to the source.
@@ -142,19 +142,19 @@ A well-behaved agent can:
 There is no HTML scraping and no guessing. The graph gives the agent a route,
 and the path response shows which links it followed.
 
-That last part matters. When an agent says “according to the docs,” you want to
+That last part matters. When an agent says "according to the docs," you want to
 know which page it actually read. A graph path is evidence.
 
 ## How it works under the hood
 
 The probe does four things:
 
-1. **Crawls the site** — same-origin, robots-aware, with a page budget.
-2. **Extracts knowledge** — titles, navigation, headings, links and OpenAPI
+1. **Crawls the site**: same-origin, robots-aware, with a page budget.
+2. **Extracts knowledge**: titles, navigation, headings, links and OpenAPI
    endpoints.
-3. **Builds a typed graph** — pages and sections become nodes, links become
+3. **Builds a typed graph**: pages and sections become nodes, links become
    edges, each edge tagged with where it came from.
-4. **Serves MCP** — graph tools, the site's actions and pages as markdown
+4. **Serves MCP**: graph tools, the site's actions and pages as markdown
    resources.
 
 The result is the same surface whether the site opted in or was probed. That
@@ -241,7 +241,7 @@ npx -y grapheway@latest init
 
 The code, docs and launch notes are at
 [github.com/6yte96/grapheway](https://github.com/6yte96/grapheway). If this
-saves you a crawler, star the repo — it helps the next builder find it.
+saves you a crawler, star the repo. It helps the next builder find it.
 
 ---
 

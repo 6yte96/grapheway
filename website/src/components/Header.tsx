@@ -93,6 +93,10 @@ export function Header() {
                 <span>{item.label}</span>
               </a>
             ))}
+            <Link href="/blog" className="nav-link">
+              <i className="fas fa-pen-nib mr-1"></i>
+              <span>Writing</span>
+            </Link>
             <Link href="/docs" className="nav-link">
               <i className="fas fa-book mr-1"></i>
               <span>Docs</span>
@@ -147,6 +151,10 @@ export function Header() {
               <span>{item.label}</span>
             </a>
           ))}
+          <Link href="/blog" className="drawer-link" onClick={closeDrawer}>
+            <i className="fas fa-pen-nib"></i>
+            <span>Writing</span>
+          </Link>
           <Link href="/docs" className="drawer-link" onClick={closeDrawer}>
             <i className="fas fa-book"></i>
             <span>Docs</span>

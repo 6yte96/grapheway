@@ -1,0 +1,29 @@
+[
+  {
+    "slug": "ai-agent-readiness-checklist",
+    "title": "AI Agents Can't Read Your Website: The 2026 Checklist",
+    "description": "Most websites are invisible to AI agents. Use this 7-point agent-readiness checklist to make your site readable, searchable and actionable.",
+    "date": "2026-11-24",
+    "readingTime": "7 min",
+    "tags": ["AI agents", "agent readiness", "SEO", "GEO"],
+    "file": "01-agent-readiness-checklist.md"
+  },
+  {
+    "slug": "website-mcp-server",
+    "title": "Turn Any Website Into an MCP Server in One Command",
+    "description": "MCP gives AI assistants tools. Turn any public website into an MCP server in under a minute, with no scraping, hosting or API key.",
+    "date": "2026-11-24",
+    "readingTime": "6 min",
+    "tags": ["MCP", "AI agents", "tutorial", "web"],
+    "file": "02-website-mcp-server.md"
+  },
+  {
+    "slug": "llms-txt-live-graph",
+    "title": "llms.txt Is Not Enough: AI Search Needs a Live Graph",
+    "description": "llms.txt helps AI read your site, but it is static. Learn why AI search needs a live knowledge graph, actions and MCP, and how to add them.",
+    "date": "2026-11-24",
+    "readingTime": "6 min",
+    "tags": ["llms.txt", "GEO", "SEO", "knowledge graph"],
+    "file": "03-llms-txt-is-not-enough.md"
+  }
+]
