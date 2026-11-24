@@ -4,6 +4,7 @@ import { PROJECT_CONFIG } from "@/config";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { GraphCanvas } from "@/components/GraphCanvas";
+import { canonical, OG_IMAGE } from "@/lib/seo";
 
 const spaceMono = Space_Mono({
   weight: ["400", "700"],
@@ -20,11 +21,11 @@ const rubik = Rubik({
 });
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "/grapheway";
-const ogImage = `${basePath}/og.png`;
 
 export const metadata = {
   metadataBase: new URL(PROJECT_CONFIG.meta.url),
   title: PROJECT_CONFIG.meta.title,
+  alternates: { canonical: canonical("/") },
   description: PROJECT_CONFIG.meta.description,
   keywords: PROJECT_CONFIG.meta.keywords,
   authors: [{ name: PROJECT_CONFIG.meta.author }],
@@ -34,14 +35,14 @@ export const metadata = {
     url: PROJECT_CONFIG.meta.url,
     siteName: PROJECT_CONFIG.brand.name,
     type: "website",
-    images: [{ url: ogImage, width: 1200, height: 630, alt: "grapheway — turn any website into a live knowledge graph and MCP server" }],
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "grapheway — turn any website into a live knowledge graph and MCP server" }],
   },
   twitter: {
     card: "summary_large_image",
     title: PROJECT_CONFIG.meta.title,
     description: PROJECT_CONFIG.meta.description,
     creator: `@${PROJECT_CONFIG.brand.handle}`,
-    images: [ogImage],
+    images: [OG_IMAGE],
   },
   icons: {
     icon: [

@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { PROJECT_CONFIG } from "@/config";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: `Docs · ${PROJECT_CONFIG.brand.name}`,
   description:
     "Make any website agent-ready in one command. Quickstart for Next.js, Express, Hono, static hosts, stdio MCP and the hosted remote MCP endpoint.",
-};
+  path: "/docs/",
+  imageAlt: "Grapheway documentation",
+});
 
 const faq = [
   {
@@ -51,6 +54,7 @@ function Code({ children }: { children: string }) {
 export default function DocsPage() {
   return (
     <section className="projects-section" style={{ paddingTop: "2rem" }}>
+      <h1 className="sr-only">Grapheway documentation</h1>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}

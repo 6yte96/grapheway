@@ -1,12 +1,31 @@
 import Link from "next/link";
 import data from "@/data/agent-readiness.json";
 import { PROJECT_CONFIG } from "@/config";
+import { canonical, pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+const datasetLd = {
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  name: "Agent Readiness Index",
+  description:
+    "A public audit of the documentation sites AI agents read most, scored for discovery, knowledge graph, MCP, robots policy and structured data.",
+  url: canonical("/readiness/"),
+  dateModified: data.updatedAt,
+  creator: {
+    "@type": "Organization",
+    name: "Grapheway",
+    url: "https://6yte96.github.io/grapheway/",
+  },
+  license: "https://www.gnu.org/licenses/gpl-3.0.html",
+};
+
+export const metadata = pageMetadata({
   title: `Agent Readiness Index · ${PROJECT_CONFIG.brand.name}`,
   description:
-    "A live public audit of the documentation sites AI agents read most. Scores, grades and the exact gaps — no visitor data.",
-};
+    "A live public audit of the documentation sites AI agents read most. Scores, grades and the exact gaps, with no visitor data.",
+  path: "/readiness/",
+  imageAlt: "The Grapheway Agent Readiness Index",
+});
 
 export default function ReadinessPage() {
   const results = data.results;
@@ -14,6 +33,11 @@ export default function ReadinessPage() {
 
   return (
     <section className="projects-section" style={{ paddingTop: "2rem" }}>
+      <h1 className="sr-only">Agent Readiness Index</h1>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetLd) }}
+      />
       <div className="section-header">
         <div className="section-header-left">
           <h2 className="section-title">The Agent Readiness Index</h2>
