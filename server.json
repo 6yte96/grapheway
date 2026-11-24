@@ -3,7 +3,7 @@
   "name": "io.github.6yte96/grapheway",
   "title": "Grapheway",
   "description": "Turn any website into a live knowledge graph and MCP server. Probe any URL.",
-  "version": "0.2.8",
+  "version": "0.2.7",
   "websiteUrl": "https://6yte96.github.io/grapheway/",
   "repository": {
     "url": "https://github.com/6yte96/grapheway",
@@ -29,7 +29,7 @@
     {
       "registryType": "npm",
       "identifier": "grapheway",
-      "version": "0.2.8",
+      "version": "0.2.7",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"
