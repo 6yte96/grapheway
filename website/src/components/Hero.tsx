@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { PROJECT_CONFIG } from "@/config";
 import { HeroGraph } from "./HeroGraph";
 
 export function Hero() {
-  const { hero, install } = PROJECT_CONFIG;
+  const { hero, install, agentSetup } = PROJECT_CONFIG;
+  const [promptCopied, setPromptCopied] = useState(false);
   const [selectedManager, setSelectedManager] = useState(
     install.defaultManager || "npm"
   );
@@ -19,6 +21,14 @@ export function Hero() {
       await navigator.clipboard.writeText(currentCommand);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
+  const handlePromptCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(agentSetup.prompt);
+      setPromptCopied(true);
+      setTimeout(() => setPromptCopied(false), 2000);
     } catch {}
   };
 
@@ -109,6 +119,32 @@ export function Hero() {
             <span>{hero.secondaryCta.text}</span>
           </a>
         </div>
+
+        <details className="hero-agent-prompt">
+          <summary>
+            <span className="hero-agent-prompt-label">FOR CODING AGENTS</span>
+            <span>Copy the setup prompt</span>
+            <i className="fas fa-chevron-down" aria-hidden="true" />
+          </summary>
+          <pre>{agentSetup.prompt}</pre>
+          <div className="hero-agent-prompt-actions">
+            <button
+              type="button"
+              onClick={handlePromptCopy}
+              className={`copy-btn ${promptCopied ? "copied" : ""}`}
+            >
+              <i
+                className={`fas ${promptCopied ? "fa-check" : "fa-copy"}`}
+                aria-hidden="true"
+              />
+              <span>{promptCopied ? "Copied" : "Copy prompt"}</span>
+            </button>
+            <Link href={agentSetup.ctaHref} className="hero-agent-prompt-link">
+              {agentSetup.cta}
+              <i className="fas fa-arrow-right" aria-hidden="true" />
+            </Link>
+          </div>
+        </details>
       </div>
 
       <div className="hero-visual">

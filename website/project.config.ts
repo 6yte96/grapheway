@@ -182,25 +182,27 @@ export const PROJECT_CONFIG: ProjectConfig = {
     title: "Let an agent set it up",
     subtitle:
       "Copy this prompt into Claude, Cursor, Codex or any coding agent. It inspects your project, mounts grapheway, verifies the endpoints and reports back.",
-    prompt: `You are setting up grapheway for this website. Work in the current repository.
+    prompt: `Set up grapheway for this website. Use the environment and tools available to you.
 
-1. Inspect package.json and detect the framework: Next.js, Express, Hono, plain Node, or a static host.
+1. Inspect the project and detect the framework: Next.js, Express, Hono, plain Node, or a static host.
 2. Run:
    npx -y grapheway@latest init
-   If npx fails, try:
+   If npx is unavailable, use:
    npm exec --yes --package=grapheway@latest -- grapheway init
-   or: bunx grapheway@latest init
+   bunx grapheway@latest init
+   or install the package locally.
 3. If the framework is unsupported, run:
-   npx -y grapheway@latest init --url <production URL>
-   then follow the printed steps.
-4. Start the dev server and verify these endpoints:
+   npx -y grapheway@latest init --url <site URL>
+   and follow the printed steps.
+4. Start the app and verify:
    /.well-known/agent
    /graph/v1
    /mcp
-5. Run the audit on the local URL and fix failed checks:
-   npx -y grapheway@latest audit <local URL>
-6. Show me the files you changed, the audit score, and the exact MCP URL.
-Do not deploy, publish to npm, or change production without my approval.`,
+5. Run the audit on the app URL and fix failed checks:
+   npx -y grapheway@latest audit <app URL>
+6. Report the files you changed, the audit score, and the exact MCP URL.
+
+Use your own judgment for the environment and the project's existing conventions.`,
     fallbackTitle: "If npx says command not found",
     fallbacks: [
       "Run from your own project root, not inside the grapheway repository.",
@@ -210,13 +212,13 @@ Do not deploy, publish to npm, or change production without my approval.`,
     ],
     fullSteps: [
       "Open your project in Claude Code, Cursor, Codex, or another coding agent.",
-      "Paste the prompt above and let the agent inspect the framework.",
-      "The agent runs init, mounts the surface, and starts the dev server.",
+      "Paste the prompt and let the agent inspect the framework.",
+      "The agent runs init, mounts the surface, and starts the app.",
       "It verifies /.well-known/agent, /graph/v1, and /mcp.",
       "It runs the audit and fixes the failed checks.",
-      "You review the changed files and approve before deploy.",
+      "It reports the changed files, audit score, and MCP URL.",
     ],
-    note: "The prompt tells the agent to stop before deploy, npm publish, or any production change.",
+    note: "Use this with any coding agent. The agent works with its own environment and the project's conventions.",
     cta: "Open the full setup guide",
     ctaHref: "/setup",
   },
