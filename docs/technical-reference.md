@@ -746,14 +746,25 @@ bun run example      # start the demo site on :4321
 
 ---
 
-## Publishing (npm)
+## Releasing (npm)
 
-One package, one publish:
+Releases are deliberate. A local change is not a release.
 
-1. **Develop on `dev`** — pushes to `dev` trigger internal GitHub runner builds that commit the tarball to `artifacts/` (stays strictly within GitHub, no npm publishing).
-2. **Bump the version** in `packages/grapheway/package.json` when ready to release.
-3. **Open PR to `main`** — GitHub Actions runs typecheck and tests on the PR (no publishing).
-4. **Merge into `main`** — merging the pull request into `main` triggers the `Publish to npm` workflow to build and publish the release to the npm registry.
+1. **Develop on `dev`.** Feature, fix, docs and chore branches open PRs to `dev`.
+   Pushes to `dev` build artifacts for testing, but never publish to npm.
+2. **Freeze the batch.** When the work is complete, cut `release/x.y.z` from
+   `dev`. Bump the version exactly once and update the changelog and release
+   notes.
+3. **Open a release PR to `main`.** Add the `release` label. The `Release
+   guard` rejects version changes on non-release branches and requires the
+   label.
+4. **Merge after approval.** The `Release to npm` workflow publishes only when
+   the package version changed in that push. Docs, website and workflow pushes
+   do not publish.
+
+Do not bump the version on a feature branch. Do not publish from `dev` or
+`beta/*`. Do not cut a release for every small fix. The full checklist is in
+[`docs/RELEASE_POLICY.md`](RELEASE_POLICY.md).
 
 > The package compiles to `dist/` (6 JS bundles + type declarations) — works on
 > **Node**, **Bun**, **Deno**, and bundlers. Subpath exports let users import

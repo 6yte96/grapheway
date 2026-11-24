@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   test:
+    name: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,3 +44,52 @@ jobs:
           })"
       - name: CLI smoke test
         run: node packages/grapheway/dist/cli/cli.js --help
+
+  release-guard:
+    name: Release guard
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reject version changes outside release branches
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          HAS_RELEASE_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'release') }}
+        run: |
+          set -euo pipefail
+
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          base="origin/${{ github.base_ref }}"
+
+          head_pkg="$(node -p "require('./packages/grapheway/package.json').version")"
+          base_pkg="$(git show "$base:packages/grapheway/package.json" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).version))')"
+
+          head_core="$(sed -n 's/.*GRAPHEWAY_VERSION = "\([^"]*\)".*/\1/p' packages/grapheway/src/core/types.ts | head -1)"
+          base_core="$(git show "$base:packages/grapheway/src/core/types.ts" | sed -n 's/.*GRAPHEWAY_VERSION = "\([^"]*\)".*/\1/p' | head -1)"
+
+          head_server="$(node -p "require('./server.json').version")"
+          base_server="$(git show "$base:server.json" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).version))')"
+
+          echo "package: $base_pkg -> $head_pkg"
+          echo "core:    $base_core -> $head_core"
+          echo "server:  $base_server -> $head_server"
+
+          if [ "$head_pkg" = "$base_pkg" ] && [ "$head_core" = "$base_core" ] && [ "$head_server" = "$base_server" ]; then
+            echo "No version change. Day-to-day PR is allowed."
+            exit 0
+          fi
+
+          if [[ "$HEAD_REF" != release/* ]]; then
+            echo "::error::Version changes are only allowed on release/* branches."
+            exit 1
+          fi
+
+          if [ "$HAS_RELEASE_LABEL" != "true" ]; then
+            echo "::error::A release PR must have the 'release' label."
+            exit 1
+          fi
+
+          echo "Release PR detected. The release gate will decide whether to publish."

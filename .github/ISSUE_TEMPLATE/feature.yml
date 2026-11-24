@@ -1,0 +1,48 @@
+name: Feature request
+description: Suggest a capability or a change in behavior.
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the user and the job to be done, not just the feature.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Keep it small. Note any protocol, security or compatibility impact.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Graph / discovery
+        - MCP / agent experience
+        - Probe / crawler
+        - Init / adapters
+        - Audit / badge
+        - Website / docs
+        - Release / process
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: I read PRODUCT.md and this is in scope.
+          required: true
+        - label: I searched existing issues and discussions.
+          required: true
