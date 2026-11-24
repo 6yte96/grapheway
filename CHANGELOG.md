@@ -105,7 +105,7 @@ The adoption release — one command, a public index, and a Web-standard adapter
 - The landing page is now a static agent surface: `/.well-known/agent`,
   `llms.txt`, `agents.json`, `robots.txt`, `sitemap.xml`, JSON-LD and
   `.nojekyll`; its own audit score rises from 14/100 to 70/100.
-- `docs/launch/` — 7-day launch calendar, channel targets and copy.
+- Launch planning and article drafts.
 - GitHub CI matrix (typecheck, tests, build, Node 20 smoke test).
 
 ### Changed
