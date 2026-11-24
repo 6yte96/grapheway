@@ -20,6 +20,12 @@ Grapheway turns a website into a typed, live knowledge graph with an open MCP en
 - [Probe any site](https://github.com/6yte96/grapheway#grapheway-probe--convert-any-website-into-a-graph-for-agents): `npx grapheway probe https://example.com` turns any URL into the same graph surface.
 - [Hosted demo MCP](https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com): zero-install remote MCP for any public site; swap the url parameter.
 
+## Writing
+
+- [AI Agents Can't Read Your Website: The 2026 Checklist](https://6yte96.github.io/grapheway/blog/ai-agent-readiness-checklist/): a 7-point agent-readiness checklist.
+- [Turn Any Website Into an MCP Server in One Command](https://6yte96.github.io/grapheway/blog/website-mcp-server/): a practical MCP setup guide.
+- [llms.txt Is Not Enough: AI Search Needs a Live Graph](https://6yte96.github.io/grapheway/blog/llms-txt-live-graph/): the case for a live knowledge graph.
+
 ## For site owners
 
 - [One-command setup](https://github.com/6yte96/grapheway#quick-start-app-side): `npx grapheway init` detects the framework and mounts the agent surface.

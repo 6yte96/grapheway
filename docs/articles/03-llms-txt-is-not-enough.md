@@ -8,21 +8,21 @@ Many still maintain one today.
 
 But a static file is not a strategy.
 
-AI search is moving from “read a page” to “use the site.” Assistants are not
+AI search is moving from "read a page" to "use the site." Assistants are not
 just summarizing content; they are searching, comparing, following links and
 taking actions. A flat text file cannot keep up with that.
 
-This is the gap that **generative engine optimization (GEO)** has to close — and
+This is the gap that **generative engine optimization (GEO)** has to close, and
 why a live knowledge graph matters more than another checklist item.
 
 ## What `llms.txt` does well
 
 Credit where it is due. `llms.txt` is:
 
-- **simple** — one file, plain markdown, easy to write;
-- **cheap** — no server, no runtime, no build step;
-- **readable** — both humans and models can parse it;
-- **a good fallback** — clients that do not support anything else can still
+- **simple**: one file, plain markdown, easy to write;
+- **cheap**: no server, no runtime, no build step;
+- **readable**: both humans and models can parse it;
+- **a good fallback**: clients that do not support anything else can still
   find the important pages.
 
 If your site has no machine-readable surface at all, adding `llms.txt` is a
@@ -46,7 +46,7 @@ scraping, because the error is harder to notice.
 
 It cannot tell an agent that the Enterprise plan is connected to the billing
 FAQ, the security page and the contact action. It cannot rank a page for a
-query. It cannot show a path from “pricing” to “refund policy.”
+query. It cannot show a path from "pricing" to "refund policy."
 
 A sitemap has the same problem: it knows URLs, not meaning.
 
@@ -54,8 +54,8 @@ A sitemap has the same problem: it knows URLs, not meaning.
 
 The best agent experience is not just reading. It is doing.
 
-“Check if this order shipped.” “Search the docs for a migration guide.” “Get a
-quote for 50 seats.” A text file cannot expose an action. An agent has to find
+"Check if this order shipped." "Search the docs for a migration guide." "Get a
+quote for 50 seats." A text file cannot expose an action. An agent has to find
 a form, guess the fields and hope the site allows it.
 
 ## The difference in one table
@@ -90,12 +90,12 @@ No guessing. No reading the homepage HTML to infer the API.
 A typed map of pages, sections and links. Pages become nodes. Links become
 edges. The agent can search the map and follow a route.
 
-This is the difference between “here is a list of URLs” and “here is how the
-site is put together.”
+This is the difference between "here is a list of URLs" and "here is how the
+site is put together."
 
 ### 3. Search
 
-An agent should be able to ask “where is the refund policy?” without crawling
+An agent should be able to ask "where is the refund policy?" without crawling
 every page. A graph search endpoint returns ranked nodes, not a pile of HTML.
 
 ### 4. Trust
@@ -113,8 +113,8 @@ That is a citation, not a guess.
 
 Content answers questions. Actions complete tasks.
 
-Expose the actions you already have — status, search, booking, quote — once,
-over both HTTP and MCP. Do not build a separate integration for every
+Expose the actions you already have, such as status, search, booking, or a quote.
+Expose them once, over both HTTP and MCP. Do not build a separate integration for every
 assistant.
 
 ### 6. Freshness
@@ -216,4 +216,4 @@ ready.
 
 *I built [grapheway](https://github.com/6yte96/grapheway), an open protocol
 for agent-ready websites. It is free, open source and in beta. If this was
-useful, star the repo — it helps the next team find it.*
+useful, star the repo. It helps the next team find it.*

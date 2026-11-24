@@ -176,6 +176,7 @@ It is beta (`v0.2.8`). The core is small, tested and dependency-free. Read the [
 ## Learn more
 
 - [Documentation](https://6yte96.github.io/grapheway/docs/)
+- [Writing](https://6yte96.github.io/grapheway/blog/)
 - [Agent setup prompt](https://6yte96.github.io/grapheway/setup/)
 - [Technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md)
 - [White paper](https://github.com/6yte96/grapheway/blob/main/docs/whitepaper.md)
