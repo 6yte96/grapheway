@@ -23,5 +23,6 @@
     "name": "grapheway",
     "url": "https://github.com/6yte96/grapheway"
   },
-  "hostedMcp": "https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com"
+  "hostedMcp": "https://grapheway-mcp.usmani3923.workers.dev/mcp?url=https://expressjs.com",
+  "setup": "https://6yte96.github.io/grapheway/setup/"
 }

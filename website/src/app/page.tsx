@@ -1,5 +1,6 @@
 import { Hero } from "@/components/Hero";
 import { Playground } from "@/components/Playground";
+import { AgentSetup } from "@/components/AgentSetup";
 import { FeatureBento } from "@/components/FeatureBento";
 import { Benchmarks } from "@/components/Benchmarks";
 import { LiveIndex } from "@/components/LiveIndex";
@@ -20,6 +21,7 @@ export default function LandingPage() {
     <>
       <Hero />
       <Playground />
+      <AgentSetup />
       <FeatureBento />
       <Benchmarks />
       <LiveIndex />
