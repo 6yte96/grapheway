@@ -5,6 +5,22 @@ All notable changes to Grapheway will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.8] - 2026-11-24
+
+Snapshot provenance — requested in [Discussion #2](https://github.com/6yte96/grapheway/discussions/2).
+
+### Added
+- Probed graphs now carry `meta: { sourceUrl, capturedAt, snapshot: true }`.
+- `graph/v1/search`, `graph/v1/node`, `graph/v1/edges` and `graph/v1/path`
+  return `_meta` with the source URL and capture time.
+- The MCP `graph_search`, `graph_node`, `graph_neighbors` and `graph_path`
+  tools return the same `_meta`.
+- `createProbeAgent().refresh()` keeps the capture metadata current when the
+  live graph is patched.
+- SKILL.md tells agents to disclose when they are quoting a snapshot.
+
+No breaking changes. The new fields are additive.
+
 ## [0.2.7] - 2026-11-23
 
 Documentation release. No runtime behavior changes.

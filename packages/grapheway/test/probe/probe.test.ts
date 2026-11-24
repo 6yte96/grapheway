@@ -155,6 +155,11 @@ describe("buildFromCrawl (knowledge → graph)", () => {
 
     const { graph, config } = result;
 
+    // The graph carries its own snapshot provenance.
+    expect(graph.meta?.sourceUrl).toBe(base);
+    expect(graph.meta?.snapshot).toBe(true);
+    expect(Number.isNaN(Date.parse(graph.meta?.capturedAt ?? ""))).toBe(false);
+
     // Pages → nodes.
     const pageNodes = graph.nodes.filter((n) => n.type === "page");
     expect(pageNodes.length).toBeGreaterThanOrEqual(3);
