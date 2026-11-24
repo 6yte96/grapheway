@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PROJECT_CONFIG } from "@/config";
 import { HeroGraph } from "./HeroGraph";
 
 export function Hero() {
   const { hero, install, agentSetup } = PROJECT_CONFIG;
-  const [promptCopied, setPromptCopied] = useState(false);
   const [selectedManager, setSelectedManager] = useState(
     install.defaultManager || "npm"
   );
   const [copied, setCopied] = useState(false);
+  const [promptOpen, setPromptOpen] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
 
   const currentCommand =
     install.managers[selectedManager] || `npm install ${PROJECT_CONFIG.brand.name}`;
@@ -32,12 +33,14 @@ export function Hero() {
     } catch {}
   };
 
-  const handlePromptKey = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      void handlePromptCopy();
-    }
-  };
+  useEffect(() => {
+    if (!promptOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPromptOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [promptOpen]);
 
   return (
     <section className="hero">
@@ -125,48 +128,52 @@ export function Hero() {
             ></i>
             <span>{hero.secondaryCta.text}</span>
           </a>
+          <button
+            type="button"
+            onClick={() => setPromptOpen((open) => !open)}
+            className="btn-broadsheet-outline hero-agent-trigger"
+            aria-expanded={promptOpen}
+            aria-controls="hero-agent-prompt"
+            title="Open the agent setup prompt"
+          >
+            <i
+              className="fas fa-terminal"
+              style={{ marginRight: "0.45rem", fontSize: "11px" }}
+            ></i>
+            <span>Prompt for Agent</span>
+            <i
+              className={`fas fa-chevron-${promptOpen ? "up" : "down"}`}
+              style={{ marginLeft: "0.5rem", fontSize: "9px" }}
+            ></i>
+          </button>
         </div>
 
-        <details className="hero-agent-prompt">
-          <summary
-            onClick={handlePromptCopy}
-            title="Click to copy the setup prompt"
-          >
-            <span className="hero-agent-prompt-label">FOR CODING AGENTS</span>
-            <span>Setup prompt</span>
-            <span className="hero-agent-prompt-hint">
-              {promptCopied ? "copied" : "click to copy"}
-            </span>
-            <i className="fas fa-chevron-down" aria-hidden="true" />
-          </summary>
-          <pre
-            onClick={handlePromptCopy}
-            onKeyDown={handlePromptKey}
-            role="button"
-            tabIndex={0}
-            title="Click to copy the prompt"
-            aria-label="Copy the agent setup prompt"
-          >
-            {agentSetup.prompt}
-          </pre>
-          <div className="hero-agent-prompt-actions">
-            <button
-              type="button"
-              onClick={handlePromptCopy}
-              className={`copy-btn ${promptCopied ? "copied" : ""}`}
-            >
-              <i
-                className={`fas ${promptCopied ? "fa-check" : "fa-copy"}`}
-                aria-hidden="true"
-              />
-              <span>{promptCopied ? "Copied" : "Copy prompt"}</span>
-            </button>
-            <Link href={agentSetup.ctaHref} className="hero-agent-prompt-link">
-              {agentSetup.cta}
-              <i className="fas fa-arrow-right" aria-hidden="true" />
-            </Link>
+        {promptOpen ? (
+          <div id="hero-agent-prompt" className="hero-agent-prompt-dropdown">
+            <div className="hero-agent-prompt-head">
+              <span>AGENT SETUP PROMPT</span>
+              <button
+                type="button"
+                onClick={handlePromptCopy}
+                className={`copy-btn ${promptCopied ? "copied" : ""}`}
+              >
+                <i
+                  className={`fas ${promptCopied ? "fa-check" : "fa-copy"}`}
+                  aria-hidden="true"
+                />
+                <span>{promptCopied ? "Copied" : "Copy prompt"}</span>
+              </button>
+            </div>
+            <pre>{agentSetup.prompt}</pre>
+            <div className="hero-agent-prompt-actions">
+              <Link href={agentSetup.ctaHref} className="hero-agent-prompt-link">
+                {agentSetup.cta}
+                <i className="fas fa-arrow-right" aria-hidden="true" />
+              </Link>
+              <span>Copy, paste into your coding agent, then follow its output.</span>
+            </div>
           </div>
-        </details>
+        ) : null}
       </div>
 
       <div className="hero-visual">
