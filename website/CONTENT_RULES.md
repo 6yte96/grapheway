@@ -14,7 +14,7 @@ verifiable from the repository**.
 - If the repo has 47 entries, the page says 47. Count them with a
   script, do not estimate.
 - If there are no open issues, do not invent "good first issues".
-  Use the project's real roadmap items from AGENTS.md, TODO, or
+  Use the project's real roadmap items from the README, TODO, or
   issue tracker, and link each one to the actual file or issue.
 - If you do not have a real number for something, **delete that
   element**. An empty space reads better than a fabricated metric.

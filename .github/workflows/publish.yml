@@ -7,7 +7,7 @@ name: Release to npm
 #   that push and every version file agrees.
 # - Manual dispatch: emergency only. Requires confirm=publish.
 #
-# The release rules live in docs/RELEASE_POLICY.md.
+# The Release gate enforces the release rules.
 
 on:
   push:
@@ -92,7 +92,10 @@ jobs:
               echo "No previous commit to compare. Skipping publish."
               exit 0
             fi
-            if git diff --quiet "$BEFORE_SHA" HEAD -- packages/grapheway/package.json; then
+            if git diff --quiet "$BEFORE_SHA" HEAD -- \
+            packages/grapheway/package.json \
+            packages/grapheway/src/core/types.ts \
+            server.json; then
               echo "The package version did not change in this push. Nothing to release."
               exit 0
             fi
