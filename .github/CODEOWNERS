@@ -3,9 +3,5 @@
 * @6yte96
 
 /.github/workflows/ @6yte96
-/docs/RELEASE_POLICY.md @6yte96
-/AGENTS.md @6yte96
-/PROJECT.md @6yte96
-/PRODUCT.md @6yte96
 /packages/grapheway/package.json @6yte96
 /server.json @6yte96
