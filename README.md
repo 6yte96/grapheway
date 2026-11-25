@@ -7,6 +7,8 @@
 [![agent-ready sites](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2F6yte96.github.io%2Fgrapheway%2Fadopters.json&query=%24.total&label=agent-ready%20sites&color=0b0e15)](https://6yte96.github.io/grapheway/adopters/)
 [![license](https://img.shields.io/badge/license-GPL--3.0-0b0e15)](https://github.com/6yte96/grapheway/blob/main/LICENSE)
 
+**Current release:** [`v0.2.8`](https://github.com/6yte96/grapheway/releases/tag/v0.2.8) · [npm](https://www.npmjs.com/package/grapheway) · [version.json](https://6yte96.github.io/grapheway/version.json) · [changelog](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md)
+
 Grapheway is an open, free way for a website to describe itself to AI agents.
 
 Think of it as a **sitemap for AI agents** — except the map is live, searchable, and can do things.

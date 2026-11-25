@@ -65,6 +65,9 @@ export const viewport = {
 
 const siteUrl = PROJECT_CONFIG.meta.url;
 const repoUrl = PROJECT_CONFIG.links.github;
+const softwareVersion = PROJECT_CONFIG.meta.version
+  .replace(/^v/, "")
+  .replace(/\s*\(Beta\)$/i, "");
 
 const jsonLd = [
   {
@@ -94,7 +97,10 @@ const jsonLd = [
     operatingSystem: "Node, Bun, Deno, Edge runtimes",
     description: PROJECT_CONFIG.meta.description,
     url: siteUrl,
+    softwareVersion,
     codeRepository: repoUrl,
+    downloadUrl: PROJECT_CONFIG.links.npm,
+    releaseNotes: `${repoUrl}/releases`,
     license: "https://www.gnu.org/licenses/gpl-3.0.html",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   },

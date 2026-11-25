@@ -13,3 +13,4 @@ website/.next/
 website/out/
 website/next-env.d.ts
 website/*.tsbuildinfo
+website/public/version.json
