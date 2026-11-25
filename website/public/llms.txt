@@ -6,6 +6,7 @@ Grapheway turns a website into a typed, live knowledge graph with an open MCP en
 
 ## Start
 
+- [Version](https://6yte96.github.io/grapheway/version.json): the current release, npm, changelog and release links.
 - [GitHub repository](https://github.com/6yte96/grapheway): source, issues, releases, and the protocol white paper.
 - [npm package](https://www.npmjs.com/package/grapheway): one package, six subpath exports.
 - [Live adoption index](https://6yte96.github.io/grapheway/adopters/): sites that publish an agent surface, with live stars and downloads.

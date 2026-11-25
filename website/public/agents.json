@@ -14,6 +14,7 @@
     "agents": "https://6yte96.github.io/grapheway/agents.json",
     "robots": "https://6yte96.github.io/grapheway/robots.txt",
     "sitemap": "https://6yte96.github.io/grapheway/sitemap.xml",
+    "version": "https://6yte96.github.io/grapheway/version.json",
     "discovery": "https://6yte96.github.io/grapheway/.well-known/agent"
   },
   "install": "npx grapheway init",
