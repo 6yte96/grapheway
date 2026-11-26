@@ -22,6 +22,7 @@
  */
 
 import {
+  CUSTOM_ACTION_ANNOTATIONS,
   applyPatches,
   buildDiscovery,
   buildGraph,
@@ -141,6 +142,7 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
       name,
       description: `Custom action registered at runtime: ${name}`,
       inputSchema: { type: "object", properties: {} },
+      annotations: CUSTOM_ACTION_ANNOTATIONS,
     }));
 
   /** Root-relative path of a node, or null when it has no distinct page. */

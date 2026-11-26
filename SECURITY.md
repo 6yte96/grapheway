@@ -45,6 +45,19 @@ Out of scope:
 - The probe respects `robots.txt`, stays same-origin and uses a page budget.
 - There is no telemetry or visitor tracking.
 
+## Threat model
+
+- Treat crawled page content as untrusted input. It may contain prompt
+  injection or misleading instructions.
+- Actions are opt-in. A site that exposes a destructive action should put
+  authentication and authorization in front of it.
+- The probe and hosted demo reject private network addresses, respect
+  `robots.txt`, cap crawl pages and apply rate limits.
+- The runtime does not store API keys, credentials or visitor data.
+- The package has zero runtime dependencies and does not require an API key.
+- Snapshot results include `sourceUrl`, `capturedAt` and `snapshot` so an agent
+  can disclose that it read a copy, not the live site.
+
 ## Secrets
 
 Never put tokens, private URLs or personal data in an issue, discussion or pull

@@ -106,6 +106,12 @@ node packages/grapheway/dist/cli/cli.js --help
 - No AI co-author trailers unless the maintainer asks.
 - Keep public behavior documented in the README or technical reference.
 
+## Out of scope
+
+Unsolicited paid-integration, referral, crypto-settlement and third-party badge
+pitches are not accepted. Do not add a paid upstream, wallet address, referral
+tracking or a third-party vendor badge to the project.
+
 ## Release rules for contributors
 
 - Do not change the version in `package.json`, `server.json`,

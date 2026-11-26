@@ -390,6 +390,14 @@ describe("MCP endpoint", () => {
     expect(names).toContain("graph_neighbors");
     expect(names).toContain("graph_search");
     expect(names).toContain("graph_path");
+
+    const ping = data.result.tools.find((t: any) => t.name === "ping_server");
+    expect(ping.annotations).toEqual({
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: false,
+      openWorldHint: true,
+    });
   });
 
   test("tools/call works for runtime-registered actions", async () => {
@@ -536,6 +544,22 @@ describe("toolsForManifest", () => {
     const search = tools.find((t) => t.name === "search_content");
     expect(search?.description).toContain("Search the docs");
     expect(search?.inputSchema).toBeTruthy();
+    expect(search?.annotations).toEqual({
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    });
     expect(tools.some((t) => t.name === "graph_node")).toBe(true);
+
+    for (const name of ["graph_node", "graph_neighbors", "graph_search", "graph_path"]) {
+      const tool = tools.find((t) => t.name === name);
+      expect(tool?.annotations).toEqual({
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      });
+    }
   });
 });
