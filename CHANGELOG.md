@@ -5,6 +5,27 @@ All notable changes to Grapheway will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.9] - 2026-11-26
+
+Trust and directory release.
+
+### Added
+- MCP tool annotations on every built-in tool: `readOnlyHint`,
+  `destructiveHint`, `idempotentHint` and `openWorldHint`.
+- Conservative annotations for custom actions, with per-action overrides.
+- Built-in annotations are preserved when a site overrides a built-in action
+  schema.
+- `SECURITY.md` with a threat model, reporting process and package inclusion.
+- CodeQL workflow and a packed npm install smoke test in CI.
+- README trust section, 30-second probe proof, and MCP Registry, M8ven,
+  Conduid and Glama links.
+
+### Changed
+- README commands use `npx -y grapheway@latest`.
+- Test count: 130 tests, 413 assertions.
+
+No breaking changes.
+
 ## [0.2.8] - 2026-11-24
 
 Snapshot provenance — requested in [Discussion #2](https://github.com/6yte96/grapheway/discussions/2).

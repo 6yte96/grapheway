@@ -12,6 +12,22 @@ export const metadata = pageMetadata({
 
 const releases = [
   {
+    version: "v0.2.9",
+    date: "November 26, 2026",
+    title: "MCP annotations and trust surface",
+    tag: "TRUST",
+    summary:
+      "Every built-in MCP tool now declares behavior hints, and the package ships a security policy, CodeQL and a packed install test.",
+    points: [
+      "readOnlyHint, destructiveHint, idempotentHint and openWorldHint on all built-in tools.",
+      "Conservative defaults for custom actions, with per-action overrides.",
+      "SECURITY.md threat model, included in the npm package.",
+      "CodeQL and a packed npm install test in CI.",
+      "Trust links for the MCP Registry, M8ven, Conduid and Glama.",
+    ],
+    href: "https://github.com/6yte96/grapheway/releases/tag/v0.2.9",
+  },
+  {
     version: "v0.2.8",
     date: "November 24, 2026",
     title: "Snapshot source and capture time",
