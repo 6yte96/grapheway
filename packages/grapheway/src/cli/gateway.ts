@@ -16,13 +16,14 @@
  * MCP clients see the site go live without ever re-probing.
  */
 
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import {
   GRAPHEWAY_INDEX,
   GRAPHEWAY_REPO,
   type GraphewayConfig,
   type KnowledgeGraph,
+  parseStoredGraph,
   trimTrailingSlashes,
 } from "../core/index.js";
 import { compatHandler } from "../compat/index.js";
@@ -42,6 +43,8 @@ export interface GatewayFlags {
   graphPath?: string;
   /** Re-crawl every N hours and patch the live graph (probe mode). */
   refreshHours?: number;
+  /** Persist the probed graph to this file after each crawl. */
+  savePath?: string;
   depth?: number;
   maxPages?: number;
 }
@@ -60,6 +63,7 @@ export function parseGatewayFlags(args: string[]): GatewayFlags {
   let configPath: string | undefined;
   let graphPath: string | undefined;
   let refreshHours: number | undefined;
+  let savePath: string | undefined;
   let depth: number | undefined;
   let maxPages: number | undefined;
   for (let i = 0; i < args.length; i++) {
@@ -70,6 +74,7 @@ export function parseGatewayFlags(args: string[]): GatewayFlags {
     else if (a === "--config" || a === "-c") configPath = args[++i];
     else if (a === "--graph") graphPath = args[++i];
     else if (a === "--refresh") refreshHours = positiveInt(args[++i], 24);
+    else if (a === "--save") savePath = args[++i];
     else if (a === "--depth" || a === "-d") depth = positiveInt(args[++i], 3);
     else if (a === "--max-pages" || a === "-m") maxPages = positiveInt(args[++i], 50);
   }
@@ -82,7 +87,10 @@ export function parseGatewayFlags(args: string[]): GatewayFlags {
   if (refreshHours && !probeUrl) {
     throw new Error("--refresh only makes sense with --probe (it re-crawls the probed site)");
   }
-  return { port, host, probeUrl, configPath, graphPath, refreshHours, depth, maxPages };
+  if (savePath && !probeUrl) {
+    throw new Error("--save only makes sense with --probe (it writes the probed graph)");
+  }
+  return { port, host, probeUrl, configPath, graphPath, refreshHours, savePath, depth, maxPages };
 }
 
 /** The exact `mcpServers` snippet agents paste into Claude/Cursor/VS Code. */
@@ -118,7 +126,7 @@ function printBanner(name: string, url: string, extras: string[] = []) {
  * the site and patches the live graph.
  */
 export async function runGateway(flags: GatewayFlags): Promise<GatewayHandle> {
-  const { port, host, probeUrl, configPath, graphPath, refreshHours } = flags;
+  const { port, host, probeUrl, configPath, graphPath, refreshHours, savePath } = flags;
 
   let name: string;
   let handler: ReturnType<typeof createGrapheway>["handler"];
@@ -133,6 +141,16 @@ export async function runGateway(flags: GatewayFlags): Promise<GatewayHandle> {
     name = result.config.name;
     handler = holder.agent.handler;
 
+    const persist = async (snapshot: typeof result) => {
+      if (!savePath) return;
+      await writeFile(
+        savePath,
+        JSON.stringify({ config: snapshot.config, graph: snapshot.graph }, null, 2) + "\n",
+        "utf8",
+      );
+    };
+    await persist(result);
+
     if (refreshHours && refreshHours > 0) {
       const intervalMs = refreshHours * 3_600_000;
       let refreshing = false; // guard against overlapping crawls
@@ -141,6 +159,7 @@ export async function runGateway(flags: GatewayFlags): Promise<GatewayHandle> {
         refreshing = true;
         try {
           const next = await probeSite(origin, { maxDepth: flags.depth, maxPages: flags.maxPages });
+          await persist(next);
           const version = holder.refresh(next);
           console.log(
             `[gateway] refreshed ${next.config.name}: v${version} (${next.stats.pages} pages, ${next.stats.edges} edges)`,
@@ -161,9 +180,8 @@ export async function runGateway(flags: GatewayFlags): Promise<GatewayHandle> {
   } else {
     // --graph <file>: hold an exported graph.json ({ config, graph }).
     const raw = await readFile(graphPath!, "utf8");
-    const data = JSON.parse(raw) as { config?: GraphewayConfig; graph?: KnowledgeGraph };
-    if (!data.graph) throw new Error(`--graph ${graphPath} is missing a "graph" field`);
-    const config: GraphewayConfig = data.config ?? {
+    const data = parseStoredGraph(raw);
+    const config: GraphewayConfig = (data.config as GraphewayConfig | undefined) ?? {
       name: "Graph",
       url: "http://localhost",
       capabilities: ["graph"],

@@ -1,6 +1,6 @@
 import { describe, expect, test, beforeAll, afterAll } from "bun:test";
 import { createServer, type Server } from "node:http";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { mcpConfigJson, parseGatewayFlags, runGateway } from "../../src/cli/gateway.ts";
@@ -57,6 +57,12 @@ describe("parseGatewayFlags", () => {
     expect(() => parseGatewayFlags(["--config", "c.json", "--refresh", "12"])).toThrow(/--refresh/);
     expect(() => parseGatewayFlags(["--probe", "https://x.example", "--refresh", "12"])).not.toThrow();
   });
+
+  test("--save is only valid with --probe", () => {
+    expect(() => parseGatewayFlags(["--config", "c.json", "--save", "g.json"])).toThrow(/--save/);
+    const flags = parseGatewayFlags(["--probe", "https://x.example", "--save", "g.json"]);
+    expect(flags.savePath).toBe("g.json");
+  });
 });
 
 describe("mcpConfigJson", () => {
@@ -88,6 +94,21 @@ describe("runGateway", () => {
       expect(manifest.site.name).toContain("Probe Me");
     } finally {
       await gw.close();
+    }
+  });
+
+  test("probe mode: --save persists a reloadable graph", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "gw-save-"));
+    const file = join(dir, "saved.json");
+    try {
+      const gw = await runGateway({ port: 0, host: "127.0.0.1", probeUrl: base, depth: 2, maxPages: 20, savePath: file });
+      await gw.close();
+      const stored = JSON.parse(readFileSync(file, "utf8"));
+      expect(Array.isArray(stored.graph.nodes)).toBe(true);
+      expect(stored.graph.nodes.length).toBeGreaterThan(0);
+      expect(stored.config.url).toContain("127.0.0.1");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
     }
   });
 
