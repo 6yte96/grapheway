@@ -86,6 +86,7 @@ Status codes:
 | 404 | Unknown route or node |
 | 413 | Body larger than the configured limit |
 | 429 | Rate limit exceeded, see `retry-after` |
+| 503 | Concurrency limit reached |
 | 504 | Action exceeded its timeout |
 
 ## MCP
@@ -112,6 +113,7 @@ const agent = createGrapheway(config, {
   rateLimit: { windowMs: 60_000, max: 120 },
   maxBodyBytes: 256 * 1024,
   actionTimeoutMs: 5_000,
+  maxConcurrentActions: 4,
   onAction: (event) => console.log(event.action, event.status, event.durationMs),
 });
 ```
@@ -127,6 +129,8 @@ const agent = createGrapheway(config, {
 - `actionTimeoutMs` defaults to 10 seconds. Overruns return 504. The
   handler cannot cancel work that ignores the response, so actions should
   still bound their own I/O.
+- `maxConcurrentActions` defaults to 0 (unlimited). Over the limit the call
+  returns 503 without waiting.
 - `onAction` receives `{ action, ok, status, durationMs, clientKey,
   readOnly, destructive, error? }`. Grapheway stores nothing.
 

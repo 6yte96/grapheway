@@ -151,6 +151,40 @@ describe("actionTimeoutMs", () => {
   });
 });
 
+describe("maxConcurrentActions", () => {
+  test("rejects work beyond the limit with 503", async () => {
+    let release: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const agent = createGrapheway(config, {
+      actions: {
+        slow: async () => {
+          await gate;
+          return "done";
+        },
+      },
+      maxConcurrentActions: 1,
+      actionTimeoutMs: 0,
+    });
+    const first = call(agent, {
+      method: "POST",
+      url: "/agent/action",
+      body: { name: "slow", arguments: {} },
+    });
+    // Let the first call acquire the slot.
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    const second = await call(agent, {
+      method: "POST",
+      url: "/agent/action",
+      body: { name: "slow", arguments: {} },
+    });
+    expect(second.status).toBe(503);
+    release();
+    expect((await first).status).toBe(200);
+  });
+});
+
 describe("onAction audit", () => {
   test("records success and failure with annotations", async () => {
     const events: ActionAuditEvent[] = [];

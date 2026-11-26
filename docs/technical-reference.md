@@ -281,6 +281,7 @@ createGrapheway(config, {
   rateLimit: { windowMs: 60_000, max: 120 },
   maxBodyBytes: 256 * 1024,
   actionTimeoutMs: 5_000,
+  maxConcurrentActions: 4,
   onAction: (event) => auditLog.write(event),
 });
 ```
@@ -291,6 +292,7 @@ createGrapheway(config, {
 | `rateLimit` | 600 req/min per key | In-process token bucket. Pass `false` to disable. |
 | `maxBodyBytes` | 1 MiB | Node and Fetch adapters reject larger bodies with 413. |
 | `actionTimeoutMs` | 10 s | Overruns return 504. `0` disables. |
+| `maxConcurrentActions` | 0 (unlimited) | Over-limit calls return 503 immediately. |
 | `onAction` | none | Audit hook with action, status, duration, client key and annotations. |
 
 The rate limit key is the first `x-forwarded-for` hop, then `x-real-ip`,
@@ -298,7 +300,7 @@ then `local`. Override it with `rateLimit.key`. Discovery reports
 `auth: "custom"` when an `authorize` hook is installed, otherwise `open`.
 
 Action failures map to HTTP status codes: 400 for unknown actions or handler
-errors, 401/403 for denials, 504 for timeouts. Over MCP the same failure is a
+errors, 401/403 for denials, 504 for timeouts and 503 for the concurrency cap. Over MCP the same failure is a
 tool result with `isError: true`.
 
 Conformance:
