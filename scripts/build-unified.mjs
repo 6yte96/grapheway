@@ -69,11 +69,12 @@ async function main() {
     ok++;
   }
 
-  // Sync README.md and LICENSE to the package folder for npm publish
+  // Sync README, LICENSE and SECURITY to the package folder for npm publish
   const rootDir = join(__dirname, "..");
   await copyFile(join(rootDir, "README.md"), join(pkg, "README.md"));
   await copyFile(join(rootDir, "LICENSE"), join(pkg, "LICENSE"));
-  console.log("  ✓ README.md & LICENSE synced to package");
+  await copyFile(join(rootDir, "SECURITY.md"), join(pkg, "SECURITY.md"));
+  console.log("  ✓ README.md, LICENSE & SECURITY.md synced to package");
 
   console.log(`\n  ${ok} bundles built ✓`);
 }

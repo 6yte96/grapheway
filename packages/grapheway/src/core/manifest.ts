@@ -10,18 +10,21 @@ export function absoluteUrl(config: GraphewayConfig, path: string): string {
 const DEFAULT_ACTIONS: AgentManifest["actions"] = [
   {
     name: "get_site_info",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
       "Returns the site's name, tagline, summary, contact info and the sections available to agents. Call this first.",
     inputSchema: { type: "object", properties: {}, required: [] },
   },
   {
     name: "list_sections",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
       "Lists every curated content section the site publishes for agents, with their titles, URLs and notes.",
     inputSchema: { type: "object", properties: {}, required: [] },
   },
   {
     name: "get_page",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description:
       "Fetches a page of the site as clean markdown. Pass the page URL or a section title.",
     inputSchema: {
@@ -34,6 +37,7 @@ const DEFAULT_ACTIONS: AgentManifest["actions"] = [
   },
   {
     name: "search_content",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description:
       "Searches the site's content. Returns matching pages with titles, URLs and snippets. Only available if the site configured a search function.",
     inputSchema: {
@@ -56,8 +60,16 @@ export function buildManifest(config: GraphewayConfig): AgentManifest {
   const actions = [...DEFAULT_ACTIONS];
   for (const declaredAction of declared) {
     const idx = actions.findIndex((a) => a.name === declaredAction.name);
-    if (idx >= 0) actions[idx] = declaredAction;
-    else actions.push(declaredAction);
+    if (idx >= 0) {
+      const builtIn = actions[idx]!;
+      actions[idx] = {
+        ...declaredAction,
+        // Keep safe built-in hints when a site overrides only the schema.
+        annotations: declaredAction.annotations ?? builtIn.annotations,
+      };
+    } else {
+      actions.push(declaredAction);
+    }
   }
 
   return {

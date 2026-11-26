@@ -15,6 +15,7 @@
  */
 
 import {
+  CUSTOM_ACTION_ANNOTATIONS,
   GRAPHEWAY_REPO,
   GRAPHEWAY_VERSION,
   GRAPH_TOOLS,
@@ -26,6 +27,7 @@ import {
   type GraphEdgeType,
   type KnowledgeGraph,
 } from "../core/index.js";
+import type { ToolAnnotations } from "../core/types.ts";
 import type { AgentRequest } from "./types.ts";
 
 export const MCP_PROTOCOL_VERSION = "2025-03-26";
@@ -41,6 +43,7 @@ interface McpToolDef {
   name: string;
   description?: string;
   inputSchema?: unknown;
+  annotations?: ToolAnnotations;
 }
 
 export interface McpDeps {
@@ -65,6 +68,7 @@ export function toolsForManifest(manifest: AgentManifest, additional: McpToolDef
       name: a.name,
       description: a.description,
       inputSchema: a.inputSchema ?? { type: "object", properties: {} },
+      annotations: a.annotations ?? CUSTOM_ACTION_ANNOTATIONS,
     }))
     .filter((t) => !extra.has(t.name));
   return [...declared, ...GRAPH_TOOLS, ...additional];

@@ -6,6 +6,11 @@
 [![npm downloads](https://img.shields.io/npm/dm/grapheway?color=0b0e15)](https://www.npmjs.com/package/grapheway)
 [![agent-ready sites](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2F6yte96.github.io%2Fgrapheway%2Fadopters.json&query=%24.total&label=agent-ready%20sites&color=0b0e15)](https://6yte96.github.io/grapheway/adopters/)
 [![license](https://img.shields.io/badge/license-GPL--3.0-0b0e15)](https://github.com/6yte96/grapheway/blob/main/LICENSE)
+[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-listed-0b0e15)](https://registry.modelcontextprotocol.io/?q=grapheway)
+[![Security policy](https://img.shields.io/badge/security-policy-0b0e15)](https://github.com/6yte96/grapheway/blob/main/SECURITY.md)
+[![CodeQL](https://github.com/6yte96/grapheway/actions/workflows/codeql.yml/badge.svg)](https://github.com/6yte96/grapheway/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/6yte96/grapheway/badge)](https://securityscorecards.dev/viewer/?uri=github.com/6yte96/grapheway)
+[![6yte96/grapheway MCP server](https://glama.ai/mcp/servers/6yte96/grapheway/badges/score.svg)](https://glama.ai/mcp/servers/6yte96/grapheway)
 
 **Current release:** [`v0.2.8`](https://github.com/6yte96/grapheway/releases/tag/v0.2.8) · [npm](https://www.npmjs.com/package/grapheway) · [version.json](https://6yte96.github.io/grapheway/version.json) · [changelog](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md)
 
@@ -44,33 +49,54 @@ That is slow, expensive and easy to get wrong. Grapheway flips it: **the site pu
 
 ---
 
+## Trust and security
+
+- npm package: [grapheway](https://www.npmjs.com/package/grapheway)
+- Official MCP Registry: `io.github.6yte96/grapheway`
+- Independent listings: [M8ven](https://m8ven.ai/mcp/6yte96/grapheway), [Conduid](https://conduid.com/servers/grapheway), [Glama](https://glama.ai/mcp/servers/6yte96/grapheway)
+- Zero runtime dependencies. No API keys. No telemetry.
+- MCP tools declare explicit read-only, destructive, idempotent and open-world hints.
+- Security policy: [SECURITY.md](https://github.com/6yte96/grapheway/blob/main/SECURITY.md)
+- Static analysis: CodeQL and OpenSSF Scorecard run in GitHub Actions.
+
+The current M8ven listing is a public third-party assessment, not a vendor claim.
+If you find a security issue, report it privately through the security policy.
+
 ## Try it in 60 seconds
 
-> Run these from your own project. If you are working inside the grapheway
-> repository, use `bun run grapheway -- <command>` — `npx` resolves the local
-> workspace there. If `npx` ever picks a stale cache, add `@latest`.
+> Run these from your own project. Inside the grapheway repository, use
+> `bun run grapheway -- <command>`.
+
+### Proof in 30 seconds
+
+```bash
+npx -y grapheway@latest probe https://expressjs.com --max-pages 3 --no-serve
+```
+
+That prints the pages, headings and edges it found, then exits. It is the
+fastest way to see the graph without running a server.
 
 ### If you run a website
 
 ```bash
-npx grapheway init
+npx -y grapheway@latest init
 ```
 
 It detects your framework, writes one config file, and mounts the agent surface. Then:
 
 ```bash
-npx grapheway audit https://your-site.com
-npx grapheway badge --url https://your-site.com --out badge.svg
+npx -y grapheway@latest audit https://your-site.com
+npx -y grapheway@latest badge --url https://your-site.com --out badge.svg
 ```
 
-`npx grapheway init --url https://your-site.com` builds the config from your existing site.
+`npx -y grapheway@latest init --url https://your-site.com` builds the config from your existing site.
 
 Works with Next.js, Express, Hono, plain Node, static hosts, Cloudflare Workers, Deno and Bun.
 
 ### If you just want to read a site
 
 ```bash
-npx grapheway probe https://docs.example.com
+npx -y grapheway@latest probe https://docs.example.com
 ```
 
 That turns any public site into the same map and serves it locally — no involvement from the site required. Add `--no-serve --out ./graph` to export it instead.
@@ -98,7 +124,7 @@ Paste this into Cursor, Claude Desktop, VS Code or any MCP client:
 Change the `url` parameter to any public site. Or run it locally:
 
 ```bash
-npx grapheway mcp --probe https://expressjs.com
+npx -y grapheway@latest mcp --probe https://expressjs.com
 ```
 
 ---

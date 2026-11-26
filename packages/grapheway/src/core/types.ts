@@ -44,6 +44,14 @@ export interface SiteLink {
  * Actions are exposed both through the HTTP API (`POST /agent/action`)
  * and as MCP tools on the `/mcp` endpoint.
  */
+/** MCP tool behavior hints. Required by several agent directories. */
+export interface ToolAnnotations {
+  readOnlyHint?: boolean;
+  destructiveHint?: boolean;
+  idempotentHint?: boolean;
+  openWorldHint?: boolean;
+}
+
 export interface ActionDef {
   /** Stable machine name, e.g. `search_content`. */
   name: string;
@@ -58,6 +66,11 @@ export interface ActionDef {
     properties?: Record<string, Record<string, unknown>>;
     required?: string[];
   };
+  /**
+   * MCP behavior hints. Custom actions default to a conservative
+   * destructive/open-world profile until the site declares otherwise.
+   */
+  annotations?: ToolAnnotations;
 }
 
 /** Info about the person/team behind the site (agents.txt extension). */

@@ -45,6 +45,20 @@ jobs:
       - name: CLI smoke test
         run: node packages/grapheway/dist/cli/cli.js --help
 
+      - name: Pack and install smoke test
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/grapheway-pack
+          mkdir -p /tmp/grapheway-pack
+          cd packages/grapheway
+          npm pack --pack-destination /tmp/grapheway-pack >/dev/null
+          tmp="$(mktemp -d)"
+          cd "$tmp"
+          npm init -y >/dev/null 2>&1
+          npm install /tmp/grapheway-pack/grapheway-*.tgz --silent
+          npx grapheway --help >/dev/null
+          echo "packed install OK"
+
   release-guard:
     name: Release guard
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
