@@ -12,7 +12,7 @@
  *                   (read directly from the spec)
  */
 
-import type { GraphewayConfig, GraphEdge, GraphNode, KnowledgeGraph } from "../core/index.js";
+import { trimTrailingSlashes, type GraphewayConfig, type GraphEdge, type GraphNode, type KnowledgeGraph } from "../core/index.js";
 import type { PageKnowledge } from "./html.ts";
 
 export interface ProbeStats {
@@ -37,11 +37,31 @@ function headingId(pageUrl: string, heading: { id: string }): string {
   return `${pageUrl}#${heading.id}`;
 }
 
-/** Strip a common site-name suffix from titles ("Install | Acme Docs"). */
+const TITLE_SEPARATORS = new Set(["|", "-", "\u2013", "\u2014", ":", "\u00b7", "\u2022"]);
+
+/** Strip a trailing separator plus a common site-name suffix ("Install | Acme Docs"). */
 function cleanTitle(title: string, siteName: string): string {
-  const t = title.replace(/\s*[|\-–—:]\s*$/g, "").trim();
-  const suffix = new RegExp(`\\s*[|\\-–—·]\\s*${siteName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "i");
-  return t.replace(suffix, "").trim() || title;
+  const trimmed = title.trim();
+  const name = siteName.trim();
+  if (name && trimmed.toLowerCase().endsWith(name.toLowerCase())) {
+    const prefix = trimmed.slice(0, trimmed.length - name.length).trimEnd();
+    if (prefix && TITLE_SEPARATORS.has(prefix.slice(-1))) {
+      const cut = prefix.slice(0, -1).trimEnd();
+      if (cut) return cut;
+    }
+  }
+  let end = trimmed.length;
+  while (end > 0 && TITLE_SEPARATORS.has(trimmed[end - 1]!)) end--;
+  const stripped = trimmed.slice(0, end).trimEnd();
+  return stripped || title;
+}
+
+/** First title segment, for deriving a site name from "Install | Acme Docs". */
+function firstTitleSegment(title: string): string {
+  for (let i = 0; i < title.length; i++) {
+    if (TITLE_SEPARATORS.has(title[i]!)) return title.slice(0, i).trim();
+  }
+  return title.trim();
 }
 
 /** Describe an OpenAPI operation in one line. */
@@ -65,9 +85,9 @@ export function buildFromCrawl(
   openApiUrl?: string,
   crawlStats?: { skippedByRobots?: number; failed?: number },
 ): ProbeResult {
-  const root = origin.replace(/\/+$/, "");
+  const root = trimTrailingSlashes(origin);
   const siteName = pages[0]?.title
-    ? pages[0].title.split(/\s*[|\-–—·•]\s*/)[0]!.trim()
+    ? firstTitleSegment(pages[0].title)
     : new URL(root).hostname;
   const rootPage = pages.find((p) => new URL(p.url).pathname === "/") ?? pages[0];
 

@@ -19,6 +19,7 @@
  *   await exportProbed(result, { outDir: "./graph" });
  */
 
+import { trimTrailingSlashes } from "../core/index.js";
 import { buildFromCrawl, type ProbeResult } from "./graph.ts";
 import { crawlSite, type CrawlOptions } from "./crawler.ts";
 
@@ -51,7 +52,7 @@ export { exportProbed, type ExportOptions } from "./export.ts";
  * Returns everything `serveProbed`/`exportProbed` need.
  */
 export async function probeSite(url: string, options: CrawlOptions = {}): Promise<ProbeResult> {
-  const origin = url.replace(/\/+$/, "");
+  const origin = trimTrailingSlashes(url);
   const crawl = await crawlSite(origin, options);
   return buildFromCrawl(origin, [...crawl.pages.values()], crawl.openApi, crawl.openApiUrl, crawl.stats);
 }

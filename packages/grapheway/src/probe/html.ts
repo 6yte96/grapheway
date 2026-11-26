@@ -3,12 +3,22 @@
  * stack" principle: we read *content* (title, description, navigation,
  * headings, links) out of any page, whatever framework served it.
  *
- * Regex-based and dependency-free, matching the style of `htmlToMarkdown`
- * in @grapheway/web. Good enough for docs sites (Docusaurus, GitBook,
- * ReadTheDocs, Mintlify, …) and most legacy HTML.
+ * Dependency-free and linear: tags come from the token based parser in
+ * `@grapheway/web`, so hostile pages cannot trigger regex backtracking.
+ * Good enough for docs sites (Docusaurus, GitBook, ReadTheDocs, Mintlify, …)
+ * and most legacy HTML.
  */
 
-import { htmlToMarkdown as webHtmlToMarkdown } from "../web/index.js";
+import {
+  decodeHtmlEntities,
+  getHtmlAttribute,
+  htmlToMarkdown as runtimeHtmlToMarkdown,
+  stripHtmlBlocks,
+  stripHtmlTags,
+  tokenizeHtml,
+  type HtmlTag,
+  type HtmlToken,
+} from "../web/html.js";
 
 export interface HeadingKnowledge {
   level: 1 | 2 | 3;
@@ -36,18 +46,9 @@ export interface PageKnowledge {
   html: string;
 }
 
-/** Lowercase text content of a tag — strips nested tags. */
-function innerText(tag: string): string {
-  return tag
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#x27;|&#39;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+/** Text content of a tag — strips nested tags and decodes entities. */
+function innerText(raw: string): string {
+  return decodeHtmlEntities(stripHtmlTags(raw)).replace(/\s+/g, " ").trim();
 }
 
 /** Slugify heading text into a stable anchor id. */
@@ -61,54 +62,103 @@ export function slugify(text: string): string {
   );
 }
 
+/**
+ * Inner text of the first element with this name, or "" when absent.
+ * Nested same-name elements are balanced by depth.
+ */
+function firstElementText(tokens: HtmlToken[], name: string): string {
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]!;
+    if (token.kind !== "tag" || token.tag.closing || token.tag.name !== name) continue;
+    return innerText(elementInnerHtml(tokens, i, name));
+  }
+  return "";
+}
+
+function elementInnerHtml(tokens: HtmlToken[], start: number, name: string): string {
+  const parts: string[] = [];
+  let depth = 1;
+  for (let i = start + 1; i < tokens.length; i++) {
+    const token = tokens[i]!;
+    if (token.kind === "text") {
+      parts.push(token.text);
+      continue;
+    }
+    if (token.tag.name !== name) continue;
+    if (token.tag.closing) {
+      depth--;
+      if (depth === 0) break;
+    } else if (!token.tag.selfClosing) {
+      depth++;
+    }
+  }
+  return parts.join("");
+}
+
 /** Extract the page title: <title> first, then the first <h1>. */
 export function extractTitle(html: string): string {
-  const t = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html);
-  if (t?.[1]?.trim()) return innerText(t[1]);
-  const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html);
-  if (h1?.[1]?.trim()) return innerText(h1[1]);
-  return "";
+  const tokens = tokenizeHtml(html);
+  return firstElementText(tokens, "title") || firstElementText(tokens, "h1");
 }
 
 /** Extract the meta description. */
 export function extractDescription(html: string): string {
-  const re =
-    /<meta[^>]+name=["']description["'][^>]+content=["']([^"']*)["']/i;
-  const re2 =
-    /<meta[^>]+content=["']([^"']*)["'][^>]+name=["']description["']/i;
-  const m = re.exec(html) ?? re2.exec(html);
-  return m?.[1]?.trim() ?? "";
+  for (const token of tokenizeHtml(html)) {
+    if (token.kind !== "tag" || token.tag.closing || token.tag.name !== "meta") continue;
+    const name = getHtmlAttribute(token.tag.attrs, "name");
+    if (name?.toLowerCase() !== "description") continue;
+    const content = getHtmlAttribute(token.tag.attrs, "content");
+    if (content) return decodeHtmlEntities(content).trim();
+  }
+  return "";
 }
+
+const ASSET_EXTENSIONS = [
+  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".ico", ".css",
+  ".js", ".mjs", ".woff", ".woff2", ".ttf", ".eot", ".mp4", ".webm",
+  ".mp3", ".zip", ".gz", ".pdf", ".doc", ".docx", ".xls", ".xlsx",
+  ".ppt", ".pptx",
+];
 
 /** Is this URL one we should fetch (not an asset, mailto, fragment, …)? */
 export function isFetchableUrl(u: URL, origin: string): boolean {
   if (u.origin !== origin) return false;
-  if (!/^https?:$/.test(u.protocol)) return false;
+  if (u.protocol !== "http:" && u.protocol !== "https:") return false;
   const path = u.pathname.toLowerCase();
-  if (/\.(png|jpe?g|gif|webp|svg|ico|css|js|mjs|woff2?|ttf|eot|mp4|webm|mp3|zip|gz|pdf|docx?|xlsx?|pptx?)$/.test(path)) {
+  if (ASSET_EXTENSIONS.some((ext) => path.endsWith(ext))) return false;
+  // Skip obvious API/file paths that are not HTML.
+  if (path.includes("/api/") || path.endsWith(".json") || path.endsWith(".xml") || path.endsWith(".rss")) {
     return false;
   }
-  // Skip obvious API/file paths that are not HTML.
-  if (/\/(api\/|\.json$|\.xml$|\.rss$)/.test(path)) return false;
   return true;
+}
+
+/** Resolve a link href, or null when it is not an http(s) URL. */
+function resolveHttpUrl(href: string, base: URL): URL | null {
+  if (!href || href.startsWith("#")) return null;
+  let url: URL;
+  try {
+    url = new URL(href, base);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+  if (url.hash) url.hash = "";
+  return url;
 }
 
 /** Parse every <a href> into link knowledge. */
 export function extractLinks(html: string, base: URL): LinkKnowledge[] {
+  const tokens = tokenizeHtml(html);
   const links: LinkKnowledge[] = [];
-  const re = /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(html)) !== null) {
-    const href = m[1]!.trim();
-    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("javascript:")) continue;
-    let url: URL;
-    try {
-      url = new URL(href, base);
-    } catch {
-      continue;
-    }
-    if (url.hash) url.hash = "";
-    const text = innerText(m[2] ?? "");
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]!;
+    if (token.kind !== "tag" || token.tag.closing || token.tag.name !== "a") continue;
+    const href = getHtmlAttribute(token.tag.attrs, "href");
+    if (!href) continue;
+    const url = resolveHttpUrl(href, base);
+    if (!url) continue;
+    const text = innerText(elementInnerHtml(tokens, i, "a"));
     if (!text) continue;
     links.push({
       url: url.href,
@@ -120,45 +170,78 @@ export function extractLinks(html: string, base: URL): LinkKnowledge[] {
   return links;
 }
 
-/** Mark links that live inside navigation-ish containers. */
-export function markNavLinks(html: string, links: LinkKnowledge[]): LinkKnowledge[] {
-  // Collect nav link hrefs: inside <nav>/<aside>/<header> or containers whose
-  // class/id smells like navigation (sidebar, menu, toc, docs-nav, …).
-  const navHrefs = new Set<string>();
-  const containers = [
-    ...(html.match(/<nav[\s\S]*?<\/nav>/gi) ?? []),
-    ...(html.match(/<aside[\s\S]*?<\/aside>/gi) ?? []),
-    ...(html.match(/<header[\s\S]*?<\/header>/gi) ?? []),
-    ...(html.match(/<(?:ul|div|section)[^>]+(?:class|id)=["'][^"']*(?:nav|menu|sidebar|toc|docs)[^"']*["'][^>]*>[\s\S]*?<\/(?:ul|div|section)>/gi) ?? []),
-  ];
-  const normalize = (pathname: string): string => {
-    // The crawler normalizes URLs (trailing slash trimmed), so compare nav
-    // hrefs the same way or "/docs/" vs "/docs" would misclassify.
-    return pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
-  };
-  for (const container of containers) {
-    const re = /href=["']([^"']+)["']/gi;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(container)) !== null) {
-      const href = m[1]!;
-      if (href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("javascript:")) continue;
-      try {
-        const u = new URL(href, "http://placeholder.local");
-        navHrefs.add(normalize(u.pathname) + u.search);
-      } catch {
-        // ignore
+const NAV_TAGS = new Set(["nav", "aside", "header"]);
+const NAV_CONTAINER_TAGS = new Set(["ul", "div", "section"]);
+const NAV_HINTS = ["nav", "menu", "sidebar", "toc", "docs"];
+
+function isNavContainer(tag: HtmlTag): boolean {
+  if (!NAV_CONTAINER_TAGS.has(tag.name)) return false;
+  const cls = (getHtmlAttribute(tag.attrs, "class") ?? "").toLowerCase();
+  const id = (getHtmlAttribute(tag.attrs, "id") ?? "").toLowerCase();
+  const haystack = `${cls} ${id}`;
+  return NAV_HINTS.some((hint) => haystack.includes(hint));
+}
+
+/** Collect anchor hrefs inside one container element. */
+function collectContainerHrefs(
+  tokens: HtmlToken[],
+  start: number,
+  name: string,
+  out: Set<string>,
+): void {
+  let depth = 1;
+  for (let i = start + 1; i < tokens.length; i++) {
+    const token = tokens[i]!;
+    if (token.kind !== "tag") continue;
+    if (token.tag.name === name) {
+      if (token.tag.closing) {
+        depth--;
+        if (depth === 0) return;
+      } else if (!token.tag.selfClosing) {
+        depth++;
       }
     }
-  }
-  return links.map((l) => {
-    if (!l.internal) return l;
+    if (token.tag.closing || token.tag.name !== "a") continue;
+    const href = getHtmlAttribute(token.tag.attrs, "href");
+    if (!href || href.startsWith("#")) continue;
     try {
-      const u = new URL(l.url);
-      if (navHrefs.has(normalize(u.pathname) + u.search)) return { ...l, inNav: true };
+      const u = new URL(href, "http://placeholder.local");
+      if (u.protocol !== "http:" && u.protocol !== "https:") continue;
+      const pathname = u.pathname.length > 1 && u.pathname.endsWith("/")
+        ? u.pathname.slice(0, -1)
+        : u.pathname;
+      out.add(pathname + u.search);
+    } catch {
+      // ignore malformed hrefs
+    }
+  }
+}
+
+/** Mark links that live inside navigation-ish containers. */
+export function markNavLinks(html: string, links: LinkKnowledge[]): LinkKnowledge[] {
+  // Collect nav link paths: inside <nav>/<aside>/<header> or containers whose
+  // class/id smells like navigation (sidebar, menu, toc, docs-nav, …).
+  const navPaths = new Set<string>();
+  const tokens = tokenizeHtml(html);
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]!;
+    if (token.kind !== "tag" || token.tag.closing || token.tag.selfClosing) continue;
+    if (!NAV_TAGS.has(token.tag.name) && !isNavContainer(token.tag)) continue;
+    collectContainerHrefs(tokens, i, token.tag.name, navPaths);
+  }
+
+  const normalize = (pathname: string): string =>
+    pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+
+  return links.map((link) => {
+    if (!link.internal) return link;
+    try {
+      const u = new URL(link.url);
+      if (navPaths.has(normalize(u.pathname) + u.search)) return { ...link, inNav: true };
     } catch {
       // ignore
     }
-    return l;
+    return link;
   });
 }
 
@@ -166,15 +249,16 @@ export function markNavLinks(html: string, links: LinkKnowledge[]): LinkKnowledg
 export function extractHeadings(html: string): HeadingKnowledge[] {
   const headings: HeadingKnowledge[] = [];
   const usedIds = new Set<string>();
-  const re = /<h([123])\b[^>]*>([\s\S]*?)<\/h\1>/gi;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(html)) !== null) {
-    const level = Number(m[1]) as 1 | 2 | 3;
-    const raw = m[2] ?? "";
-    const text = innerText(raw);
+  const tokens = tokenizeHtml(html);
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]!;
+    if (token.kind !== "tag" || token.tag.closing) continue;
+    const name = token.tag.name;
+    if (name !== "h1" && name !== "h2" && name !== "h3") continue;
+    const level = Number(name[1]) as 1 | 2 | 3;
+    const text = innerText(elementInnerHtml(tokens, i, name));
     if (!text) continue;
-    const idMatch = /<h[123]\b[^>]*id=["']([^"']+)["']/i.exec(m[0]);
-    let id = idMatch?.[1] ?? slugify(text);
+    let id = getHtmlAttribute(token.tag.attrs, "id") ?? slugify(text);
     // Two headings with the same text (or same explicit id) would collide
     // on the same node id — disambiguate with a counter.
     if (usedIds.has(id)) {
@@ -206,8 +290,5 @@ export function extractPage(html: string, url: URL): PageKnowledge {
  * converter in @grapheway/web so the two never drift.
  */
 export function htmlToMarkdown(html: string): string {
-  const stripped = html
-    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, "");
-  return webHtmlToMarkdown(stripped);
+  return runtimeHtmlToMarkdown(stripHtmlBlocks(html, ["nav", "footer"]));
 }

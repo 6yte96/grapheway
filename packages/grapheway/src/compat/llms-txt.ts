@@ -112,6 +112,16 @@ export function rootPath(url: string): string {
   }
 }
 
+/** True for a `- [Title](url)` line, checked without a backtracking regex. */
+function isMarkdownLinkEntry(line: string): boolean {
+  const text = line.trim();
+  if (text.slice(0, 2) !== "- ") return false;
+  const open = text.indexOf("[", 2);
+  const close = text.indexOf("](", open + 1);
+  if (open !== 2 || close < 0) return false;
+  return text.indexOf(")", close + 2) > close + 2;
+}
+
 /** Validate an llms.txt string against the llmstxt.org spec (basic). */
 export function validateLlmsTxt(text: string): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
@@ -121,7 +131,7 @@ export function validateLlmsTxt(text: string): { valid: boolean; errors: string[
   }
   const hasH2 = lines.some((l) => l.startsWith("## "));
   if (!hasH2) errors.push("Expected at least one `## Section` file list.");
-  const hasLink = lines.some((l) => l.trim().match(/^-\s*\[.+\]\(.+\)/));
+  const hasLink = lines.some((line) => isMarkdownLinkEntry(line));
   if (!hasLink) errors.push("Expected at least one `- [Title](url)` entry.");
   return { valid: errors.length === 0, errors };
 }

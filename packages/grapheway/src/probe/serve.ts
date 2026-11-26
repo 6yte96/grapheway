@@ -17,7 +17,7 @@
 
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { createGrapheway, htmlToMarkdown, toNodeHandler } from "../web/index.js";
-import { diffGraphs, type KnowledgeGraph } from "../core/index.js";
+import { diffGraphs, trimTrailingSlashes, type KnowledgeGraph } from "../core/index.js";
 import { crawlSite, type CrawlOptions } from "./crawler.ts";
 import { buildFromCrawl, type ProbeResult } from "./graph.ts";
 import type { PageKnowledge } from "./html.ts";
@@ -78,7 +78,7 @@ function makeSearch(pages: () => PageKnowledge[]) {
  * Pages are converted to markdown live (cached crawl first, fetch fallback).
  */
 export function createProbeAgent(origin: string, result: ProbeResult): ProbeAgent {
-  const root = origin.replace(/\/+$/, "");
+  const root = trimTrailingSlashes(origin);
   // Mutable crawl state: refreshed in place so getPageMarkdown/search see
   // the newest crawl without rebuilding the agent.
   let current = result;
@@ -139,7 +139,7 @@ export async function serveProbed(
   url: string,
   options: ProbeServeOptions = {},
 ): Promise<ProbeServer> {
-  const origin = url.replace(/\/+$/, "");
+  const origin = trimTrailingSlashes(url);
   const result =
     options.result ??
     (async () => {

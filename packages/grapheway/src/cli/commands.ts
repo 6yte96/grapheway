@@ -10,8 +10,10 @@ import {
   GRAPHEWAY_REPO,
   type GraphewayConfig,
   type AuditResult,
+  trimTrailingSlashes,
 } from "../core/index.js";
 import { compatHandler, generateAll } from "../compat/index.js";
+import { stripHtmlTags } from "../web/html.js";
 import { createGrapheway, toNodeHandler } from "../web/index.js";
 import { exportProbed, probeSite, serveProbed, summarizeProbe } from "../probe/index.js";
 import { loadConfig } from "./load-config.ts";
@@ -46,7 +48,7 @@ interface LiveCheck {
  * Checks the *deployed* site, not your local config.
  */
 export async function auditUrl(url: string): Promise<AuditResult> {
-  const origin = url.replace(/\/+$/, "");
+  const origin = trimTrailingSlashes(url);
   const checks: LiveCheck[] = [];
   const add = (label: string, ok: boolean, detail?: string, weight = 10) =>
     checks.push({ label, ok, detail, weight });
@@ -151,7 +153,7 @@ export async function auditUrl(url: string): Promise<AuditResult> {
   );
   add(
     "server-rendered content (no blank body)",
-    home.status === 200 && home.text.replace(/<[^>]+>/g, "").trim().length > 100,
+    home.status === 200 && stripHtmlTags(home.text).trim().length > 100,
     undefined,
     2,
   );

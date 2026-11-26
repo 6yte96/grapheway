@@ -7,6 +7,7 @@
  */
 
 import { GRAPHEWAY_VERSION, type AgentManifest } from "../core/index.js";
+import { htmlToMarkdown } from "./html.ts";
 import type { ActionCallContext, GraphewayOptions } from "./types.ts";
 
 export interface ActionRunnerDeps {
@@ -17,33 +18,12 @@ export interface ActionRunnerDeps {
   path: string;
 }
 
-/** Best-effort HTML → Markdown, good enough for agents to read content. */
-export function htmlToMarkdown(html: string): string {
-  let s = html;
-  // Remove comments, scripts, styles, and embedded JSON-LD.
-  s = s.replace(/<!--[\s\S]*?-->/g, "");
-  s = s.replace(/<script[\s\S]*?<\/script>/gi, "");
-  s = s.replace(/<style[\s\S]*?<\/style>/gi, "");
-  s = s.replace(/<noscript[\s\S]*?<\/noscript>/gi, "");
-
-  s = s.replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, (_m, t: string) => `# ${t.trim()}\n\n`);
-  s = s.replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, (_m, t: string) => `## ${t.trim()}\n\n`);
-  s = s.replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, (_m, t: string) => `### ${t.trim()}\n\n`);
-  s = s.replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi, (_m, t: string) => `#### ${t.trim()}\n\n`);
-  s = s.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_m, t: string) => `- ${t.trim()}\n`);
-  s = s.replace(/<br\s*\/?>/gi, "\n");
-  s = s.replace(/<p[^>]*>/gi, "\n\n");
-  s = s.replace(/<\/p>/gi, "\n\n");
-  s = s.replace(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_m, href: string, text: string) => `[${text.trim()}](${href})`);
-  s = s.replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, (_m, t: string) => `**${t.trim()}**`);
-  s = s.replace(/<em[^>]*>([\s\S]*?)<\/em>/gi, (_m, t: string) => `_${t.trim()}_`);
-  s = s.replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, (_m, t: string) => "`" + t.trim() + "`");
-  s = s.replace(/<pre[^>]*>([\s\S]*?)<\/pre>/gi, (_m, t: string) => "```\n" + t.trim() + "\n```\n");
-  s = s.replace(/<[^>]+>/g, "");
-  s = s.replace(/[ \t]+\n/g, "\n");
-  s = s.replace(/\n{3,}/g, "\n\n");
-  return s.trim() + "\n";
-}
+/**
+ * HTML to Markdown lives in `html.ts` now: a token based converter that does
+ * not backtrack on hostile page content. Re-exported here so existing imports
+ * from `web/actions` keep working.
+ */
+export { htmlToMarkdown } from "./html.ts";
 
 /**
  * Create the action runner. `runAction` throws a typed error when the

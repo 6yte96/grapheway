@@ -3,6 +3,7 @@
  * extracts knowledge from each, and looks for an OpenAPI spec.
  */
 
+import { trimTrailingSlashes } from "../core/index.js";
 import { extractPage, isFetchableUrl, type PageKnowledge } from "./html.ts";
 
 export interface CrawlOptions {
@@ -122,7 +123,7 @@ export async function crawlSite(origin: string, options: CrawlOptions = {}): Pro
   const concurrency = Number.isFinite(options.concurrency) ? Math.max(1, Math.floor(options.concurrency!)) : 4;
   const { headers = {}, respectRobots = true, signal } = options;
 
-  const root = origin.replace(/\/+$/, "");
+  const root = trimTrailingSlashes(origin);
   const base = new URL(root);
 
   // Robots rules (applied to all paths under the origin).
