@@ -12,6 +12,7 @@ import {
   GRAPHEWAY_INDEX,
   GRAPHEWAY_REPO,
   GRAPHEWAY_SITE,
+  GRAPHEWAY_VERSION,
   type GraphewayConfig,
   type KnowledgeGraph,
 } from "../core/index.js";
@@ -84,6 +85,9 @@ Usage:
   grapheway audit <url>
       Live agent-readiness audit with a GEO/agent score (0–100).
 
+  grapheway --version
+      Print the installed version.
+
   grapheway --help
 `;
 
@@ -93,6 +97,12 @@ async function main() {
 
   if (!command || command === "--help" || command === "-h" || command === "help") {
     console.log(HELP);
+    return;
+  }
+
+  if (command === "--version" || command === "-v" || command === "version") {
+    // Bare version so scripts can read it directly.
+    console.log(GRAPHEWAY_VERSION);
     return;
   }
 
