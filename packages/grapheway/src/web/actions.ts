@@ -158,12 +158,16 @@ export function createActionRunner(deps: ActionRunnerDeps) {
     return fn(args);
   };
 
+  const maxConcurrent = options.maxConcurrentActions ?? 0;
+  let activeActions = 0;
+
   return {
     async runAction(
       name: string,
       args: Record<string, unknown>,
       caller: ActionCaller = {},
     ): Promise<unknown> {
+      let acquired = false;
       const annotations = manifest.actions.find((a) => a.name === name)?.annotations;
       const callCtx: ActionCallContext = {
         ...ctx,
@@ -200,6 +204,13 @@ export function createActionRunner(deps: ActionRunnerDeps) {
             throw new ActionError(deny?.reason ?? `Action not allowed: ${name}`, deny?.status ?? 403);
           }
         }
+        if (maxConcurrent > 0) {
+          if (activeActions >= maxConcurrent) {
+            throw new ActionError(`Server busy: ${maxConcurrent} actions already running`, 503);
+          }
+          activeActions += 1;
+          acquired = true;
+        }
         const result = await withTimeout(invoke(name, args), options.actionTimeoutMs ?? 10_000);
         audit(true, 200);
         return result;
@@ -207,6 +218,8 @@ export function createActionRunner(deps: ActionRunnerDeps) {
         const status = err instanceof ActionError ? err.status : 500;
         audit(false, status, err instanceof Error ? err.message : String(err));
         throw err;
+      } finally {
+        if (acquired) activeActions -= 1;
       }
     },
     ctx,

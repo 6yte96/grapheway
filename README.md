@@ -150,13 +150,16 @@ const agent = createGrapheway(config, {
   maxBodyBytes: 256 * 1024,
   // Stop runaway actions.
   actionTimeoutMs: 5_000,
+  // Refuse work beyond this many concurrent actions.
+  maxConcurrentActions: 4,
   // Audit without storing anything.
   onAction: (event) => console.log(event.action, event.status, event.durationMs),
 });
 ```
 
 - Denied actions return 401 or 403. Timeouts return 504. Oversized
-  bodies return 413. The rate limiter returns 429 with `retry-after`.
+  bodies return 413. The rate limiter returns 429 with `retry-after`, and
+  the concurrency cap returns 503.
 - MCP tool failures come back as `isError: true` results, not protocol
   errors.
 - Nothing is logged or stored by default. `onAction` is the hook.
@@ -245,6 +248,8 @@ It is beta (`v0.2.9`). The core is small, tested and dependency-free. Read the [
 - [Writing](https://6yte96.github.io/grapheway/blog/)
 - [Agent setup prompt](https://6yte96.github.io/grapheway/setup/)
 - [Technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md)
+- [Protocol spec (0.3 draft)](https://github.com/6yte96/grapheway/blob/main/docs/spec/README.md)
+- [Migration guide](https://github.com/6yte96/grapheway/blob/main/docs/migration.md)
 - [White paper](https://github.com/6yte96/grapheway/blob/main/docs/whitepaper.md)
 - [Live adoption index](https://6yte96.github.io/grapheway/adopters/)
 - [Agent Readiness Index](https://6yte96.github.io/grapheway/readiness/)

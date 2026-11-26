@@ -109,6 +109,8 @@ export interface GraphewayOptions {
   maxBodyBytes?: number;
   /** Action execution timeout in milliseconds. Default 10000. `0` disables. */
   actionTimeoutMs?: number;
+  /** Max concurrent action executions. Default 0 (unlimited). Over-limit calls return 503. */
+  maxConcurrentActions?: number;
   /** Audit hook called after every action. Nothing is stored by default. */
   onAction?: (event: ActionAuditEvent) => void | Promise<void>;
   /**
