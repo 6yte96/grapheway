@@ -10,6 +10,7 @@
  */
 
 export * from "./types.ts";
+export * from "./url.ts";
 export * from "./attribution.ts";
 export * from "./manifest.ts";
 export * from "./jsonld.ts";

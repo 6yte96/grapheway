@@ -6,7 +6,7 @@
  * are excluded by design — a sitemap should list pages of this site only.
  */
 
-import type { GraphewayConfig } from "../core/index.js";
+import { trimTrailingSlashes, type GraphewayConfig } from "../core/index.js";
 
 /** Escape a string for safe inclusion in XML text content. */
 export function escapeXml(input: string): string {
@@ -28,13 +28,13 @@ export function escapeXml(input: string): string {
 function absolute(config: GraphewayConfig, url: string): string | null {
   const u = new URL(url, config.url);
   if (u.origin !== new URL(config.url).origin) return null;
-  return u.pathname === "/" ? u.href : u.href.replace(/\/+$/, "");
+  return u.pathname === "/" ? u.href : trimTrailingSlashes(u.href);
 }
 
 /** The site root — origin + path, with a conventional trailing slash. */
 function rootUrl(config: GraphewayConfig): string {
   const u = new URL(config.url);
-  return `${u.origin}${u.pathname.replace(/\/+$/, "")}/`;
+  return `${u.origin}${trimTrailingSlashes(u.pathname)}/`;
 }
 
 /** Generate `/sitemap.xml` for the site described by `config`. */

@@ -12,6 +12,7 @@
  */
 
 import type { GraphewayConfig } from "./types.ts";
+import { trimTrailingSlashes } from "./url.ts";
 
 export type GraphNodeType = "page" | "section" | "entity" | "concept" | "api";
 
@@ -94,17 +95,17 @@ export interface GraphBuildOptions {
 export const EMPTY_GRAPH: KnowledgeGraph = { nodes: [], edges: [] };
 
 function slugify(input: string): string {
-  return (
-    input
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "") || "section"
-  );
+  const slug = input.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  let start = 0;
+  let end = slug.length;
+  while (start < end && slug[start] === "-") start++;
+  while (end > start && slug[end - 1] === "-") end--;
+  return slug.slice(start, end) || "section";
 }
 
 /** Deterministic id for a section that has no URL of its own. */
 export function sectionId(config: GraphewayConfig, title: string, index: number): string {
-  return `${config.url.replace(/\/+$/, "")}#section-${slugify(title)}-${index}`;
+  return `${trimTrailingSlashes(config.url)}#section-${slugify(title)}-${index}`;
 }
 
 /**
@@ -113,7 +114,7 @@ export function sectionId(config: GraphewayConfig, title: string, index: number)
  * and the site root dedupe to the same node id.
  */
 export function resolveUrl(config: GraphewayConfig, url: string): string {
-  return new URL(url, config.url).href.replace(/\/+$/, "");
+  return trimTrailingSlashes(new URL(url, config.url).href);
 }
 
 /**

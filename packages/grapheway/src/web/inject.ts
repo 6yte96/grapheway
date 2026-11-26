@@ -12,8 +12,16 @@ import { renderJsonLdHtml, renderMetaTags, type GraphewayConfig } from "../core/
  */
 export function injectHead(html: string, config: GraphewayConfig): string {
   const tags = [renderMetaTags(config), renderJsonLdHtml(config)].join("\n");
-  if (/<head[^>]*>/i.test(html)) {
-    return html.replace(/<head[^>]*>/i, (m) => `${m}\n${tags}`);
+  const headStart = html.toLowerCase().indexOf("<head");
+  if (headStart >= 0) {
+    const after = html[headStart + 5] ?? "";
+    const isTagName = after === ">" || after === " " || after === "\t" || after === "\n" || after === "\r";
+    if (isTagName) {
+      const headEnd = html.indexOf(">", headStart + 5);
+      if (headEnd >= 0) {
+        return `${html.slice(0, headEnd + 1)}\n${tags}${html.slice(headEnd + 1)}`;
+      }
+    }
   }
   return `${tags}\n${html}`;
 }

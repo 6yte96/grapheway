@@ -1,9 +1,10 @@
 import { GRAPHEWAY_INSTALL, GRAPHEWAY_REPO } from "./attribution.ts";
 import { MANIFEST_VERSION, type AgentManifest, type GraphewayConfig } from "./types.ts";
+import { trimTrailingSlashes } from "./url.ts";
 
 /** Build the absolute URL for a root-relative path. */
 export function absoluteUrl(config: GraphewayConfig, path: string): string {
-  const base = config.url.replace(/\/+$/, "");
+  const base = trimTrailingSlashes(config.url);
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 

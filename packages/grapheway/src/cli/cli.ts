@@ -13,6 +13,7 @@ import {
   GRAPHEWAY_REPO,
   GRAPHEWAY_SITE,
   GRAPHEWAY_VERSION,
+  trimTrailingSlashes,
   type GraphewayConfig,
   type KnowledgeGraph,
 } from "../core/index.js";
@@ -280,7 +281,7 @@ async function main() {
         printGrowthFooter();
         break;
       }
-      if (!url.endsWith("/mcp")) url = url.replace(/\/+$/, "") + "/mcp";
+      if (!url.endsWith("/mcp")) url = trimTrailingSlashes(url) + "/mcp";
       console.log(`Paste this into Claude Desktop / Cursor / VS Code / Claude Code:\n`);
       console.log(mcpConfigJson(url));
       printGrowthFooter();
