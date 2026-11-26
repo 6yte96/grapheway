@@ -229,7 +229,7 @@ Use your own judgment for the environment and the project's existing conventions
       { number: "0", label: "Runtime Dependencies" },
       { number: "14", label: "Agent Routes" },
       { number: "6", label: "Subpath Exports" },
-      { number: "130", label: "Passing Tests" },
+      { number: "169", label: "Passing Tests" },
     ],
   },
   features: [

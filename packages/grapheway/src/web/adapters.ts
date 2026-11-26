@@ -9,11 +9,29 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { trimTrailingSlashes } from "../core/index.js";
 import type { AgentRequest, AgentResponse } from "./types.ts";
 
+/** Max body accepted by the Node adapter unless overridden. */
+const DEFAULT_MAX_BODY_BYTES = 1_048_576;
+
 /** node:http.createServer(handler). */
-export function toNodeHandler(agentHandler: (req: AgentRequest) => Promise<AgentResponse>) {
+export function toNodeHandler(
+  agentHandler: (req: AgentRequest) => Promise<AgentResponse>,
+  options: { maxBodyBytes?: number } = {},
+) {
+  const maxBodyBytes = options.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES;
   return async (req: IncomingMessage, res: ServerResponse) => {
     const chunks: Buffer[] = [];
-    for await (const chunk of req) chunks.push(chunk as Buffer);
+    let total = 0;
+    for await (const chunk of req) {
+      const buffer = chunk as Buffer;
+      total += buffer.length;
+      if (total > maxBodyBytes) {
+        res.statusCode = 413;
+        res.setHeader("content-type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({ error: `Request body exceeds ${maxBodyBytes} bytes` }));
+        return;
+      }
+      chunks.push(buffer);
+    }
     const rawBody = Buffer.concat(chunks).toString("utf-8");
 
     const isJson = (req.headers["content-type"] ?? "").includes("application/json");
@@ -139,6 +157,8 @@ export interface FetchAdapterOptions {
   pathHeader?: string;
   /** Strip this prefix from the path before the grapheway handler sees it. */
   prefix?: string;
+  /** Maximum accepted body size in bytes. Default 1 MiB. */
+  maxBodyBytes?: number;
 }
 
 /**
@@ -172,6 +192,7 @@ export function toFetchHandler(
 ) {
   const pathHeader = (options.pathHeader ?? "x-grapheway-path").toLowerCase();
   const prefix = trimTrailingSlashes(options.prefix ?? "");
+  const maxBodyBytes = options.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES;
 
   return async function graphewayFetchHandler(request: Request): Promise<Response> {
     const url = new URL(request.url);
@@ -182,6 +203,12 @@ export function toFetchHandler(
     let body: unknown;
     if (request.method !== "GET" && request.method !== "HEAD") {
       const raw = await request.text();
+      if (new TextEncoder().encode(raw).length > maxBodyBytes) {
+        return new Response(
+          JSON.stringify({ error: `Request body exceeds ${maxBodyBytes} bytes` }),
+          { status: 413, headers: { "content-type": "application/json; charset=utf-8" } },
+        );
+      }
       if (raw) body = contentType.includes("application/json") ? safeParse(raw) : raw;
     }
 

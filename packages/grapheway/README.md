@@ -128,6 +128,45 @@ npx -y grapheway@latest mcp --probe https://expressjs.com
 
 ---
 
+## Production controls
+
+The runtime is safe to mount as-is, and 0.3 adds the knobs a production
+site needs. All optional, all local to your process:
+
+```ts
+import { createGrapheway } from "grapheway/web";
+
+const agent = createGrapheway(config, {
+  // Gate every action. Return false, or a status and reason.
+  authorize: async (action, args, ctx) => {
+    if (action === "delete_page") {
+      return { allowed: false, status: 401, reason: "Sign in first" };
+    }
+    return true;
+  },
+  // In-process token bucket: 120 requests per minute per client key.
+  rateLimit: { windowMs: 60_000, max: 120 },
+  // Reject oversized bodies before parsing (Node and Fetch adapters).
+  maxBodyBytes: 256 * 1024,
+  // Stop runaway actions.
+  actionTimeoutMs: 5_000,
+  // Audit without storing anything.
+  onAction: (event) => console.log(event.action, event.status, event.durationMs),
+});
+```
+
+- Denied actions return 401 or 403. Timeouts return 504. Oversized
+  bodies return 413. The rate limiter returns 429 with `retry-after`.
+- MCP tool failures come back as `isError: true` results, not protocol
+  errors.
+- Nothing is logged or stored by default. `onAction` is the hook.
+
+Check any deployment against the protocol:
+
+```bash
+npm run conformance -- https://your-site.com
+```
+
 ## See the web as it is
 
 We audited 30 of the documentation sites AI assistants read most.

@@ -21,7 +21,8 @@
     "probe": "bun run packages/grapheway/src/cli/cli.ts probe",
     "audit": "bun run packages/grapheway/src/cli/cli.ts audit",
     "postinstall": "node scripts/link-local-cli.mjs",
-    "link:cli": "node scripts/link-local-cli.mjs"
+    "link:cli": "node scripts/link-local-cli.mjs",
+    "conformance": "node scripts/conformance.mjs"
   },
   "engines": {
     "bun": ">=1.0",

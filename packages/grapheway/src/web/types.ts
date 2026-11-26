@@ -44,6 +44,37 @@ export interface GraphewayContext {
   getPageMarkdown: (path: string) => Promise<string | null>;
 }
 
+/** Result of an authorization check. */
+export interface ActionDecision {
+  allowed: boolean;
+  /** HTTP status to use when denied. Defaults to 403. */
+  status?: number;
+  /** Human-readable reason returned to the caller. */
+  reason?: string;
+}
+
+/** Audit record emitted after every action call. */
+export interface ActionAuditEvent {
+  action: string;
+  ok: boolean;
+  status: number;
+  durationMs: number;
+  clientKey?: string;
+  error?: string;
+  readOnly?: boolean;
+  destructive?: boolean;
+}
+
+/** Rate limit settings for the whole surface. `false` disables it. */
+export interface RateLimitOptions {
+  /** Window length in milliseconds. Default 60000. */
+  windowMs?: number;
+  /** Max requests per key per window. Default 600. */
+  max?: number;
+  /** Derive the bucket key. Default: first `x-forwarded-for`, then `x-real-ip`, then `local`. */
+  key?: (req: AgentRequest) => string;
+}
+
 /** Extra knobs accepted by `createGrapheway`. */
 export interface GraphewayOptions {
   /**
@@ -64,6 +95,23 @@ export interface GraphewayOptions {
   /** Custom path prefix (default `/`). */
   prefix?: string;
   /**
+   * Gate every action call. Return `false` (or `{ allowed: false }`) to
+   * refuse. Throw to fail with a specific status. Runs before the handler.
+   */
+  authorize?: (
+    action: string,
+    args: Record<string, unknown>,
+    ctx: ActionCallContext,
+  ) => boolean | ActionDecision | Promise<boolean | ActionDecision>;
+  /** In-process rate limit for the whole surface. Default 600 req/min per key. */
+  rateLimit?: false | RateLimitOptions;
+  /** Maximum accepted body size in bytes. Default 1 MiB. */
+  maxBodyBytes?: number;
+  /** Action execution timeout in milliseconds. Default 10000. `0` disables. */
+  actionTimeoutMs?: number;
+  /** Audit hook called after every action. Nothing is stored by default. */
+  onAction?: (event: ActionAuditEvent) => void | Promise<void>;
+  /**
    * Graph build options: a full custom `builder` (total control) and/or
    * `extra` nodes/edges merged into the config projection (semantic layer).
    */
@@ -80,4 +128,6 @@ export interface ActionCallContext {
   fetchPage: (url: string) => Promise<string>;
   /** Origin of the request, e.g. `https://example.com`. */
   origin: string;
+  /** Bucket key for rate limiting and audit records (IP or custom). */
+  clientKey?: string;
 }

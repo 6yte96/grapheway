@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grapheway.dev/schemas/discovery.json",
+  "title": "Grapheway discovery document",
+  "type": "object",
+  "required": ["protocol", "version", "name", "url", "capabilities", "graph", "endpoints"],
+  "properties": {
+    "protocol": { "const": "grapheway" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+" },
+    "name": { "type": "string", "minLength": 1 },
+    "url": { "type": "string", "format": "uri" },
+    "tagline": { "type": "string" },
+    "summary": { "type": "string" },
+    "contact": { "type": "object" },
+    "capabilities": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "graph": {
+      "type": "object",
+      "required": ["nodes", "edges", "nodeTypes", "edgeTypes"],
+      "properties": {
+        "nodes": { "type": "integer", "minimum": 0 },
+        "edges": { "type": "integer", "minimum": 0 },
+        "nodeTypes": { "type": "array", "items": { "type": "string" } },
+        "edgeTypes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "required": ["manifest", "graph", "mcp", "actions"],
+      "properties": {
+        "manifest": { "type": "string" },
+        "graph": { "type": "string" },
+        "mcp": { "type": "string" },
+        "actions": { "type": "string" }
+      }
+    },
+    "auth": { "type": "string", "enum": ["open", "custom"] }
+  }
+}
