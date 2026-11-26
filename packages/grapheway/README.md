@@ -9,7 +9,6 @@
 [![MCP Registry](https://img.shields.io/badge/MCP%20Registry-listed-0b0e15)](https://registry.modelcontextprotocol.io/?q=grapheway)
 [![Security policy](https://img.shields.io/badge/security-policy-0b0e15)](https://github.com/6yte96/grapheway/blob/main/SECURITY.md)
 [![CodeQL](https://github.com/6yte96/grapheway/actions/workflows/codeql.yml/badge.svg)](https://github.com/6yte96/grapheway/actions/workflows/codeql.yml)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/6yte96/grapheway/badge)](https://securityscorecards.dev/viewer/?uri=github.com/6yte96/grapheway)
 [![6yte96/grapheway MCP server](https://glama.ai/mcp/servers/6yte96/grapheway/badges/score.svg)](https://glama.ai/mcp/servers/6yte96/grapheway)
 
 **Current release:** [`v0.2.8`](https://github.com/6yte96/grapheway/releases/tag/v0.2.8) · [npm](https://www.npmjs.com/package/grapheway) · [version.json](https://6yte96.github.io/grapheway/version.json) · [changelog](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md)
@@ -57,7 +56,7 @@ That is slow, expensive and easy to get wrong. Grapheway flips it: **the site pu
 - Zero runtime dependencies. No API keys. No telemetry.
 - MCP tools declare explicit read-only, destructive, idempotent and open-world hints.
 - Security policy: [SECURITY.md](https://github.com/6yte96/grapheway/blob/main/SECURITY.md)
-- Static analysis: CodeQL and OpenSSF Scorecard run in GitHub Actions.
+- Static analysis: CodeQL runs in GitHub Actions.
 
 The current M8ven listing is a public third-party assessment, not a vendor claim.
 If you find a security issue, report it privately through the security policy.
