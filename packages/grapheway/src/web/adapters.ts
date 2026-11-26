@@ -6,6 +6,7 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { trimTrailingSlashes } from "../core/index.js";
 import type { AgentRequest, AgentResponse } from "./types.ts";
 
 /** node:http.createServer(handler). */
@@ -170,7 +171,7 @@ export function toFetchHandler(
   options: FetchAdapterOptions = {},
 ) {
   const pathHeader = (options.pathHeader ?? "x-grapheway-path").toLowerCase();
-  const prefix = (options.prefix ?? "").replace(/\/+$/, "");
+  const prefix = trimTrailingSlashes(options.prefix ?? "");
 
   return async function graphewayFetchHandler(request: Request): Promise<Response> {
     const url = new URL(request.url);

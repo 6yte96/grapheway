@@ -11,6 +11,7 @@
 
 import {
   GRAPHEWAY_VERSION,
+  trimTrailingSlashes,
   type AgentManifest,
   type GraphewayConfig,
   type DiscoveryDoc,
@@ -33,7 +34,7 @@ export class GraphewayClient {
   private _manifest?: AgentManifest;
 
   constructor(baseUrl: string) {
-    this.origin = baseUrl.replace(/\/+$/, "");
+    this.origin = trimTrailingSlashes(baseUrl);
   }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T>;

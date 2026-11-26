@@ -23,6 +23,7 @@ import {
   GRAPHEWAY_REPO,
   type GraphewayConfig,
   type KnowledgeGraph,
+  trimTrailingSlashes,
 } from "../core/index.js";
 import { compatHandler } from "../compat/index.js";
 import { createGrapheway, toNodeHandler } from "../web/index.js";
@@ -125,7 +126,7 @@ export async function runGateway(flags: GatewayFlags): Promise<GatewayHandle> {
   let refreshTimer: ReturnType<typeof setInterval> | undefined;
 
   if (probeUrl) {
-    const origin = probeUrl.replace(/\/+$/, "");
+    const origin = trimTrailingSlashes(probeUrl);
     const result = await probeSite(origin, { maxDepth: flags.depth, maxPages: flags.maxPages });
     console.log("\n" + summarizeProbe(result) + "\n");
     const holder = createProbeAgent(origin, result);

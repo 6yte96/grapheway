@@ -6,7 +6,7 @@
 import { rm, readFile, writeFile, copyFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = join(__dirname, "..", "packages", "grapheway");
@@ -57,8 +57,9 @@ async function main() {
     const entryFile = join(pkg, entry);
     const outDir = join(pkg, outdir);
     try {
-      execSync(
-        `npx tsc --project ${tsconfig} --declaration --emitDeclarationOnly --outDir ${outDir} ${entryFile}`,
+      execFileSync(
+        "npx",
+        ["tsc", "--project", tsconfig, "--declaration", "--emitDeclarationOnly", "--outDir", outDir, entryFile],
         { stdio: "pipe", cwd: pkg }
       );
     } catch {

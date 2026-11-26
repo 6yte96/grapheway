@@ -36,6 +36,7 @@ import {
   type GraphEdgeType,
   type GraphPatch,
   type KnowledgeGraph,
+  trimTrailingSlashes,
 } from "../core/index.js";
 import { createActionRunner } from "./actions.ts";
 import { VIEWER_HTML } from "./viewer.ts";
@@ -121,7 +122,7 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
     return () => graphListeners.delete(listener);
   };
 
-  const prefix = (options.prefix ?? "/").replace(/\/+$/, "");
+  const prefix = trimTrailingSlashes(options.prefix ?? "/");
 
   const getPageMarkdown = async (path: string): Promise<string | null> =>
     options.getPageMarkdown ? await options.getPageMarkdown(path) : null;

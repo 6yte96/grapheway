@@ -6,6 +6,7 @@
 
 import { GRAPHEWAY_VERSION, type GraphewayConfig } from "./types.ts";
 import { buildManifest } from "./manifest.ts";
+import { trimTrailingSlashes } from "./url.ts";
 import type { KnowledgeGraph } from "./graph.ts";
 
 export interface DiscoveryDoc {
@@ -41,7 +42,7 @@ export interface DiscoveryDoc {
 /** Build the discovery document for a site + its graph. */
 export function buildDiscovery(config: GraphewayConfig, graph: KnowledgeGraph): DiscoveryDoc {
   const m = buildManifest(config);
-  const base = config.url.replace(/\/+$/, "");
+  const base = trimTrailingSlashes(config.url);
   return {
     protocol: "grapheway",
     version: GRAPHEWAY_VERSION,

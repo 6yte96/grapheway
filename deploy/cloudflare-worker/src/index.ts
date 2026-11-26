@@ -279,11 +279,13 @@ export default {
           "x-grapheway-target": target,
         });
       } catch (err) {
+        // Log details, return a generic message: raw errors can leak internals.
+        console.error("grapheway: MCP request failed", err);
         return json(
           {
             jsonrpc: "2.0",
             id: (body as { id?: unknown } | null)?.id ?? null,
-            error: { code: -32603, message: err instanceof Error ? err.message : String(err) },
+            error: { code: -32603, message: "Internal error" },
           },
           500,
           { "x-grapheway-target": target },
