@@ -192,17 +192,30 @@ export async function handleMcpMessage(
         if (!isKnownTool(deps, name)) {
           return rpcError(id, -32602, `Unknown tool: ${name}`);
         }
-        const result = await deps.runAction(name, args);
-        return rpcResult(id, {
-          content: [
-            {
-              type: "text",
-              text:
-                typeof result === "string" ? result : JSON.stringify(result, null, 2),
-            },
-          ],
-          isError: false,
-        });
+        try {
+          const result = await deps.runAction(name, args);
+          return rpcResult(id, {
+            content: [
+              {
+                type: "text",
+                text:
+                  typeof result === "string" ? result : JSON.stringify(result, null, 2),
+              },
+            ],
+            isError: false,
+          });
+        } catch (err) {
+          // Tool failures belong in the result, not in a protocol error.
+          return rpcResult(id, {
+            content: [
+              {
+                type: "text",
+                text: err instanceof Error ? err.message : String(err),
+              },
+            ],
+            isError: true,
+          });
+        }
       }
       case "resources/list":
         return rpcResult(id, {

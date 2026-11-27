@@ -11,7 +11,7 @@
 [![CodeQL](https://github.com/6yte96/grapheway/actions/workflows/codeql.yml/badge.svg)](https://github.com/6yte96/grapheway/actions/workflows/codeql.yml)
 [![6yte96/grapheway MCP server](https://glama.ai/mcp/servers/6yte96/grapheway/badges/score.svg)](https://glama.ai/mcp/servers/6yte96/grapheway)
 
-**Current release:** [`v0.2.9`](https://github.com/6yte96/grapheway/releases/tag/v0.2.9) · [npm](https://www.npmjs.com/package/grapheway) · [version.json](https://6yte96.github.io/grapheway/version.json) · [changelog](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md)
+**Current release:** [`v0.3.0`](https://github.com/6yte96/grapheway/releases/tag/v0.3.0) · [npm](https://www.npmjs.com/package/grapheway) · [version.json](https://6yte96.github.io/grapheway/version.json) · [changelog](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md)
 
 Grapheway is an open, free way for a website to describe itself to AI agents.
 
@@ -128,6 +128,48 @@ npx -y grapheway@latest mcp --probe https://expressjs.com
 
 ---
 
+## Production controls
+
+The runtime is safe to mount as-is, and 0.3 adds the knobs a production
+site needs. All optional, all local to your process:
+
+```ts
+import { createGrapheway } from "grapheway/web";
+
+const agent = createGrapheway(config, {
+  // Gate every action. Return false, or a status and reason.
+  authorize: async (action, args, ctx) => {
+    if (action === "delete_page") {
+      return { allowed: false, status: 401, reason: "Sign in first" };
+    }
+    return true;
+  },
+  // In-process token bucket: 120 requests per minute per client key.
+  rateLimit: { windowMs: 60_000, max: 120 },
+  // Reject oversized bodies before parsing (Node and Fetch adapters).
+  maxBodyBytes: 256 * 1024,
+  // Stop runaway actions.
+  actionTimeoutMs: 5_000,
+  // Refuse work beyond this many concurrent actions.
+  maxConcurrentActions: 4,
+  // Audit without storing anything.
+  onAction: (event) => console.log(event.action, event.status, event.durationMs),
+});
+```
+
+- Denied actions return 401 or 403. Timeouts return 504. Oversized
+  bodies return 413. The rate limiter returns 429 with `retry-after`, and
+  the concurrency cap returns 503.
+- MCP tool failures come back as `isError: true` results, not protocol
+  errors.
+- Nothing is logged or stored by default. `onAction` is the hook.
+
+Check any deployment against the protocol:
+
+```bash
+npm run conformance -- https://your-site.com
+```
+
 ## See the web as it is
 
 We audited 30 of the documentation sites AI assistants read most.
@@ -196,7 +238,7 @@ No. There is no telemetry. The adoption index is self-submitted and only checks 
 The runtime is yours to control, and actions are opt-in. The hosted demo rejects private addresses, respects `robots.txt`, caps the number of pages and rate-limits requests.
 
 **Is it ready for production?**
-It is beta (`v0.2.9`). The core is small, tested and dependency-free. Read the [technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md) before a large rollout.
+It is beta (`v0.3.0`). The core is small, tested and dependency-free. Read the [technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md) before a large rollout.
 
 ---
 
@@ -206,6 +248,8 @@ It is beta (`v0.2.9`). The core is small, tested and dependency-free. Read the [
 - [Writing](https://6yte96.github.io/grapheway/blog/)
 - [Agent setup prompt](https://6yte96.github.io/grapheway/setup/)
 - [Technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md)
+- [Protocol spec (0.3 draft)](https://github.com/6yte96/grapheway/blob/main/docs/spec/README.md)
+- [Migration guide](https://github.com/6yte96/grapheway/blob/main/docs/migration.md)
 - [White paper](https://github.com/6yte96/grapheway/blob/main/docs/whitepaper.md)
 - [Live adoption index](https://6yte96.github.io/grapheway/adopters/)
 - [Agent Readiness Index](https://6yte96.github.io/grapheway/readiness/)

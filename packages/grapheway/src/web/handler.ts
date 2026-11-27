@@ -38,7 +38,7 @@ import {
   type KnowledgeGraph,
   trimTrailingSlashes,
 } from "../core/index.js";
-import { createActionRunner } from "./actions.ts";
+import { ActionError, createActionRunner } from "./actions.ts";
 import { VIEWER_HTML } from "./viewer.ts";
 import {
   buildSseStream,
@@ -74,6 +74,33 @@ function json(status: number, data: unknown, extra: Record<string, string> = {})
 
 function text(status: number, body: string, extra: Record<string, string> = {}): AgentResponse {
   return respond(status, body, "text/plain; charset=utf-8", extra);
+}
+
+function headerValue(
+  headers: Record<string, string | string[] | undefined>,
+  name: string,
+): string | undefined {
+  const raw = headers[name] ?? headers[name.toLowerCase()];
+  return Array.isArray(raw) ? raw[0] : raw;
+}
+
+/** Default rate-limit bucket: first proxy hop, real IP, or a shared local key. */
+function defaultClientKey(req: AgentRequest): string {
+  const forwarded = headerValue(req.headers, "x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0]!.trim();
+  return headerValue(req.headers, "x-real-ip") ?? "local";
+}
+
+/** Declared content-length when present, otherwise the serialized body size. */
+function requestBodyBytes(req: AgentRequest): number {
+  const declared = headerValue(req.headers, "content-length");
+  if (declared) {
+    const parsed = Number(declared);
+    if (Number.isFinite(parsed) && parsed >= 0) return parsed;
+  }
+  if (req.body === undefined || req.body === null) return 0;
+  const text = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+  return new TextEncoder().encode(text).length;
 }
 
 /** Format one SSE event (event name + JSON data). */
@@ -123,6 +150,33 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
   };
 
   const prefix = trimTrailingSlashes(options.prefix ?? "/");
+  const maxBodyBytes = options.maxBodyBytes ?? 1_048_576;
+  const rateLimit = options.rateLimit === false
+    ? null
+    : {
+        windowMs: options.rateLimit?.windowMs ?? 60_000,
+        max: options.rateLimit?.max ?? 600,
+        key: options.rateLimit?.key,
+      };
+  const rateBuckets = new Map<string, { count: number; reset: number }>();
+
+  const consumeRateLimit = (key: string): { retryAfter: number } | null => {
+    if (!rateLimit) return null;
+    const now = Date.now();
+    if (rateBuckets.size > 10_000) {
+      for (const [bucketKey, bucket] of rateBuckets) {
+        if (bucket.reset <= now) rateBuckets.delete(bucketKey);
+      }
+    }
+    const bucket = rateBuckets.get(key);
+    if (!bucket || bucket.reset <= now) {
+      rateBuckets.set(key, { count: 1, reset: now + rateLimit.windowMs });
+      return null;
+    }
+    bucket.count += 1;
+    if (bucket.count <= rateLimit.max) return null;
+    return { retryAfter: Math.max(1, Math.ceil((bucket.reset - now) / 1000)) };
+  };
 
   const getPageMarkdown = async (path: string): Promise<string | null> =>
     options.getPageMarkdown ? await options.getPageMarkdown(path) : null;
@@ -301,7 +355,12 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
     // ---- Discovery ----
     {
       match: (p) => p === "/.well-known/agent",
-      handler: () => json(200, buildDiscovery(config, liveGraph)),
+      handler: () =>
+        json(200, {
+          ...buildDiscovery(config, liveGraph),
+          // `custom` means an authorize hook gates at least some actions.
+          auth: options.authorize ? "custom" : "open",
+        }),
     },
 
     // ---- Manifest + actions (runtime) ----
@@ -323,16 +382,17 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
     },
     {
       match: (p, m) => p === "/agent/action" && m === "POST",
-      handler: async (req) => {
+      handler: async (req, ctx) => {
         const body = (req.body ?? {}) as Record<string, unknown>;
         const name = String(body.name ?? body.action ?? "");
         const args = (body.arguments ?? body.args ?? {}) as Record<string, unknown>;
         if (!name) return json(400, { error: "Missing action `name`." });
         try {
-          const result = await runner.runAction(name, args);
+          const result = await ctx.runAction(name, args);
           return json(200, { action: name, ok: true, result });
         } catch (err) {
-          return json(400, {
+          const status = err instanceof ActionError ? err.status : 400;
+          return json(status, {
             action: name,
             ok: false,
             error: err instanceof Error ? err.message : String(err),
@@ -360,12 +420,19 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         }
         const session = sessionIdFor(req);
         const raw = parseMcpBody(req.body);
+        let mcpPath = "/mcp";
+        try {
+          mcpPath = new URL(req.url, "http://localhost").pathname;
+        } catch {
+          // keep the default
+        }
+        const mcpClientKey = rateLimit?.key ? rateLimit.key(req) : defaultClientKey(req);
         if (isNotification(raw)) {
           return respond(202, "", "text/plain", { "mcp-session-id": session.id });
         }
         const response = await handleMcpMessage(raw, {
           manifest,
-          runAction: runner.runAction,
+          runAction: (name, args) => runner.runAction(name, args, { path: mcpPath, clientKey: mcpClientKey }),
           additionalTools,
           graph: liveGraph,
           readNode,
@@ -417,6 +484,24 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
         return { status: 204, headers: CORS_HEADERS, body: "", contentType: "text/plain" };
       }
 
+      const clientKey = rateLimit?.key ? rateLimit.key(req) : defaultClientKey(req);
+      const limited = consumeRateLimit(clientKey);
+      if (limited) {
+        return json(
+          429,
+          { error: "Rate limit exceeded", retryAfter: limited.retryAfter },
+          { "retry-after": String(limited.retryAfter) },
+        );
+      }
+
+      const bodyBytes = requestBodyBytes(req);
+      if (bodyBytes > maxBodyBytes) {
+        return json(413, {
+          error: `Request body exceeds ${maxBodyBytes} bytes`,
+          limit: maxBodyBytes,
+        });
+      }
+
       let path: string;
       try {
         path = new URL(req.url, "http://localhost").pathname;
@@ -433,7 +518,8 @@ export function createGrapheway(config: GraphewayConfig, options: GraphewayOptio
           const res = await route.handler(req, {
             manifest,
             config,
-            runAction: runner.runAction,
+            runAction: (name, args) =>
+              runner.runAction(name, args, { path: clean, clientKey }),
             getPageMarkdown,
           });
           return res;

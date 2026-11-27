@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grapheway.dev/schemas/manifest.json",
+  "title": "Grapheway manifest",
+  "type": "object",
+  "required": ["version", "generatedAt", "site", "endpoints", "sections", "actions", "capabilities"],
+  "properties": {
+    "version": { "type": "string" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "site": {
+      "type": "object",
+      "required": ["name", "url"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "format": "uri" },
+        "tagline": { "type": "string" },
+        "summary": { "type": "string" },
+        "contact": { "type": "object" }
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "required": ["manifest", "info", "sections", "actions", "action", "mcp"],
+      "additionalProperties": { "type": "string" }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["title", "url"],
+              "properties": {
+                "title": { "type": "string" },
+                "url": { "type": "string" },
+                "notes": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "description": { "type": "string" },
+          "inputSchema": { "type": "object" },
+          "annotations": {
+            "type": "object",
+            "properties": {
+              "readOnlyHint": { "type": "boolean" },
+              "destructiveHint": { "type": "boolean" },
+              "idempotentHint": { "type": "boolean" },
+              "openWorldHint": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "geo": { "type": "object" }
+  }
+}

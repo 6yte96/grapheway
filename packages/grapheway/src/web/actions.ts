@@ -8,7 +8,43 @@
 
 import { GRAPHEWAY_VERSION, type AgentManifest } from "../core/index.js";
 import { htmlToMarkdown } from "./html.ts";
-import type { ActionCallContext, GraphewayOptions } from "./types.ts";
+import type { ActionCallContext, ActionDecision, GraphewayOptions } from "./types.ts";
+
+/** An action failure with an HTTP status the adapters can surface. */
+export class ActionError extends Error {
+  readonly status: number;
+  constructor(message: string, status = 400) {
+    super(message);
+    this.name = "ActionError";
+    this.status = status;
+  }
+}
+
+/** Per-call caller metadata: request path, bucket key and headers. */
+export interface ActionCaller {
+  path?: string;
+  clientKey?: string;
+  headers?: Record<string, string | string[] | undefined>;
+}
+
+function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
+  if (!Number.isFinite(ms) || ms <= 0) return work;
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new ActionError(`Action timed out after ${ms}ms`, 504));
+    }, ms);
+    work.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
+}
 
 export interface ActionRunnerDeps {
   manifest: AgentManifest;
@@ -111,16 +147,80 @@ export function createActionRunner(deps: ActionRunnerDeps) {
     },
   };
 
+  const invoke = async (name: string, args: Record<string, unknown>): Promise<unknown> => {
+    const custom = options.actions?.[name];
+    if (custom) return custom(args, ctx);
+    const fn = builtins[name];
+    if (!fn) {
+      const available = [...Object.keys(builtins), ...Object.keys(options.actions ?? {})];
+      throw new ActionError(`Unknown action "${name}". Available: ${available.join(", ")}`, 400);
+    }
+    return fn(args);
+  };
+
+  const maxConcurrent = options.maxConcurrentActions ?? 0;
+  let activeActions = 0;
+
   return {
-    async runAction(name: string, args: Record<string, unknown>): Promise<unknown> {
-      const custom = options.actions?.[name];
-      if (custom) return custom(args, ctx);
-      const fn = builtins[name];
-      if (!fn) {
-        const available = [...Object.keys(builtins), ...Object.keys(options.actions ?? {})];
-        throw new Error(`Unknown action "${name}". Available: ${available.join(", ")}`);
+    async runAction(
+      name: string,
+      args: Record<string, unknown>,
+      caller: ActionCaller = {},
+    ): Promise<unknown> {
+      let acquired = false;
+      const annotations = manifest.actions.find((a) => a.name === name)?.annotations;
+      const callCtx: ActionCallContext = {
+        ...ctx,
+        path: caller.path ?? ctx.path,
+        ...(caller.clientKey ? { clientKey: caller.clientKey } : {}),
+      };
+      const started = Date.now();
+
+      const audit = (ok: boolean, status: number, error?: string): void => {
+        if (!options.onAction) return;
+        try {
+          const event = {
+            action: name,
+            ok,
+            status,
+            durationMs: Date.now() - started,
+            ...(caller.clientKey ? { clientKey: caller.clientKey } : {}),
+            ...(error ? { error } : {}),
+            ...(annotations?.readOnlyHint !== undefined ? { readOnly: annotations.readOnlyHint } : {}),
+            ...(annotations?.destructiveHint !== undefined ? { destructive: annotations.destructiveHint } : {}),
+          };
+          void options.onAction(event);
+        } catch {
+          // An audit hook must never break the request.
+        }
+      };
+
+      try {
+        if (options.authorize) {
+          const decision = await options.authorize(name, args, callCtx);
+          const allowed = typeof decision === "boolean" ? decision : decision.allowed;
+          if (!allowed) {
+            const deny = typeof decision === "object" ? decision : undefined;
+            throw new ActionError(deny?.reason ?? `Action not allowed: ${name}`, deny?.status ?? 403);
+          }
+        }
+        if (maxConcurrent > 0) {
+          if (activeActions >= maxConcurrent) {
+            throw new ActionError(`Server busy: ${maxConcurrent} actions already running`, 503);
+          }
+          activeActions += 1;
+          acquired = true;
+        }
+        const result = await withTimeout(invoke(name, args), options.actionTimeoutMs ?? 10_000);
+        audit(true, 200);
+        return result;
+      } catch (err) {
+        const status = err instanceof ActionError ? err.status : 500;
+        audit(false, status, err instanceof Error ? err.message : String(err));
+        throw err;
+      } finally {
+        if (acquired) activeActions -= 1;
       }
-      return fn(args);
     },
     ctx,
   };

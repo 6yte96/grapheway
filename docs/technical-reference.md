@@ -10,7 +10,7 @@
 
 > Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Your site opens its own door.
 
-**Status:** Beta (v0.2.9) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
+**Status:** Beta (v0.3.0) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
 
 **Start in 60 seconds**
 
@@ -267,6 +267,50 @@ curl -X POST https://acme.example/agent/action \
 ```json
 { "action": "check_device_status", "ok": true, "result": { "serial": "WB-0001", "status": "online" } }
 ```
+
+### Production controls
+
+`createGrapheway` accepts controls that apply to the HTTP surface and to MCP:
+
+```ts
+createGrapheway(config, {
+  authorize: async (action, args, ctx) => {
+    if (action === "delete_page") return { allowed: false, status: 401, reason: "Sign in" };
+    return true;
+  },
+  rateLimit: { windowMs: 60_000, max: 120 },
+  maxBodyBytes: 256 * 1024,
+  actionTimeoutMs: 5_000,
+  maxConcurrentActions: 4,
+  onAction: (event) => auditLog.write(event),
+});
+```
+
+| Option | Default | Effect |
+| --- | --- | --- |
+| `authorize` | none | Runs before every action. Return `false`, a decision object or throw. |
+| `rateLimit` | 600 req/min per key | In-process token bucket. Pass `false` to disable. |
+| `maxBodyBytes` | 1 MiB | Node and Fetch adapters reject larger bodies with 413. |
+| `actionTimeoutMs` | 10 s | Overruns return 504. `0` disables. |
+| `maxConcurrentActions` | 0 (unlimited) | Over-limit calls return 503 immediately. |
+| `onAction` | none | Audit hook with action, status, duration, client key and annotations. |
+
+The rate limit key is the first `x-forwarded-for` hop, then `x-real-ip`,
+then `local`. Override it with `rateLimit.key`. Discovery reports
+`auth: "custom"` when an `authorize` hook is installed, otherwise `open`.
+
+Action failures map to HTTP status codes: 400 for unknown actions or handler
+errors, 401/403 for denials, 504 for timeouts and 503 for the concurrency cap. Over MCP the same failure is a
+tool result with `isError: true`.
+
+Conformance:
+
+```bash
+npm run conformance -- https://your-site.com
+```
+
+The script checks discovery, manifest, graph, search, MCP initialize,
+`tools/list` with annotations, and one built-in action.
 
 ---
 
