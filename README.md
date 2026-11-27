@@ -11,7 +11,7 @@
 [![CodeQL](https://github.com/6yte96/grapheway/actions/workflows/codeql.yml/badge.svg)](https://github.com/6yte96/grapheway/actions/workflows/codeql.yml)
 [![6yte96/grapheway MCP server](https://glama.ai/mcp/servers/6yte96/grapheway/badges/score.svg)](https://glama.ai/mcp/servers/6yte96/grapheway)
 
-**Current release:** [`v0.2.9`](https://github.com/6yte96/grapheway/releases/tag/v0.2.9) · [npm](https://www.npmjs.com/package/grapheway) · [version.json](https://6yte96.github.io/grapheway/version.json) · [changelog](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md)
+**Current release:** [`v0.3.0`](https://github.com/6yte96/grapheway/releases/tag/v0.3.0) · [npm](https://www.npmjs.com/package/grapheway) · [version.json](https://6yte96.github.io/grapheway/version.json) · [changelog](https://github.com/6yte96/grapheway/blob/main/CHANGELOG.md)
 
 Grapheway is an open, free way for a website to describe itself to AI agents.
 
@@ -238,7 +238,7 @@ No. There is no telemetry. The adoption index is self-submitted and only checks 
 The runtime is yours to control, and actions are opt-in. The hosted demo rejects private addresses, respects `robots.txt`, caps the number of pages and rate-limits requests.
 
 **Is it ready for production?**
-It is beta (`v0.2.9`). The core is small, tested and dependency-free. Read the [technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md) before a large rollout.
+It is beta (`v0.3.0`). The core is small, tested and dependency-free. Read the [technical reference](https://github.com/6yte96/grapheway/blob/main/docs/technical-reference.md) before a large rollout.
 
 ---
 

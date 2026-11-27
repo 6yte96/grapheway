@@ -12,6 +12,23 @@ export const metadata = pageMetadata({
 
 const releases = [
   {
+    version: "v0.3.0",
+    date: "November 27, 2026",
+    title: "Production controls and a protocol spec",
+    tag: "PRODUCTION",
+    summary:
+      "Actions can be authorized, rate limited, time limited and audited, graphs can be saved and reloaded, and the protocol now ships a spec and a conformance suite.",
+    points: [
+      "authorize hook for actions, with 401 and 403 responses.",
+      "Rate limiting, body size caps, action timeouts and a concurrency cap.",
+      "onAction audit hook. Nothing is stored by default.",
+      "Graph persistence: serializeGraph, parseGraph and gateway --save.",
+      "Protocol spec draft, JSON Schemas and npm run conformance.",
+      "CLI --version and a migration guide.",
+    ],
+    href: "https://github.com/6yte96/grapheway/releases/tag/v0.3.0",
+  },
+  {
     version: "v0.2.9",
     date: "November 26, 2026",
     title: "MCP annotations and trust surface",

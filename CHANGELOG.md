@@ -5,6 +5,40 @@ All notable changes to Grapheway will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-11-27
+
+Production controls, persistence, a protocol spec and a conformance suite.
+
+### Added
+- `authorize(action, args, ctx)` hook, called before every action. Returns a
+  boolean or `{ allowed, status, reason }`. Denials return 401 or 403.
+- In-process rate limiting. Default 600 requests per minute per client key,
+  429 with `retry-after`, and `rateLimit: false` to disable.
+- `maxBodyBytes`, default 1 MiB. The Node and Fetch adapters return 413
+  before parsing, and the handler checks declared `content-length`.
+- `actionTimeoutMs`, default 10 seconds. Overruns return 504.
+- `maxConcurrentActions`, default unlimited. Over-limit calls return 503
+  without queueing.
+- `onAction` audit hook with action, outcome, status, duration, client key
+  and MCP annotations. Grapheway stores nothing.
+- Graph persistence: `serializeGraph`, `parseGraph`, `parseStoredGraph`, and
+  `grapheway gateway --probe <url> --save <file>`.
+- Protocol spec draft in `docs/spec`, with JSON Schemas for discovery,
+  manifest and graph.
+- Migration guide: 0.2.x upgrade, `llms.txt` mapping, framework matrix.
+- Conformance suite: `npm run conformance -- <base-url>` checks discovery,
+  manifest, graph, search, MCP and actions.
+- CLI `--version`, `-v` and `version`.
+
+### Changed
+- MCP tool failures return `isError: true` results instead of JSON-RPC
+  errors.
+- Discovery reports `auth: "custom"` when an `authorize` hook is installed.
+- `gateway --graph <file>` validates the file with clear errors.
+- Test count: 170 tests, 491 assertions.
+
+No breaking changes.
+
 ## [0.2.9] - 2026-11-26
 
 Trust and directory release.

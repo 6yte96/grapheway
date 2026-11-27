@@ -26,7 +26,7 @@ body:
     id: version
     attributes:
       label: Version
-      placeholder: grapheway 0.2.9, Node 22, Linux
+      placeholder: grapheway 0.3.0, Node 22, Linux
 
   - type: textarea
     id: logs

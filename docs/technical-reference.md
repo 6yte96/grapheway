@@ -10,7 +10,7 @@
 
 > Open protocol for AI agents to discover, traverse, and act on website content as a live knowledge graph — no scraping, no fees. Your site opens its own door.
 
-**Status:** Beta (v0.2.9) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
+**Status:** Beta (v0.3.0) | **Docs:** [6yte96.github.io/grapheway](https://6yte96.github.io/grapheway/) | **npm:** [grapheway](https://www.npmjs.com/package/grapheway) | **Live index:** [agent-ready sites](https://6yte96.github.io/grapheway/adopters/)
 
 **Start in 60 seconds**
 
