@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-23T17:55:17.149Z",
+  "updatedAt": "2026-11-28T13:03:45.346Z",
   "total": 2,
   "sites": [
     {
@@ -9,7 +9,7 @@
       "status": "verified",
       "addedAt": "2026-11-23",
       "note": "The project landing page, serving generated agent files.",
-      "lastChecked": "2026-11-23T17:55:17.149Z",
+      "lastChecked": "2026-11-28T13:03:45.346Z",
       "verified": true,
       "detail": "agent card found"
     },
